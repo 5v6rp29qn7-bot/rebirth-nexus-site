@@ -533,6 +533,7 @@ a { color: inherit; text-decoration: none; }
     margin: 60px auto 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 0;
 }
 .pillars-center {
@@ -543,18 +544,7 @@ a { color: inherit; text-decoration: none; }
     text-align: center;
     width: 100%;
     max-width: 100%;
-    margin: 0 auto 0;
     position: relative;
-}
-.pillars-center::after {
-    content: '';
-    position: absolute;
-    bottom: -32px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 1px;
-    height: 32px;
-    background: var(--accent);
 }
 .pillars-center h3 {
     font-size: 1.3rem;
@@ -577,19 +567,26 @@ a { color: inherit; text-decoration: none; }
     color: var(--text-muted);
     font-size: 0.95rem;
 }
+/* Connector from center to grid */
+.pillars-connector {
+    width: 1px;
+    height: 40px;
+    background: var(--accent);
+}
 .pillars-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 16px;
-    margin-top: 32px;
+    width: 100%;
     position: relative;
 }
+/* Horizontal line above pillars */
 .pillars-grid::before {
     content: '';
     position: absolute;
     top: 0;
-    left: 10%;
-    right: 10%;
+    left: calc(10% + 8px);
+    right: calc(10% + 8px);
     height: 1px;
     background: var(--accent);
 }
@@ -598,9 +595,11 @@ a { color: inherit; text-decoration: none; }
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 24px 16px;
+    padding-top: 32px;
     text-align: center;
     position: relative;
 }
+/* Vertical line from horizontal to each card */
 .pillar-card::before {
     content: '';
     position: absolute;
@@ -613,7 +612,7 @@ a { color: inherit; text-decoration: none; }
 }
 .pillar-num {
     position: absolute;
-    top: -10px;
+    top: 8px;
     left: 50%;
     transform: translateX(-50%);
     width: 20px;
@@ -946,17 +945,16 @@ footer {
         flex-direction: row; 
         gap: 6px;
         padding-bottom: 8px;
-        min-width: max-content;
     }
     .trigger-btn { 
-        min-width: 115px; 
         flex-shrink: 0;
-        padding: 10px 12px;
+        padding: 8px 10px;
+        white-space: nowrap;
     }
-    .trigger-title { font-size: 0.85rem; }
-    .trigger-icon { font-size: 0.9rem; margin-right: 4px; }
-    .trigger-context { font-size: 0.7rem; }
-    .scroll-hint { display: block; font-size: 0.9rem; margin-top: 8px; }
+    .trigger-title { font-size: 0.75rem; display: flex; align-items: center; }
+    .trigger-icon { font-size: 0.8rem; margin-right: 3px; }
+    .trigger-context { font-size: 0.65rem; }
+    .scroll-hint { display: block; font-size: 0.85rem; margin-top: 6px; }
     .results-panel {
         padding: 20px 16px;
         margin: 0 -24px;
@@ -991,17 +989,18 @@ footer {
         padding: 20px 16px; 
         margin-bottom: 0;
     }
-    .pillars-center::after { display: none; }
+    .pillars-connector { display: none; }
     .pillars-center h3 { font-size: 1rem; }
     .pillars-center p { font-size: 0.9rem; }
     .pillars-grid { 
         grid-template-columns: 1fr 1fr; 
         gap: 8px;
-        margin-top: 16px;
+        margin-top: 0;
     }
     .pillars-grid::before { display: none; }
     .pillar-card { 
-        padding: 14px 10px; 
+        padding: 14px 10px;
+        padding-top: 14px;
     }
     .pillar-card:nth-child(5) {
         grid-column: 1 / -1;
@@ -1283,6 +1282,7 @@ footer {
                 <h3><span class="pillars-center-dot"></span>Predictive Engine</h3>
                 <p>Cascading effects modeling. See consequences before they happen.</p>
             </div>
+            <div class="pillars-connector"></div>
             <div class="pillars-grid">
                 <div class="pillar-card">
                     <span class="pillar-num">1</span>
