@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light only">
+    <meta name="supported-color-schemes" content="light only">
+    <title>Rebirth Nexus | 30-Day Pilot Program</title>
+    <meta name="description" content="From question to prediction in 4 weeks. Prove value on your data before you commit to scale.">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; color-scheme: light only; }
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.container { 
+    max-width: 700px; 
+    margin: 0 auto; 
+    padding: 0 24px; 
+}
+
+/* Nav */
+.nav {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+}
+.nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #111;
+    text-decoration: none;
+}
+.logo img { width: 28px; height: 28px; }
+.nav-link {
+    color: #555;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+/* Hero */
+.hero {
+    padding: 60px 0 48px;
+    text-align: center;
+}
+.hero-label {
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 16px;
+}
+.hero-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+    color: #111;
+}
+.hero-subtitle {
+    font-size: 1.15rem;
+    color: #444;
+    margin-bottom: 32px;
+    line-height: 1.7;
+}
+
+/* Timeline */
+.timeline {
+    padding: 40px 0;
+    border-bottom: 1px solid #eee;
+}
+.timeline-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: #111;
+    text-align: center;
+}
+.timeline-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+}
+.timeline-item {
+    padding: 24px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+}
+.timeline-week {
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+.timeline-name {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 8px;
+}
+.timeline-desc {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+}
+
+/* What You Get */
+.benefits {
+    padding: 48px 0;
+    border-bottom: 1px solid #eee;
+}
+.benefits-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: #111;
+}
+.benefit-item {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 1.05rem;
+    color: #333;
+}
+.benefit-item:last-child {
+    border-bottom: none;
+}
+
+/* Form */
+.form-section {
+    padding: 48px 0;
+}
+.form-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #111;
+}
+.form-subtitle {
+    font-size: 1.05rem;
+    color: #555;
+    margin-bottom: 32px;
+}
+.form-group {
+    margin-bottom: 20px;
+}
+.form-label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 8px;
+}
+.form-input,
+.form-select,
+.form-textarea {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-family: inherit;
+    background: #fff;
+    color: #111;
+}
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+.form-btn {
+    width: 100%;
+    padding: 16px 24px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+}
+.form-note {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #666;
+    margin-top: 16px;
+}
+
+/* Partners */
+.partners {
+    padding: 48px 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+.partners-label {
+    color: #2563eb;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+.partners-list {
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* Footer */
+footer {
+    padding: 40px 0;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+.footer-links {
+    margin-bottom: 16px;
+}
+.footer-links a {
+    color: #555;
+    text-decoration: none;
+    margin: 0 12px;
+    font-size: 1rem;
+}
+.footer-copy {
+    font-size: 0.95rem;
+    color: #888;
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+    .hero-title { font-size: 2.75rem; }
+    .timeline-grid { grid-template-columns: repeat(4, 1fr); }
+}
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <div class="nav-inner">
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="">
+            Rebirth Nexus
+        </a>
+        <a href="index.html" class="nav-link">← Back</a>
+    </div>
+</nav>
+
+<div class="container">
+
+<section class="hero">
+    <div class="hero-label">30-Day Pilot Program</div>
+    <h1 class="hero-title">From question to prediction in 4 weeks.</h1>
+    <p class="hero-subtitle">
+        Not another year-long data program. Start with exports, prove value on your data, then decide whether to integrate.
+    </p>
+</section>
+
+<section class="timeline">
+    <h2 class="timeline-title">How It Works</h2>
+    <div class="timeline-grid">
+        <div class="timeline-item">
+            <div class="timeline-week">Week 1</div>
+            <div class="timeline-name">Connect</div>
+            <div class="timeline-desc">Map your data sources and define priority use cases</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-week">Week 2</div>
+            <div class="timeline-name">Model</div>
+            <div class="timeline-desc">Build cascade models for your specific scenarios</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-week">Week 3</div>
+            <div class="timeline-name">Test</div>
+            <div class="timeline-desc">Run predictions against historical events</div>
+        </div>
+        <div class="timeline-item">
+            <div class="timeline-week">Week 4</div>
+            <div class="timeline-name">Readout</div>
+            <div class="timeline-desc">Executive presentation with findings and ROI analysis</div>
+        </div>
+    </div>
+</section>
+
+<section class="benefits">
+    <h2 class="benefits-title">What You Get</h2>
+    <div class="benefit-item">✓ Dedicated solution architect for your pilot</div>
+    <div class="benefit-item">✓ Custom cascade models for 2-3 priority scenarios</div>
+    <div class="benefit-item">✓ Integration with your existing data sources</div>
+    <div class="benefit-item">✓ Executive readout with quantified impact</div>
+    <div class="benefit-item">✓ No long-term commitment required</div>
+</section>
+
+<section class="form-section">
+    <h2 class="form-title">Start Your Pilot</h2>
+    <p class="form-subtitle">Tell us about your organization and we'll reach out within 24 hours.</p>
+    
+    <form action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Work Email</label>
+            <input type="email" name="email" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Company</label>
+            <input type="text" name="company" class="form-input" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" class="form-input">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Industry</label>
+            <select name="industry" class="form-select">
+                <option value="">Select industry...</option>
+                <option value="retail">Retail</option>
+                <option value="energy">Energy & Utilities</option>
+                <option value="banking">Banking & Finance</option>
+                <option value="rail">Rail & Transit</option>
+                <option value="insurance">Insurance</option>
+                <option value="oil-gas">Oil & Gas</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="government">Government</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">How did you hear about us?</label>
+            <select name="referral" class="form-select">
+                <option value="">Select...</option>
+                <option value="esri">Esri</option>
+                <option value="aws">AWS</option>
+                <option value="microsoft">Microsoft</option>
+                <option value="allianz">Allianz Trade</option>
+                <option value="khatib-alami">Khatib & Alami</option>
+                <option value="search">Web Search</option>
+                <option value="referral">Referral</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">What problem are you trying to solve?</label>
+            <textarea name="problem" class="form-textarea" placeholder="Describe your use case or challenge..."></textarea>
+        </div>
+        <button type="submit" class="form-btn">Request Pilot →</button>
+        <p class="form-note">We'll respond within 24 hours. No spam, ever.</p>
+    </form>
+</section>
+
+</div>
+
+<section class="partners">
+    <div class="container">
+        <div class="partners-label">Partner Consortium</div>
+        <p class="partners-list">Esri · AWS · Microsoft · Allianz Trade · Khatib & Alami</p>
+    </div>
+</section>
+
+<footer>
+    <div class="container">
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#demo">How It Works</a>
+            <a href="index.html#industries">Industries</a>
+            <a href="mailto:info@rebirthnexus.ai">Contact</a>
+        </div>
+        <p class="footer-copy">© 2026 Rebirth Nexus, Inc. · Redlands, California</p>
+    </div>
+</footer>
+
+</body>
+</html>
