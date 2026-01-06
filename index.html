@@ -921,17 +921,17 @@ footer {
     .trigger-panel { 
         display: flex;
         flex-direction: row; 
-        gap: 10px;
+        gap: 8px;
         padding-bottom: 12px;
         min-width: max-content;
     }
     .trigger-btn { 
-        min-width: 170px; 
+        min-width: 140px; 
         flex-shrink: 0;
-        padding: 14px 16px;
+        padding: 12px 14px;
     }
-    .trigger-title { font-size: 1rem; }
-    .trigger-context { font-size: 0.9rem; }
+    .trigger-title { font-size: 0.95rem; }
+    .trigger-context { font-size: 0.8rem; }
     .scroll-hint { display: block; font-size: 0.95rem; margin-top: 12px; }
     .results-panel {
         padding: 24px 20px;
@@ -951,11 +951,25 @@ footer {
     .cascade-agitation { font-size: 1.05rem; }
     .cascade-counterfactual { font-size: 1rem; }
     
-    /* Pillars */
-    .pillars-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
-    .pillar-card { padding: 20px 14px; }
-    .pillar-title { font-size: 1rem; }
-    .pillar-desc { font-size: 0.95rem; }
+    /* Pillars - 2 column grid on mobile */
+    .pillars-hub { gap: 20px; }
+    .pillars-center { 
+        padding: 24px 20px; 
+        margin-bottom: 8px;
+    }
+    .pillars-center h3 { font-size: 1.1rem; }
+    .pillars-grid { 
+        grid-template-columns: 1fr 1fr; 
+        gap: 10px; 
+    }
+    .pillar-card { 
+        padding: 16px 12px; 
+    }
+    .pillar-card::before { display: none; }
+    .pillar-num { display: none; }
+    .pillar-icon { font-size: 1.3rem; margin-bottom: 8px; }
+    .pillar-title { font-size: 0.9rem; }
+    .pillar-desc { font-size: 0.85rem; }
     .pillars-center p { font-size: 1rem; }
     
     /* Industries */
@@ -997,7 +1011,8 @@ footer {
 @media (max-width: 480px) {
     .industries-grid { grid-template-columns: repeat(2, 1fr); }
     .ecosystem-grid-5 { grid-template-columns: 1fr; }
-    .pillars-grid { grid-template-columns: 1fr; }
+    .pillars-grid { grid-template-columns: 1fr 1fr; }
+    .trigger-btn { min-width: 130px; }
 }
     </style>
 </head>
