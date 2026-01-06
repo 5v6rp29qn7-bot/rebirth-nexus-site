@@ -948,12 +948,12 @@ footer {
     }
     .trigger-btn { 
         flex-shrink: 0;
-        padding: 8px 10px;
+        padding: 6px 8px;
         white-space: nowrap;
     }
-    .trigger-title { font-size: 0.75rem; display: flex; align-items: center; }
-    .trigger-icon { font-size: 0.8rem; margin-right: 3px; }
-    .trigger-context { font-size: 0.65rem; }
+    .trigger-title { font-size: 0.7rem; display: flex; align-items: center; margin-bottom: 1px; }
+    .trigger-icon { font-size: 0.75rem; margin-right: 2px; }
+    .trigger-context { font-size: 0.6rem; }
     .scroll-hint { display: block; font-size: 0.85rem; margin-top: 6px; }
     .results-panel {
         padding: 20px 16px;
@@ -967,18 +967,17 @@ footer {
     .chain-content h4 { font-size: 1rem; }
     .chain-content p { font-size: 0.95rem; }
     .chain-tag { font-size: 0.8rem; padding: 5px 10px; }
-    .attr-label { font-size: 0.8rem; display: block; margin-bottom: 8px; }
+    .attr-label { font-size: 0.8rem; display: block; margin-bottom: 8px; width: 100%; }
     .pillar-attribution { 
-        flex-direction: column; 
-        align-items: flex-start;
-        gap: 8px;
+        display: block;
     }
-    .attr-pillars-row {
-        display: flex;
-        flex-wrap: wrap;
+    .attr-pillars-wrap {
+        display: grid;
+        grid-template-columns: repeat(3, auto);
         gap: 6px;
+        justify-content: start;
     }
-    .attr-pillar { font-size: 0.8rem; padding: 6px 10px; }
+    .attr-pillar { font-size: 0.75rem; padding: 5px 8px; }
     .cascade-note { font-size: 0.95rem; }
     .cascade-agitation { font-size: 1rem; }
     .cascade-counterfactual { font-size: 0.95rem; }
