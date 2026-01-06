@@ -545,6 +545,7 @@ a { color: inherit; text-decoration: none; }
     width: 100%;
     max-width: 100%;
     position: relative;
+    z-index: 2;
 }
 .pillars-center h3 {
     font-size: 1.3rem;
@@ -567,11 +568,9 @@ a { color: inherit; text-decoration: none; }
     color: var(--text-muted);
     font-size: 0.95rem;
 }
-/* Connector from center to grid */
+/* Hide the separate connector div */
 .pillars-connector {
-    width: 1px;
-    height: 40px;
-    background: var(--accent);
+    display: none;
 }
 .pillars-grid {
     display: grid;
@@ -579,16 +578,7 @@ a { color: inherit; text-decoration: none; }
     gap: 16px;
     width: 100%;
     position: relative;
-}
-/* Horizontal line above pillars */
-.pillars-grid::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: calc(10% + 8px);
-    right: calc(10% + 8px);
-    height: 1px;
-    background: var(--accent);
+    margin-top: 40px;
 }
 .pillar-card {
     background: var(--bg-card);
@@ -599,15 +589,15 @@ a { color: inherit; text-decoration: none; }
     text-align: center;
     position: relative;
 }
-/* Vertical line from horizontal to each card */
+/* Vertical line from Predictive Engine box to each pillar card */
 .pillar-card::before {
     content: '';
     position: absolute;
-    top: -16px;
+    top: -40px;
     left: 50%;
     transform: translateX(-50%);
     width: 1px;
-    height: 16px;
+    height: 40px;
     background: var(--accent);
 }
 .pillar-num {
