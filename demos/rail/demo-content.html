@@ -134,6 +134,36 @@
         .route-info-item { display: flex; justify-content: space-between; margin-bottom: 6px; gap: 20px; }
         .route-info-label { color: var(--text-muted); }
         .route-info-value { color: var(--text-primary); font-weight: 600; }
+        
+        /* Tour Overlay */
+        .tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.60); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .tour-overlay.active { opacity: 1; pointer-events: auto; }
+        .tour-card { background: var(--bg-secondary); border: 1px solid var(--accent-purple); border-radius: 16px; max-width: 540px; padding: 32px 36px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .tour-step-indicator { display: flex; gap: 6px; margin-bottom: 16px; }
+        .tour-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-subtle); transition: all 0.3s; }
+        .tour-step-dot.active { background: var(--accent-purple); width: 24px; border-radius: 4px; }
+        .tour-step-dot.completed { background: var(--accent-green); }
+        .tour-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+        .tour-subtitle { font-size: 12px; color: var(--accent-purple); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tour-content { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 20px; }
+        .tour-content strong { color: var(--text-primary); }
+        .tour-content .highlight { color: var(--accent-purple); font-weight: 500; }
+        .tour-highlight-box { background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+        .tour-highlight-box .pillar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+        .tour-highlight-box .pillar:last-child { margin-bottom: 0; }
+        .tour-highlight-box .pillar-icon { width: 20px; text-align: center; }
+        .tour-highlight-box .pillar-name { color: var(--text-primary); font-weight: 500; }
+        .tour-highlight-box .pillar-desc { color: var(--text-muted); margin-left: auto; font-size: 11px; }
+        .tour-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+        .tour-btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .tour-btn.primary { background: var(--accent-purple); color: #fff; }
+        .tour-btn.primary:hover { background: #7a7ef0; }
+        .tour-btn.secondary { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); }
+        .tour-btn.secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+        .tour-skip { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+        .tour-skip:hover { color: var(--text-primary); }
+        .tour-spotlight { position: fixed; z-index: 9998; border: 2px solid var(--accent-purple); border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.5); pointer-events: none; transition: all 0.4s ease-out; }
+        
         @media (max-width: 1200px) { .sensor-feed { width: 260px; } .chat-panel { width: 380px; } }
         @media (max-width: 1000px) { .sensor-feed { display: none; } .stats-overlay { display: none; } .route-info { display: none; } }
     </style>
@@ -141,11 +171,11 @@
 <body>
     <div class="app-container">
         <div class="main-content">
-            <div class="sensor-feed">
+            <div class="sensor-feed" id="sensorFeed">
                 <div class="feed-header"><span class="feed-title">🚂 Sensor Feed</span><span class="feed-live">LIVE</span></div>
                 <div class="feed-items" id="feedItems"></div>
             </div>
-            <div class="center-panel">
+            <div class="center-panel" id="mapContainer">
                 <div id="mapView"></div>
                 <div class="route-info">
                     <div class="route-info-title">🛤️ Network Status</div>
@@ -170,7 +200,7 @@
                     <div class="legend-item"><div class="legend-dot blue"></div> Major Yard</div>
                 </div>
             </div>
-            <div class="chat-panel">
+            <div class="chat-panel" id="chatPanel">
                 <div class="chat-header">
                     <div class="logo-box">🚂</div>
                     <div class="header-info"><h2>NEXUS RAIL</h2><p>Predictive Intelligence</p></div>
@@ -192,8 +222,132 @@
             </div>
         </div>
     </div>
+
+    <!-- Tour Overlay -->
+    <div class="tour-overlay" id="tourOverlay">
+        <div class="tour-card">
+            <button class="tour-skip" id="tourSkip">Skip Tour ✕</button>
+            <div class="tour-step-indicator" id="tourSteps"></div>
+            <div class="tour-subtitle" id="tourSubtitle"></div>
+            <div class="tour-title" id="tourTitle"></div>
+            <div class="tour-content" id="tourContent"></div>
+            <div class="tour-buttons">
+                <button class="tour-btn secondary" id="tourPrev">← Back</button>
+                <button class="tour-btn primary" id="tourNext">Next →</button>
+            </div>
+        </div>
+    </div>
+    <div class="tour-spotlight" id="tourSpotlight" style="display:none;"></div>
+
     <script src="https://js.arcgis.com/4.28/"></script>
     <script>
+        // Tour Configuration
+        const tourSteps = [
+            {
+                subtitle: "Welcome to Nexus Rail",
+                title: "Predictive Rail Intelligence",
+                content: `<p>You're looking at a <strong>live rail operations center</strong>. We're monitoring 12,847 railcars across 4,200 miles of track.</p>
+                    <p>Right now, a critical bearing failure is developing on car TTGX-9821. The system has already predicted the failure and prepared recommendations.</p>
+                    <p>Let me show you how it works.</p>`,
+                target: null
+            },
+            {
+                subtitle: "The Five Pillars",
+                title: "How Nexus Synthesizes Rail Data",
+                content: `<p>Every insight comes from <strong>correlating five data pillars</strong> in real-time:</p>
+                    <div class="tour-highlight-box">
+                        <div class="pillar"><span class="pillar-icon">🚂</span><span class="pillar-name">Fleet Operations</span><span class="pillar-desc">12,847 railcars, sensors, maintenance</span></div>
+                        <div class="pillar"><span class="pillar-icon">🗺️</span><span class="pillar-name">Geospatial Network</span><span class="pillar-desc">Esri ArcGIS, routes, yards</span></div>
+                        <div class="pillar"><span class="pillar-icon">🌡️</span><span class="pillar-name">IoT Sensor Data</span><span class="pillar-desc">Bearings, brakes, track vibration</span></div>
+                        <div class="pillar"><span class="pillar-icon">🌨️</span><span class="pillar-name">Weather Intelligence</span><span class="pillar-desc">NWS alerts, storm tracking</span></div>
+                        <div class="pillar"><span class="pillar-icon">🧠</span><span class="pillar-name">Predictive Analytics</span><span class="pillar-desc">Failure prediction, maintenance scheduling</span></div>
+                    </div>
+                    <p>This is <span class="highlight">predictive maintenance</span> meets <span class="highlight">operations intelligence</span>.</p>`,
+                target: null
+            },
+            {
+                subtitle: "Real-Time Sensor Feed",
+                title: "Equipment Monitoring",
+                content: `<p>The Sensor Feed shows <strong>live telemetry</strong> from across your fleet — bearing temperatures, brake pressures, track vibration, GPS updates.</p>
+                    <p>When sensors detect anomalies, Nexus correlates them with maintenance history, weather, and route data to <span class="highlight">predict failures before they happen</span>.</p>
+                    <p>Current alert: TTGX-9821 bearing at 182°F — failure predicted in 6-8 hours.</p>`,
+                target: '#sensorFeed'
+            },
+            {
+                subtitle: "Network Visualization",
+                title: "Your Rail Network at a Glance",
+                content: `<p>The map shows your entire network with <strong>real-time status</strong>:</p>
+                    <p>🔵 <strong>Blue dots</strong> = Major yards (Chicago, KC, Denver, LA...)</p>
+                    <p>🔴 <strong>Red dots</strong> = Critical alerts requiring action</p>
+                    <p>🟡 <strong>Amber dots</strong> = Equipment needing maintenance</p>
+                    <p>🔵🟢🟣 <strong>Lines</strong> = Active rail corridors</p>
+                    <p>This is <span class="highlight">Esri ArcGIS</span> integrated with predictive intelligence.</p>`,
+                target: '#mapContainer'
+            },
+            {
+                subtitle: "Conversational Interface",
+                title: "Ask Questions, Get Answers",
+                content: `<p>This is where you interact with Nexus. Ask questions in <strong>plain English</strong> about your fleet, maintenance needs, weather impacts, or route optimization.</p>
+                    <p>Try: <em>"Show bearing alerts"</em> or <em>"What's the weather impact on Chicago?"</em></p>
+                    <p>Responses are generated in <span class="highlight">real-time by AI</span>, synthesizing sensor data, weather, and operational context.</p>`,
+                target: '#chatPanel'
+            },
+            {
+                subtitle: "Ready to Explore",
+                title: "Try It Yourself",
+                content: `<p>The scenario is live. Here are some things to try:</p>
+                    <p>• Click <strong>"Show bearing alerts"</strong> to see equipment issues</p>
+                    <p>• Click <strong>"Predict maintenance needs"</strong> for the forecast</p>
+                    <p>• Click <strong>"Chicago yard status"</strong> for hub operations</p>
+                    <p>• Click <strong>"Weather impact analysis"</strong> for storm effects</p>
+                    <p>• Or type any question — <span class="highlight">AI will respond</span></p>`,
+                target: null
+            }
+        ];
+        
+        let currentTourStep = 0;
+        
+        function initTour() {
+            const overlay = document.getElementById('tourOverlay');
+            const stepsContainer = document.getElementById('tourSteps');
+            stepsContainer.innerHTML = tourSteps.map((_, i) => `<div class="tour-step-dot" data-step="${i}"></div>`).join('');
+            setTimeout(() => { overlay.classList.add('active'); renderTourStep(0); }, 1500);
+            document.getElementById('tourNext').addEventListener('click', nextTourStep);
+            document.getElementById('tourPrev').addEventListener('click', prevTourStep);
+            document.getElementById('tourSkip').addEventListener('click', endTour);
+        }
+        
+        function renderTourStep(step) {
+            const data = tourSteps[step];
+            document.getElementById('tourSubtitle').textContent = data.subtitle;
+            document.getElementById('tourTitle').textContent = data.title;
+            document.getElementById('tourContent').innerHTML = data.content;
+            document.querySelectorAll('.tour-step-dot').forEach((dot, i) => {
+                dot.classList.remove('active', 'completed');
+                if (i < step) dot.classList.add('completed');
+                if (i === step) dot.classList.add('active');
+            });
+            document.getElementById('tourPrev').style.visibility = step === 0 ? 'hidden' : 'visible';
+            document.getElementById('tourNext').textContent = step === tourSteps.length - 1 ? "Start Exploring →" : "Next →";
+            const spotlight = document.getElementById('tourSpotlight');
+            if (data.target) {
+                const el = document.querySelector(data.target);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    spotlight.style.display = 'block';
+                    spotlight.style.top = rect.top - 4 + 'px';
+                    spotlight.style.left = rect.left - 4 + 'px';
+                    spotlight.style.width = rect.width + 8 + 'px';
+                    spotlight.style.height = rect.height + 8 + 'px';
+                }
+            } else { spotlight.style.display = 'none'; }
+        }
+        
+        function nextTourStep() { if (currentTourStep < tourSteps.length - 1) { currentTourStep++; renderTourStep(currentTourStep); } else { endTour(); } }
+        function prevTourStep() { if (currentTourStep > 0) { currentTourStep--; renderTourStep(currentTourStep); } }
+        function endTour() { document.getElementById('tourOverlay').classList.remove('active'); document.getElementById('tourSpotlight').style.display = 'none'; }
+
+        // Chat & Demo Logic
         const DEMO_TOKEN = 'nexus-rail-2025';
         const INITIAL_CHIPS = ['Show bearing alerts', 'Predict maintenance needs', 'Chicago yard status', 'Weather impact analysis'];
         const FEED_EVENTS = [
@@ -364,6 +518,7 @@
             updateChips(INITIAL_CHIPS);
             addMessage(`<p><strong>Rail Intelligence Active.</strong></p><p>Monitoring <strong>12,847 railcars</strong> across 4,200 miles. Currently tracking <span style="color:#ffcf3d">23 alerts</span> including 12 bearing anomalies.</p><p>TTGX-9821 requires immediate attention — bearing failure predicted within 6-8 hours.</p>`, false, INITIAL_CHIPS);
             initFeed();
+            initTour();
             document.getElementById('sendBtn').addEventListener('click', () => handleInput());
             document.getElementById('chatInput').addEventListener('keypress', e => { if (e.key === 'Enter') handleInput(); });
         });
