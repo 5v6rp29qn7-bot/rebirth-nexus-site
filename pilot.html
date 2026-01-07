@@ -568,7 +568,13 @@ footer {
                     <p>Accelerated programs available through consortium partners</p>
                 </div>
 
-                <form id="pilotForm" action="#" method="POST">
+                <form id="pilotForm" name="pilot-inquiry" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <!-- Hidden field for Netlify -->
+                    <input type="hidden" name="form-name" value="pilot-inquiry">
+                    <!-- Honeypot field to prevent spam (hidden from users) -->
+                    <p style="display:none;">
+                        <label>Don't fill this out: <input name="bot-field"></label>
+                    </p>
                     <div class="form-group">
                         <label class="form-label">Full Name</label>
                         <input type="text" class="form-input" name="name" placeholder="Jane Smith" required>
