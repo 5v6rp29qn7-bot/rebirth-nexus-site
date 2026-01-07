@@ -1,0 +1,4752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rebirth Nexus • Predictive Rail Intelligence Platform</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Brighter theme - more like a dark-blue than pure dark */
+  --bg: #3d4558;
+  --panel: #4a5468;
+  --panel2: #545f78;
+  --card: #5d6988;
+  --card-hover: #6b7798;
+  --border: rgba(140, 180, 255, 0.35);
+  --border-strong: rgba(140, 180, 255, 0.6);
+  
+  /* Text - maximum contrast */
+  --text: #ffffff;
+  --text-dim: #dae2ed;
+  --text-muted: #b0bccf;
+  
+  /* Brand colors - extra vibrant */
+  --primary: #8b8fff;
+  --primary-glow: rgba(139, 143, 255, 0.7);
+  --secondary: #5fd4ff;
+  --tertiary: #5ee88a;
+  --accent: #ffcf3d;
+  
+  /* Status colors - vivid */
+  --danger: #ff7979;
+  --warning: #ffe66d;
+  --success: #7bed9f;
+  --info: #7ec8ff;
+  
+  /* Effects - minimal shadows */
+  --shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+  --glow: 0 0 50px rgba(139, 143, 255, 0.8);
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #485563 0%, #546178 50%, #485563 100%);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Very light animated background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(139, 143, 255, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(95, 212, 255, 0.25) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(94, 232, 138, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: 60px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(90deg, rgba(36, 41, 56, 0.98) 0%, rgba(42, 48, 65, 0.95) 100%);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.5rem;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--glow);
+  position: relative;
+  overflow: hidden;
+}
+
+.logo::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.9; }
+  50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.brand-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--text) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-tagline {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid var(--border);
+}
+
+/* Persona Selector */
+.persona-selector {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--card);
+  padding: 0.25rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.persona-tab {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+  position: relative;
+}
+
+.persona-tab:hover {
+  color: var(--text);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.persona-tab.active {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.live-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: var(--success);
+}
+
+.live-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.sensor-count {
+  color: var(--text-dim);
+}
+
+.header-btn {
+  padding: 0.5rem 1rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.header-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--primary);
+}
+
+/* Main Layout */
+.main-layout {
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 1rem;
+  padding: 0.75rem;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* Dashboard Panel */
+.dashboard-panel {
+  display: grid;
+  grid-template-rows: 320px 1fr;
+  gap: 1rem;
+  overflow: hidden;
+}
+
+/* KPI Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.875rem;
+  min-height: 110px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.kpi-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+  border-color: var(--primary);
+}
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.kpi-title {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.kpi-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+}
+
+.kpi-icon.success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+.kpi-icon.warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+.kpi-icon.danger { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.kpi-icon.info { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+
+.kpi-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.kpi-change {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.kpi-change.positive { color: var(--success); }
+.kpi-change.negative { color: var(--danger); }
+
+.kpi-subtitle {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Chart Containers */
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.chart-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  height: 180px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.chart-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.chart-options {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.chart-btn {
+  padding: 0.2rem 0.4rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-size: 0.65rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.chart-btn:hover {
+  color: var(--text);
+  border-color: var(--primary);
+}
+
+.chart-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Map Placeholder */
+.map-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 170px;
+  background: linear-gradient(135deg, #2a3041 0%, #242938 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border: 1px solid rgba(100, 143, 255, 0.1);
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  z-index: 10;
+}
+
+.map-controls {
+  display: flex;
+  gap: 0.25rem;
+  background: rgba(36, 41, 56, 0.95);
+  padding: 0.25rem;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.map-legend {
+  background: rgba(36, 41, 56, 0.95);
+  padding: 0.5rem;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+  font-size: 0.65rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.map-center {
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.map-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.25rem;
+}
+
+.map-description {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+/* Alert Feed */
+.alert-feed {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  height: 140px;
+  overflow-y: auto;
+}
+
+.alert-feed-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alert-item {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.alert-item:hover {
+  background: var(--panel2);
+  border-color: var(--primary);
+}
+
+.alert-severity {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.alert-severity.high { background: var(--danger); box-shadow: 0 0 8px var(--danger); }
+.alert-severity.medium { background: var(--warning); box-shadow: 0 0 8px var(--warning); }
+.alert-severity.low { background: var(--info); box-shadow: 0 0 8px var(--info); }
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-title {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.alert-description {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  line-height: 1.3;
+}
+
+.alert-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.alert-time {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.alert-location {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* Chat Panel */
+.chat-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.chat-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.chat-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ai-avatar {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: 0.75rem;
+}
+
+.chat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.chat-status {
+  font-size: 0.65rem;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.chat-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.chat-action-btn {
+  width: 28px;
+  height: 28px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.chat-action-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+/* Messages Area */
+.messages-container {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+  max-height: calc(100vh - 60px - 140px - 60px); /* Adjusted for header, chat header, and input */
+}
+
+.message {
+  display: flex;
+  gap: 0.5rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.user {
+  flex-direction: row-reverse;
+}
+
+.message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.message.ai .message-avatar {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+}
+
+.message.user .message-avatar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.message-content {
+  max-width: 85%;
+}
+
+.message-bubble {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+  position: relative;
+}
+
+.message.user .message-bubble {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  color: white;
+}
+
+.message-text {
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.message-time {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.message.user .message-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Embedded Charts in Messages */
+.message-chart {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: var(--panel);
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.message.user .message-chart {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.mini-chart {
+  height: 80px;
+  position: relative;
+}
+
+/* Action Cards in Messages */
+.message-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.3rem 0.5rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.action-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.action-btn.primary {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.action-btn.success {
+  background: var(--success);
+  color: white;
+  border-color: var(--success);
+}
+
+.action-btn.warning {
+  background: var(--warning);
+  color: white;
+  border-color: var(--warning);
+}
+
+/* Predictive Alert in Message */
+.predictive-alert {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 158, 11, 0.1));
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 6px;
+}
+
+.predictive-header {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.predictive-details {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.predictive-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.predictive-label {
+  color: var(--text-dim);
+  min-width: 80px;
+}
+
+.predictive-value {
+  font-weight: 500;
+}
+
+/* ROI Calculator in Message */
+.roi-calculator {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 6px;
+}
+
+.roi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--success);
+  font-size: 0.8rem;
+}
+
+.roi-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--success), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.roi-breakdown {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.roi-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem;
+  background: var(--panel);
+  border-radius: 4px;
+}
+
+/* Prompt Chips */
+.prompt-chips {
+  padding: 0.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--panel2);
+  flex-shrink: 0;
+}
+
+.chips-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  padding: 0.4rem 0.6rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.chip:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+}
+
+.chip-icon {
+  font-size: 0.8rem;
+}
+
+/* Input Area */
+.chat-input-area {
+  padding: 0.75rem;
+  border-top: 1px solid var(--border);
+  background: var(--panel2);
+  flex-shrink: 0;
+}
+
+.input-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-end;
+}
+
+.input-wrapper {
+  flex: 1;
+  position: relative;
+}
+
+.chat-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-size: 0.8rem;
+  resize: none;
+  outline: none;
+  transition: all 0.3s ease;
+  min-height: 36px;
+  max-height: 80px;
+}
+
+.chat-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+.input-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.send-btn {
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.send-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.attach-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+.attach-btn:hover {
+  background: var(--card-hover);
+  border-color: var(--primary);
+  color: var(--text);
+}
+
+/* Sensor Stream Widget */
+.sensor-stream {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  width: 280px;
+  background: rgba(36, 41, 56, 0.98);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  z-index: 50;
+  transition: all 0.3s ease;
+}
+
+.sensor-stream.minimized {
+  width: auto;
+}
+
+.sensor-stream-header {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.sensor-stream-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.sensor-pulse {
+  width: 6px;
+  height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.sensor-stream-body {
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.4rem;
+}
+
+.sensor-stream.minimized .sensor-stream-body {
+  display: none;
+}
+
+.sensor-event {
+  padding: 0.4rem;
+  background: var(--card);
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+  font-size: 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  animation: slideIn 0.3s ease;
+}
+
+.sensor-event-icon {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 0.6rem;
+}
+
+.sensor-event-icon.shock { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+.sensor-event-icon.temp { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+.sensor-event-icon.door { background: rgba(59, 130, 246, 0.2); color: var(--info); }
+.sensor-event-icon.brake { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+.sensor-event-icon.vibration { background: rgba(236, 72, 153, 0.2); color: #ec4899; }
+
+.sensor-event-content {
+  flex: 1;
+}
+
+.sensor-event-title {
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.sensor-event-details {
+  color: var(--text-dim);
+  font-size: 0.6rem;
+}
+
+/* Responsive - Keep everything on one screen */
+@media (max-width: 1200px) {
+  .main-layout {
+    grid-template-columns: 1fr 380px;
+  }
+  
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .chart-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .sensor-stream {
+    width: 240px;
+  }
+}
+
+@media (max-width: 900px) {
+  .main-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr auto;
+  }
+  
+  .dashboard-panel {
+    height: 50vh;
+  }
+  
+  .chat-panel {
+    height: calc(50vh - 20px);
+  }
+  
+  .map-container {
+    height: 150px;
+  }
+  
+  .map-placeholder {
+    height: 120px;
+  }
+  
+  .alert-feed {
+    height: 100px;
+  }
+  
+  .sensor-stream {
+    display: none;
+  }
+}
+
+/* Loading Animation */
+.typing-indicator {
+  display: flex;
+  gap: 0.2rem;
+  padding: 0.4rem;
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  animation: typing 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+}
+
+/* Predictive Risk Score Gauge */
+.risk-score-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.risk-score-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.risk-gauge {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+
+.risk-gauge-circle {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.risk-gauge-bg {
+  fill: none;
+  stroke: var(--card-hover);
+  stroke-width: 12;
+}
+
+.risk-gauge-fill {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s ease;
+}
+
+.risk-gauge-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.risk-score-value {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.risk-score-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: -0.25rem;
+}
+
+.risk-components {
+  width: 100%;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.risk-component {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.75rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.risk-component:hover {
+  background: var(--panel2);
+  border-color: var(--primary);
+  transform: translateX(2px);
+}
+
+.risk-component-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.risk-component-value {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.risk-component-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: height 0.3s ease;
+}
+
+.risk-component:hover .risk-component-bar {
+  height: 3px;
+}
+
+.risk-component.mechanical { color: var(--warning); }
+.risk-component.operational { color: var(--info); }
+.risk-component.environmental { color: var(--success); }
+.risk-component.security { color: #a855f7; }
+.risk-component.financial { color: #14b8a6; }
+
+/* Asset Utilization Enhanced */
+.asset-util-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.asset-util-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+}
+
+.asset-util-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.asset-util-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.asset-util-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.asset-util-change {
+  font-size: 0.75rem;
+  color: var(--success);
+  margin-left: 0.5rem;
+}
+
+.asset-util-chart {
+  height: 60px;
+  position: relative;
+  margin-top: 0.5rem;
+}
+
+/* Slide-in Panel */
+.slide-panel {
+  position: fixed;
+  top: 60px;
+  right: -400px;
+  width: 400px;
+  height: calc(100vh - 60px);
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+  transition: right 0.3s ease;
+  z-index: 200;
+  overflow-y: auto;
+}
+
+.slide-panel.active {
+  right: 0;
+}
+
+.slide-panel-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.slide-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.slide-panel-close {
+  width: 32px;
+  height: 32px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.slide-panel-close:hover {
+  background: var(--card-hover);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.slide-panel-content {
+  padding: 1rem;
+}
+
+.metric-detail {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.metric-detail-title {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+
+.metric-detail-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.metric-detail-chart {
+  margin-top: 0.5rem;
+  height: 100px;
+}
+
+/* Chart Tooltip */
+.chart-tooltip {
+  position: absolute;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 0.75rem;
+  pointer-events: none;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.chart-tooltip.visible {
+  opacity: 1;
+}
+
+.tooltip-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text);
+}
+
+.tooltip-value {
+  color: var(--primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.tooltip-label {
+  color: var(--text-dim);
+  font-size: 0.65rem;
+}
+
+/* Overlay for slide panel */
+.panel-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 190;
+}
+
+.panel-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Tour Overlay and Tooltips */
+.tour-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9998;
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tour-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+.tour-highlight {
+  position: absolute;
+  border: 3px solid #6366f1;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+  z-index: 9999;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  display: none; /* Hidden by default */
+}
+
+.tour-highlight.active {
+  display: block;
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
+}
+
+.tour-tooltip {
+  position: absolute;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  max-width: 400px;
+  display: none;
+  animation: tourPulse 2s ease-in-out infinite;
+}
+
+@keyframes tourPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+.tour-tooltip.active {
+  display: block;
+}
+
+.tour-tooltip-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.tour-step {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.5rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tour-tooltip-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.tour-tooltip-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.tour-tooltip-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+}
+
+.tour-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.875rem;
+}
+
+.tour-btn-skip {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.tour-btn-skip:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.tour-btn-next {
+  background: white;
+  color: #6366f1;
+  flex: 1;
+}
+
+.tour-btn-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
+}
+
+.tour-arrow {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(135deg, #6366f1, #06b6d4);
+  transform: rotate(45deg);
+}
+
+.tour-arrow.top {
+  top: -10px;
+  left: 50%;
+  margin-left: -10px;
+}
+
+.tour-arrow.bottom {
+  bottom: -10px;
+  left: 50%;
+  margin-left: -10px;
+}
+
+.tour-arrow.left {
+  left: -10px;
+  top: 50%;
+  margin-top: -10px;
+}
+
+.tour-arrow.right {
+  right: -10px;
+  top: 50%;
+  margin-top: -10px;
+}
+
+/* Notification Badge */
+.notification-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--danger);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  animation: pulse 2s infinite;
+}
+
+/* Quick Actions Bar */
+.quick-actions {
+  position: fixed;
+  bottom: 1rem;
+  right: calc(420px + 2rem); /* Position to left of chat panel */
+  display: flex;
+  gap: 0.5rem;
+  z-index: 100;
+}
+
+.quick-action-btn {
+  width: 44px;
+  height: 44px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--text-dim);
+  box-shadow: var(--shadow);
+  position: relative;
+}
+
+.quick-action-btn:hover {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+/* Tooltip for quick actions */
+.quick-action-btn::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel);
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  margin-bottom: 0.5rem;
+}
+
+.quick-action-btn:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+}
+
+/* Demo Mode Indicator */
+.demo-mode-indicator {
+  position: fixed;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  z-index: 100;
+  display: none;
+  animation: slideDown 0.5s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translateX(-50%) translateY(-100%); }
+  to { transform: translateX(-50%) translateY(0); }
+}
+
+.demo-mode-indicator.active {
+  display: block;
+}
+
+/* Utility Classes */
+.hidden { display: none !important; }
+.text-success { color: var(--success); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-info { color: var(--info); }
+.text-muted { color: var(--text-muted); }
+.text-center { text-align: center; }
+.mt-1 { margin-top: 0.5rem; }
+.mt-2 { margin-top: 1rem; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo-section">
+        <div class="logo"></div>
+        <div>
+          <div class="brand-name">Rebirth Nexus</div>
+        </div>
+        <div class="brand-tagline">Predictive Rail Intelligence</div>
+      </div>
+      
+      <div class="persona-selector">
+        <button class="persona-tab active" data-persona="cfo">CFO</button>
+        <button class="persona-tab" data-persona="operations">Operations</button>
+        <button class="persona-tab" data-persona="maintenance">Maintenance</button>
+        <button class="persona-tab" data-persona="safety">Safety</button>
+        <button class="persona-tab" data-persona="response">Response</button>
+        <button class="persona-tab" data-persona="shipper">Shipper/3PL</button>
+        <button class="persona-tab" data-persona="infrastructure">Infrastructure</button>
+      </div>
+      
+      <div class="header-actions">
+        <div class="live-indicator">
+          <div class="live-dot"></div>
+          <span>LIVE</span>
+          <span class="sensor-count">1.2M sensors</span>
+        </div>
+        <button class="header-btn" onclick="showTour()">Tour</button>
+        <button class="header-btn" onclick="resetDemo()">Reset</button>
+      </div>
+    </div>
+  </header>
+  
+  <!-- Main Layout -->
+  <div class="main-layout">
+    <!-- Dashboard Panel -->
+    <div class="dashboard-panel">
+      <!-- Top Row: Risk Score, KPIs + Charts combined, and Asset Utilization -->
+      <div style="display: grid; grid-template-columns: 220px 1fr 190px; gap: 0.75rem; height: 320px;">
+        <!-- Predictive Risk Score -->
+        <div class="risk-score-container">
+          <div class="risk-gauge">
+            <svg class="risk-gauge-circle" viewBox="0 0 100 100">
+              <circle class="risk-gauge-bg" cx="50" cy="50" r="40"></circle>
+              <circle class="risk-gauge-fill" id="riskGaugeFill" cx="50" cy="50" r="40"
+                stroke-dasharray="251.2" stroke-dashoffset="50" stroke="url(#gaugeGradient)"></circle>
+              <defs>
+                <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                  <stop offset="50%" style="stop-color:#f59e0b;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+            </svg>
+            <div class="risk-gauge-center">
+              <div class="risk-score-value" id="riskScoreValue">84</div>
+              <div class="risk-score-label">Predictive Risk</div>
+            </div>
+          </div>
+          <div class="risk-components">
+            <div class="risk-component mechanical" onclick="showRiskDetails('mechanical')">
+              <span class="risk-component-label">Mechanical</span>
+              <span class="risk-component-value">78</span>
+              <div class="risk-component-bar" style="width: 78%"></div>
+            </div>
+            <div class="risk-component operational" onclick="showRiskDetails('operational')">
+              <span class="risk-component-label">Operational</span>
+              <span class="risk-component-value">85</span>
+              <div class="risk-component-bar" style="width: 85%"></div>
+            </div>
+            <div class="risk-component environmental" onclick="showRiskDetails('environmental')">
+              <span class="risk-component-label">Environmental</span>
+              <span class="risk-component-value">92</span>
+              <div class="risk-component-bar" style="width: 92%"></div>
+            </div>
+            <div class="risk-component security" onclick="showRiskDetails('security')">
+              <span class="risk-component-label">Security</span>
+              <span class="risk-component-value">88</span>
+              <div class="risk-component-bar" style="width: 88%"></div>
+            </div>
+            <div class="risk-component financial" onclick="showRiskDetails('financial')">
+              <span class="risk-component-label">Financial</span>
+              <span class="risk-component-value">81</span>
+              <div class="risk-component-bar" style="width: 81%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Combined KPIs and Charts Section -->
+        <div style="display: grid; grid-template-rows: auto 1fr; gap: 0.5rem;">
+          <!-- KPI Cards -->
+          <div class="kpi-grid" id="kpiGrid" style="grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+            <!-- Dynamically populated based on persona -->
+          </div>
+          
+          <!-- Charts -->
+          <div class="chart-grid" style="grid-template-columns: 1fr 1fr; gap: 0.5rem; height: 140px;">
+            <div class="chart-container" style="padding: 0.5rem;">
+              <div class="chart-header" style="margin-bottom: 0.25rem;">
+                <div class="chart-title" id="chart1Title" style="font-size: 0.75rem;">Revenue Performance</div>
+                <div class="chart-options">
+                  <button class="chart-btn active" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">Week</button>
+                  <button class="chart-btn" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">Month</button>
+                  <button class="chart-btn" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">Quarter</button>
+                </div>
+              </div>
+              <canvas id="chart1" width="250" height="100"></canvas>
+              <div class="chart-tooltip" id="tooltip1"></div>
+            </div>
+            
+            <div class="chart-container" style="padding: 0.5rem;">
+              <div class="chart-header" style="margin-bottom: 0.25rem;">
+                <div class="chart-title" id="chart2Title" style="font-size: 0.75rem;">Cost Analysis</div>
+                <div class="chart-options">
+                  <button class="chart-btn" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">Details</button>
+                </div>
+              </div>
+              <canvas id="chart2" width="250" height="100"></canvas>
+              <div class="chart-tooltip" id="tooltip2"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Asset Utilization -->
+        <div class="asset-util-container">
+          <div class="asset-util-header">
+            <div class="asset-util-title">Asset Utilization</div>
+            <button class="chart-btn" onclick="showAssetDetails()" style="padding: 0.2rem 0.4rem; font-size: 0.65rem;">Details</button>
+          </div>
+          <div class="asset-util-value">
+            91%<span class="asset-util-change">+3.2%</span>
+          </div>
+          <canvas id="assetUtilChart" width="160" height="50"></canvas>
+        </div>
+      </div>
+      
+      <!-- Map and Alert Feed Row -->
+      <div style="display: grid; grid-template-columns: 1fr 280px; gap: 0.75rem; height: calc(100vh - 60px - 320px - 2rem);">
+        <!-- Map -->
+        <div class="map-container" style="height: 100%;">
+          <div class="chart-header">
+            <div class="chart-title">Live Rail Network</div>
+            <div class="chart-options">
+              <button class="chart-btn">Zoom In</button>
+              <button class="chart-btn">Layers</button>
+            </div>
+          </div>
+          <div class="map-placeholder" id="mapPlaceholder" style="height: calc(100% - 40px); position: relative;">
+            <div class="map-overlay">
+              <div class="map-controls">
+                <button class="chart-btn">Risk</button>
+                <button class="chart-btn active">Live</button>
+                <button class="chart-btn">Weather</button>
+              </div>
+              <div class="map-legend">
+                <div>🟢 Operational</div>
+                <div>🟡 Warning</div>
+                <div>🔴 Critical</div>
+              </div>
+            </div>
+            
+            <!-- RSAE Sensor Stream -->
+            <div class="sensor-stream" id="sensorStream">
+              <div class="sensor-stream-header" onclick="toggleSensorStream()">
+                <div class="sensor-stream-title">
+                  <div class="sensor-pulse"></div>
+                  <span>RSAE Sensor Stream</span>
+                </div>
+                <span id="streamToggle">−</span>
+              </div>
+              <div class="sensor-stream-body" id="sensorEvents">
+                <!-- Dynamically populated sensor events -->
+              </div>
+            </div>
+            
+            <div class="map-center">
+              <span class="map-number" id="mapNumber">MAP 1</span>
+              <div class="map-description" id="mapDescription">
+                Live corridor status with sensor overlay
+                <br><small>Heat map showing MEM→CHI corridor with sensor density</small>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Alert Feed -->
+        <div class="alert-feed" style="height: 100%;">
+          <div class="alert-feed-header">
+            <div class="chart-title">Predictive Risk Intelligence</div>
+            <div class="chart-options">
+              <button class="chart-btn">Filter</button>
+            </div>
+          </div>
+          <div class="alert-list" id="alertList" style="max-height: calc(100% - 40px); overflow-y: auto;">
+            <!-- Dynamically populated -->
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-title">
+          <div class="ai-avatar">AI</div>
+          <div class="chat-info">
+            <div class="chat-name">Nexus Intelligence</div>
+            <div class="chat-status">
+              <div class="live-dot" style="width: 6px; height: 6px;"></div>
+              <span>Processing 28.8M predictions/day</span>
+            </div>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="chat-action-btn" title="Export">📤</button>
+          <button class="chat-action-btn" title="Settings">⚙️</button>
+        </div>
+      </div>
+      
+      <div class="messages-container" id="messagesContainer">
+        <!-- Initial AI greeting -->
+        <div class="message ai">
+          <div class="message-avatar">AI</div>
+          <div class="message-content">
+            <div class="message-bubble">
+              <div class="message-text">
+                Welcome to Rebirth Nexus. I'm analyzing <strong>1.2 million sensors</strong> across your rail network in real-time. 
+                As your CFO assistant, I can provide predictive insights on revenue optimization, cost reduction, and risk mitigation.
+                What financial metrics would you like to explore?
+              </div>
+              <div class="message-time">Just now</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="prompt-chips">
+        <div class="chips-label">Suggested Questions</div>
+        <div class="chips-container" id="promptChips">
+          <!-- Dynamically populated based on persona -->
+        </div>
+      </div>
+      
+      <div class="chat-input-area">
+        <div class="input-container">
+          <div class="input-wrapper">
+            <textarea class="chat-input" id="chatInput" placeholder="Ask me anything..." rows="1"></textarea>
+          </div>
+          <div class="input-actions">
+            <button class="attach-btn" title="Attach">📎</button>
+            <button class="send-btn" onclick="sendMessage()">
+              <span>Send</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+
+  <!-- Slide Panel for Details -->
+  <div class="panel-overlay" id="panelOverlay" onclick="closeSlidePanel()"></div>
+  <div class="slide-panel" id="slidePanel">
+    <div class="slide-panel-header">
+      <div class="slide-panel-title" id="slidePanelTitle">Details</div>
+      <button class="slide-panel-close" onclick="closeSlidePanel()">✕</button>
+    </div>
+    <div class="slide-panel-content" id="slidePanelContent">
+      <!-- Dynamically populated -->
+    </div>
+  </div>
+  
+  <!-- Tour Overlay and Tooltip -->
+  <div class="tour-overlay" id="tourOverlay"></div>
+  <div class="tour-highlight" id="tourHighlight"></div>
+  <div class="tour-tooltip" id="tourTooltip">
+    <div class="tour-arrow" id="tourArrow"></div>
+    <div class="tour-tooltip-header">
+      <span class="tour-step" id="tourStep">Step 1 of 10</span>
+    </div>
+    <div class="tour-tooltip-title" id="tourTitle">Welcome to Rebirth Nexus</div>
+    <div class="tour-tooltip-content" id="tourContent">
+      Let me show you how our predictive rail intelligence platform can save you millions while preventing failures before they happen.
+    </div>
+    <div class="tour-tooltip-actions">
+      <button class="tour-btn tour-btn-skip" onclick="endTour()">Skip Tour</button>
+      <button class="tour-btn tour-btn-next" id="tourNextBtn" onclick="nextTourStep()">Get Started →</button>
+    </div>
+  </div>
+  
+  <!-- Demo Mode Indicator -->
+  <div class="demo-mode-indicator" id="demoModeIndicator">
+    🎯 Demo Mode Active - Auto-playing through features
+  </div>
+  
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button class="quick-action-btn" onclick="exportReport()" data-tooltip="Export full report as PDF">
+      📊
+    </button>
+    <button class="quick-action-btn" onclick="toggleDemoMode()" data-tooltip="Start automated demo">
+      ▶️
+    </button>
+    <button class="quick-action-btn" onclick="showKeyboardShortcuts()" data-tooltip="View keyboard shortcuts">
+      ⌨️
+    </button>
+  </div>
+</div>
+
+<script>
+// Global state
+let currentPersona = 'cfo';
+let conversationDepth = 0;
+let conversationPath = [];
+let messageIdCounter = 0;
+let chartData = {}; // Store chart data for tooltips
+
+// Risk details data
+const riskDetails = {
+  mechanical: {
+    title: 'Mechanical Risk Analysis',
+    score: 78,
+    trend: 'improving',
+    components: [
+      { name: 'Bearing Health', value: 72, status: 'warning', detail: '23 bearings showing elevated temperatures' },
+      { name: 'Wheel Condition', value: 85, status: 'good', detail: 'Within tolerance, 2 scheduled for inspection' },
+      { name: 'Brake Systems', value: 79, status: 'moderate', detail: 'Pressure variations detected in 5 units' },
+      { name: 'Coupling Integrity', value: 81, status: 'good', detail: 'All couplings within spec' }
+    ],
+    recommendations: [
+      'Schedule bearing replacements for cars 1891, 2456, 3001',
+      'Increase inspection frequency for high-mileage units',
+      'Order spare parts inventory (estimated $234K)'
+    ],
+    financialImpact: '$1.2M potential savings from prevented failures'
+  },
+  operational: {
+    title: 'Operational Risk Analysis',
+    score: 85,
+    trend: 'stable',
+    components: [
+      { name: 'On-Time Performance', value: 88, status: 'good', detail: '94.1% OTIF last 30 days' },
+      { name: 'Crew Availability', value: 82, status: 'moderate', detail: 'Adequate coverage, 2 crews on standby' },
+      { name: 'Network Congestion', value: 79, status: 'warning', detail: 'Chicago hub showing delays' },
+      { name: 'Communication Systems', value: 91, status: 'excellent', detail: 'All systems operational' }
+    ],
+    recommendations: [
+      'Reroute 3 trains through Memphis to avoid Chicago congestion',
+      'Schedule additional crew training for Q2',
+      'Implement predictive dispatch system'
+    ],
+    financialImpact: '$450K/month from improved asset utilization'
+  },
+  environmental: {
+    title: 'Environmental Risk Analysis',
+    score: 92,
+    trend: 'improving',
+    components: [
+      { name: 'Emissions Compliance', value: 94, status: 'excellent', detail: 'Below regulatory limits' },
+      { name: 'Hazmat Handling', value: 89, status: 'good', detail: 'All protocols followed' },
+      { name: 'Weather Resilience', value: 91, status: 'excellent', detail: 'Systems hardened for conditions' },
+      { name: 'Noise Levels', value: 93, status: 'excellent', detail: 'Within community standards' }
+    ],
+    recommendations: [
+      'Continue emissions reduction program',
+      'Update hazmat response protocols for new regulations',
+      'Install additional weather monitoring stations'
+    ],
+    financialImpact: 'Avoided $2.3M in potential environmental fines'
+  },
+  security: {
+    title: 'Security Risk Analysis',
+    score: 88,
+    trend: 'stable',
+    components: [
+      { name: 'Cargo Integrity', value: 91, status: 'excellent', detail: 'No breaches in 180 days' },
+      { name: 'Cyber Security', value: 85, status: 'good', detail: 'Systems patched and monitored' },
+      { name: 'Physical Security', value: 87, status: 'good', detail: 'All yards secured' },
+      { name: 'Access Control', value: 89, status: 'good', detail: 'Badge system operational' }
+    ],
+    recommendations: [
+      'Upgrade cyber security to zero-trust architecture',
+      'Install additional cameras at Chicago yard',
+      'Conduct quarterly security drills'
+    ],
+    financialImpact: '$800K saved from theft prevention'
+  },
+  financial: {
+    title: 'Financial Risk Analysis',
+    score: 81,
+    trend: 'improving',
+    components: [
+      { name: 'Revenue Accuracy', value: 78, status: 'warning', detail: '$1.8M in unbilled services' },
+      { name: 'Cost Control', value: 83, status: 'moderate', detail: 'Within 2% of budget' },
+      { name: 'Insurance Coverage', value: 85, status: 'good', detail: 'Premiums reduced 18%' },
+      { name: 'Contract Compliance', value: 79, status: 'warning', detail: '3 contracts need review' }
+    ],
+    recommendations: [
+      'Implement automated billing verification',
+      'Renegotiate fuel contracts for Q3',
+      'Review insurance deductibles for optimization'
+    ],
+    financialImpact: '$3.4M annual opportunity identified'
+  }
+};
+
+// Enhanced persona configurations with Predictive Risk Score
+const personaConfigs = {
+  cfo: {
+    name: 'CFO',
+    riskScore: 84,
+    assetUtil: 91,
+    greeting: "Welcome to Rebirth Nexus. I'm analyzing <strong>1.2 million sensors</strong> across your rail network in real-time. As your CFO assistant, I can provide predictive insights on revenue optimization, cost reduction, and risk mitigation. What financial metrics would you like to explore?",
+    kpis: [
+      { title: 'Revenue MTD', value: '$142.3M', change: '+3.2%', positive: true, icon: 'success' },
+      { title: 'DSO', value: '28 days', change: '-3 days', positive: true, icon: 'info' },
+      { title: 'Insurance Risk', value: '82', change: '-18%', positive: true, icon: 'success' }
+    ],
+    charts: {
+      chart1: { title: 'Revenue Performance', type: 'line' },
+      chart2: { title: 'Cost Analysis', type: 'bar' }
+    }
+  },
+  operations: {
+    name: 'Operations',
+    riskScore: 79,
+    assetUtil: 88,
+    greeting: "Operations Control active. Monitoring <strong>47 active trains</strong> with <strong>94.1% OTIF</strong> performance today. I'm tracking 12 active alerts and can predict disruptions 24-72 hours in advance. How can I optimize your operations?",
+    kpis: [
+      { title: 'Active Trains', value: '47', change: '', positive: true, icon: 'info' },
+      { title: 'OTIF', value: '94.1%', change: '-0.3%', positive: false, icon: 'warning' },
+      { title: 'Active Alerts', value: '12', change: '+3', positive: false, icon: 'danger' }
+    ],
+    charts: {
+      chart1: { title: 'Train Performance', type: 'line' },
+      chart2: { title: 'Delay Analysis', type: 'bar' }
+    }
+  },
+  maintenance: {
+    name: 'Maintenance',
+    riskScore: 75,
+    assetUtil: 84,
+    greeting: "Predictive Maintenance System online. Currently tracking <strong>23 active alerts</strong> with <strong>3 predicted failures</strong> in the next 72 hours. I can predict component failures up to 240 hours in advance. What maintenance concerns should we address?",
+    kpis: [
+      { title: 'Asset Health', value: '84.2', change: '-1.1', positive: false, icon: 'warning' },
+      { title: 'Pending WO', value: '12', change: '-2', positive: true, icon: 'success' },
+      { title: 'Predicted Failures', value: '3', change: '', positive: false, icon: 'danger' }
+    ],
+    charts: {
+      chart1: { title: 'Bearing Temperature Trends', type: 'line' },
+      chart2: { title: 'Shock Event Distribution', type: 'bar' }
+    }
+  },
+  safety: {
+    name: 'Safety',
+    riskScore: 94,
+    assetUtil: 92,
+    greeting: "Safety Management System active. Current safety score: <strong>94/100</strong>. Monitoring <strong>12 hazmat cars</strong> with all first responders notified. Compliance rate at <strong>99.2%</strong>. What safety metrics need attention?",
+    kpis: [
+      { title: 'Safety Score', value: '94', change: '+2', positive: true, icon: 'success' },
+      { title: 'Hazmat Cars', value: '12', change: '', positive: true, icon: 'warning' },
+      { title: 'Compliance', value: '99.2%', change: '+0.3%', positive: true, icon: 'success' }
+    ],
+    charts: {
+      chart1: { title: 'Safety Score Trend', type: 'line' },
+      chart2: { title: 'Incident Categories', type: 'pie' }
+    }
+  },
+  response: {
+    name: 'Response',
+    riskScore: 72,
+    assetUtil: 87,
+    greeting: "Emergency Response System active. Average detection latency: <strong>3.2 seconds</strong>, response time: <strong>2.9 minutes</strong>. Currently managing <strong>3 active incidents</strong>. How can I assist with incident management?",
+    kpis: [
+      { title: 'Active Incidents', value: '3', change: '', positive: false, icon: 'danger' },
+      { title: 'Response Time', value: '2.9 min', change: '-0.6', positive: true, icon: 'success' },
+      { title: 'Resolved', value: '38', change: '+5', positive: true, icon: 'success' }
+    ],
+    charts: {
+      chart1: { title: 'Detection Latency', type: 'bar' },
+      chart2: { title: 'Response Time Trend', type: 'line' }
+    }
+  },
+  shipper: {
+    name: 'Shipper/3PL',
+    riskScore: 89,
+    assetUtil: 93,
+    greeting: "Shipment Intelligence active. Tracking <strong>47 active shipments</strong> with <strong>97% ETA accuracy</strong>. Quality of Service index at <strong>92.5</strong>. I can predict arrival times within ±18 minutes. Which shipments would you like to track?",
+    kpis: [
+      { title: 'Active Shipments', value: '47', change: '', positive: true, icon: 'info' },
+      { title: 'ETA Accuracy', value: '97%', change: '+1.2%', positive: true, icon: 'success' },
+      { title: 'QoS Index', value: '92.5', change: '+0.8', positive: true, icon: 'success' }
+    ],
+    charts: {
+      chart1: { title: 'ETA Performance', type: 'line' },
+      chart2: { title: 'Deviation Analysis', type: 'bar' }
+    }
+  },
+  infrastructure: {
+    name: 'Infrastructure',
+    riskScore: 77,
+    assetUtil: 82,
+    greeting: "Infrastructure Monitoring active. Track condition index: <strong>82.3</strong>. Monitoring <strong>47 bridges</strong> and <strong>5 high-risk segments</strong>. Predictive maintenance could save <strong>$1.04M</strong> this quarter. What infrastructure concerns should we prioritize?",
+    kpis: [
+      { title: 'Track Condition', value: '82.3', change: '-0.7', positive: false, icon: 'warning' },
+      { title: 'High-Risk', value: '5', change: '+2', positive: false, icon: 'danger' },
+      { title: 'Bridges', value: '47', change: '', positive: true, icon: 'info' }
+    ],
+    charts: {
+      chart1: { title: 'Track Condition by Segment', type: 'bar' },
+      chart2: { title: 'Bridge Stress Trends', type: 'line' }
+    }
+  }
+};
+
+// Comprehensive conversation tree - 5 layers deep
+// This is a massive structure - showing partial implementation for CFO persona
+const conversationTree = {
+  cfo: {
+    initialQuestions: [
+      {
+        id: 'cfo-1',
+        text: "What's our current billable asset utilization?",
+        icon: '📊'
+      },
+      {
+        id: 'cfo-2',
+        text: "Show me revenue leakage points",
+        icon: '💰'
+      },
+      {
+        id: 'cfo-3',
+        text: "How is predictive maintenance affecting insurance premiums?",
+        icon: '🛡️'
+      }
+    ],
+    responses: {
+      'cfo-1': {
+        answer: `<strong>Billable Asset Utilization: 86.4% MTD</strong> (↑1.8pp vs last month)
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            ⚡ Predictive Insight
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Underutilized:</span>
+              <span class="predictive-value">MEM→CHI corridor at 81.2%</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Revenue Impact:</span>
+              <span class="predictive-value">-$3.4M/month</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Action:</span>
+              <span class="predictive-value">Redeploy 12 assets from LAX→SEA</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="roi-calculator">
+          <div class="roi-header">
+            <span>Optimization Opportunity</span>
+            <span class="roi-value">+$3.4M</span>
+          </div>
+          <div class="roi-breakdown">
+            <div class="roi-item">
+              <span>Increased utilization (2pp)</span>
+              <span>+$2.1M</span>
+            </div>
+            <div class="roi-item">
+              <span>Reduced repositioning</span>
+              <span>+$0.8M</span>
+            </div>
+            <div class="roi-item">
+              <span>Lower dwell penalties</span>
+              <span>+$0.5M</span>
+            </div>
+          </div>
+        </div>`,
+        followUps: [
+          { id: 'cfo-1-1', text: 'Which corridors need optimization?', icon: '🗺️' },
+          { id: 'cfo-1-2', text: 'Show empty-to-load ratios', icon: '📦' },
+          { id: 'cfo-1-3', text: 'Forecast next quarter utilization', icon: '📈' }
+        ],
+        mapNumber: 1,
+        mapDescription: 'Utilization heat map by corridor'
+      },
+      'cfo-2': {
+        answer: `<strong>Revenue Leakage Analysis</strong>
+        
+        Identified <strong>$4.7M monthly leakage</strong> across 3 primary areas:
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            💸 Critical Leakage Points
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Interchange errors:</span>
+              <span class="predictive-value">$1.8M (38% of total)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Unbilled detention:</span>
+              <span class="predictive-value">$1.6M (34% of total)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Manual rating errors:</span>
+              <span class="predictive-value">$1.3M (28% of total)</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Predictive Action:</strong> Implementing automated custody handoff verification at Chicago interchange will recover $420K/month immediately.`,
+        followUps: [
+          { id: 'cfo-2-1', text: 'Fix interchange billing gaps', icon: '🔧' },
+          { id: 'cfo-2-2', text: 'Automate detention tracking', icon: '⏱️' },
+          { id: 'cfo-2-3', text: 'Show DSO improvement plan', icon: '📅' }
+        ],
+        mapNumber: 2,
+        mapDescription: 'Revenue leakage nodes at interchanges'
+      },
+      'cfo-3': {
+        answer: `<strong>Insurance Premium Impact Analysis</strong>
+        
+        Predictive maintenance has reduced derailment risk score by <strong>18% YoY</strong>.
+        
+        <div class="roi-calculator">
+          <div class="roi-header">
+            <span>Premium Reduction Forecast</span>
+            <span class="roi-value">-$2.7M/year</span>
+          </div>
+          <div class="roi-breakdown">
+            <div class="roi-item">
+              <span>Base premium reduction (45 bps)</span>
+              <span>-$1.8M</span>
+            </div>
+            <div class="roi-item">
+              <span>Safety score bonus</span>
+              <span>-$0.5M</span>
+            </div>
+            <div class="roi-item">
+              <span>Claims-free discount</span>
+              <span>-$0.4M</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Key Factor:</strong> Hot bearing predictions prevented 3 potential derailments in Q3, each would have cost $8-12M in claims.`,
+        followUps: [
+          { id: 'cfo-3-1', text: 'Show underwriter scorecard', icon: '📋' },
+          { id: 'cfo-3-2', text: 'Project 2-year premium trend', icon: '📉' },
+          { id: 'cfo-3-3', text: 'Compare to industry benchmarks', icon: '🏆' }
+        ],
+        mapNumber: 3,
+        mapDescription: 'Risk reduction corridors post-maintenance'
+      }
+    }
+  },
+  // Additional personas would have similar deep structures
+  operations: {
+    initialQuestions: [
+      {
+        id: 'ops-1',
+        text: "Who's having problems right now?",
+        icon: '🚨'
+      },
+      {
+        id: 'ops-2',
+        text: "Show OTIF performance by lane",
+        icon: '📍'
+      },
+      {
+        id: 'ops-3',
+        text: "Any weather impacts next 48 hours?",
+        icon: '🌦️'
+      }
+    ],
+    responses: {
+      'ops-1': {
+        answer: `<strong>12 Active Problems Detected</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🚨 Highest Priority Issues
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Train 247:</span>
+              <span class="predictive-value">Bearing temp rising (fail in ~72hrs)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Location:</span>
+              <span class="predictive-value">MP 445, approaching Memphis</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Action:</span>
+              <span class="predictive-value">Divert to Dallas UP yard at 15:40</span>
+            </div>
+          </div>
+        </div>
+        
+        Additional alerts: 5 dwell breaches (>45min), 3 impact events (>4g), 2 door anomalies, 1 brake pressure warning.`,
+        followUps: [
+          { id: 'ops-1-1', text: 'Prioritize by revenue impact', icon: '💰' },
+          { id: 'ops-1-2', text: 'Show affected customers', icon: '👥' },
+          { id: 'ops-1-3', text: 'Generate action plan', icon: '📝' }
+        ],
+        mapNumber: 4,
+        mapDescription: 'Live problem locations with severity'
+      }
+    }
+  },
+  maintenance: {
+    initialQuestions: [
+      {
+        id: 'maint-1',
+        text: "Show bearing temperature anomalies",
+        icon: '🌡️'
+      },
+      {
+        id: 'maint-2',
+        text: "Which cars need inspection within 72 hours?",
+        icon: '🔍'
+      },
+      {
+        id: 'maint-3',
+        text: "List all wheel drag alerts",
+        icon: '⚙️'
+      }
+    ],
+    responses: {
+      'maint-1': {
+        answer: `<strong>Bearing Temperature Analysis</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🌡️ Critical Bearing Alert - CAR-1891
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Current Temp:</span>
+              <span class="predictive-value">178°F (+8°F/100mi trend)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Failure Window:</span>
+              <span class="predictive-value">234 hours of operation</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Part Available:</span>
+              <span class="predictive-value">Dallas yard (SKU: BR-445XL)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Recommended:</span>
+              <span class="predictive-value">Route to Dallas via UP Tue 15:40</span>
+            </div>
+          </div>
+        </div>
+        
+        2 additional cars showing gradients >6°F/100mi. Scheduling preventive maintenance will avoid $340K in emergency repairs.`,
+        followUps: [
+          { id: 'maint-1-1', text: 'Schedule maintenance window', icon: '📅' },
+          { id: 'maint-1-2', text: 'Check parts inventory', icon: '📦' },
+          { id: 'maint-1-3', text: 'Show temperature history', icon: '📊' }
+        ],
+        mapNumber: 5,
+        mapDescription: 'Bearing hot spots and maintenance facilities'
+      }
+    }
+  },
+  safety: {
+    initialQuestions: [
+      {
+        id: 'safety-1',
+        text: "Show hazmat car status and locations",
+        icon: '☢️'
+      },
+      {
+        id: 'safety-2',
+        text: "Are all first responders notified?",
+        icon: '🚨'
+      },
+      {
+        id: 'safety-3',
+        text: "What's our compliance score?",
+        icon: '✅'
+      }
+    ],
+    responses: {
+      'safety-1': {
+        answer: `<strong>Hazmat Car Monitoring</strong>
+        
+        Currently tracking <strong>12 hazmat cars</strong> across the network:
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            ☢️ Hazmat Status Overview
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Class 3 (Flammable):</span>
+              <span class="predictive-value">5 cars - All secured</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Class 8 (Corrosive):</span>
+              <span class="predictive-value">4 cars - Temperature stable</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Class 2 (Compressed Gas):</span>
+              <span class="predictive-value">3 cars - Pressure normal</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Real-time Monitoring:</strong> All cars have active telemetry with <18 sec latency. First responders along routes have been pre-notified.`,
+        followUps: [
+          { id: 'safety-1-1', text: 'Show temperature trends', icon: '🌡️' },
+          { id: 'safety-1-2', text: 'View response team locations', icon: '🚒' },
+          { id: 'safety-1-3', text: 'Check placard compliance', icon: '📋' }
+        ],
+        mapNumber: 6,
+        mapDescription: 'Hazmat car locations with 5-mile safety zones'
+      },
+      'safety-2': {
+        answer: `<strong>First Responder Notification Status</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🚨 Responder Readiness: ACTIVE
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Notified Teams:</span>
+              <span class="predictive-value">47 departments along routes</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Response Time:</span>
+              <span class="predictive-value">Avg 8.2 min to any point</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Coverage Gaps:</span>
+              <span class="predictive-value">None - 100% coverage</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Automated Alerts:</strong> All hazmat movements trigger automatic notifications to local emergency services with car contents, route, and ETA.`,
+        followUps: [
+          { id: 'safety-2-1', text: 'View notification logs', icon: '📋' },
+          { id: 'safety-2-2', text: 'Test emergency broadcast', icon: '📡' },
+          { id: 'safety-2-3', text: 'Update contact database', icon: '📞' }
+        ],
+        mapNumber: 7,
+        mapDescription: 'First responder locations and coverage zones'
+      },
+      'safety-3': {
+        answer: `<strong>Compliance Score Analysis</strong>
+        
+        Overall Compliance Rate: <strong>99.2%</strong> (Industry best: 95.4%)
+        
+        <div class="roi-calculator">
+          <div class="roi-header">
+            <span>Compliance Breakdown</span>
+            <span class="roi-value">99.2%</span>
+          </div>
+          <div class="roi-breakdown">
+            <div class="roi-item">
+              <span>FRA regulations</span>
+              <span>100%</span>
+            </div>
+            <div class="roi-item">
+              <span>Hazmat placarding</span>
+              <span>99.8%</span>
+            </div>
+            <div class="roi-item">
+              <span>Crew certifications</span>
+              <span>98.9%</span>
+            </div>
+            <div class="roi-item">
+              <span>Equipment inspections</span>
+              <span>98.2%</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Predictive Insight:</strong> 2 certifications expiring in next 30 days. Renewal reminders sent.`,
+        followUps: [
+          { id: 'safety-3-1', text: 'View audit history', icon: '📊' },
+          { id: 'safety-3-2', text: 'Generate compliance report', icon: '📄' },
+          { id: 'safety-3-3', text: 'Show upcoming deadlines', icon: '📅' }
+        ],
+        mapNumber: 8,
+        mapDescription: 'Compliance status by region'
+      }
+    }
+  },
+  response: {
+    initialQuestions: [
+      {
+        id: 'response-1',
+        text: "What's our current incident status?",
+        icon: '🚨'
+      },
+      {
+        id: 'response-2',
+        text: "Show response team readiness",
+        icon: '👨‍🚒'
+      },
+      {
+        id: 'response-3',
+        text: "Any predicted incidents next 24hrs?",
+        icon: '⚠️'
+      }
+    ],
+    responses: {
+      'response-1': {
+        answer: `<strong>Active Incident Management</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🚨 3 Active Incidents
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Priority 1:</span>
+              <span class="predictive-value">Brake lock MP 223 - Team dispatched</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Priority 2:</span>
+              <span class="predictive-value">Signal failure Junction 12 - Remote reset</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Priority 3:</span>
+              <span class="predictive-value">Door sensor fault Car 4421 - Monitoring</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Response Metrics:</strong> Average detection: 3.2 sec | Response time: 2.9 min | Resolution: 18.4 min`,
+        followUps: [
+          { id: 'response-1-1', text: 'Escalate to operations', icon: '📞' },
+          { id: 'response-1-2', text: 'View incident history', icon: '📊' },
+          { id: 'response-1-3', text: 'Generate incident report', icon: '📄' }
+        ],
+        mapNumber: 7,
+        mapDescription: 'Active incidents with response teams en route'
+      },
+      'response-2': {
+        answer: `<strong>Response Team Readiness Dashboard</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            👨‍🚒 Team Readiness Status
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">On-duty teams:</span>
+              <span class="predictive-value">18 teams (142 personnel)</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Equipment ready:</span>
+              <span class="predictive-value">97% operational</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Avg response time:</span>
+              <span class="predictive-value">2.9 minutes</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Coverage Analysis:</strong> All critical points covered. Longest response time: 6.2 min to MP 447.`,
+        followUps: [
+          { id: 'response-2-1', text: 'View team locations', icon: '🗺️' },
+          { id: 'response-2-2', text: 'Check equipment status', icon: '🔧' },
+          { id: 'response-2-3', text: 'Run response drill', icon: '🎯' }
+        ],
+        mapNumber: 8,
+        mapDescription: 'Response team deployment and coverage areas'
+      },
+      'response-3': {
+        answer: `<strong>24-Hour Incident Prediction</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            ⚠️ Predicted Issues (Next 24hrs)
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">High Risk (85%):</span>
+              <span class="predictive-value">Bearing failure Car 8821 @ ~16hrs</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Medium Risk (62%):</span>
+              <span class="predictive-value">Weather impact MP 200-250 @ ~8hrs</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Low Risk (31%):</span>
+              <span class="predictive-value">Signal malfunction Junction 7 @ ~20hrs</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Preventive Actions:</strong> Maintenance crew dispatched for Car 8821. Weather protocols activated for affected corridor.`,
+        followUps: [
+          { id: 'response-3-1', text: 'Deploy preventive measures', icon: '🛡️' },
+          { id: 'response-3-2', text: 'Alert relevant teams', icon: '📢' },
+          { id: 'response-3-3', text: 'Update contingency plans', icon: '📝' }
+        ],
+        mapNumber: 9,
+        mapDescription: 'Predicted incident locations with risk levels'
+      }
+    }
+  },
+  shipper: {
+    initialQuestions: [
+      {
+        id: 'shipper-1',
+        text: "Track my high-priority shipments",
+        icon: '📦'
+      },
+      {
+        id: 'shipper-2',
+        text: "Show ETA accuracy for today",
+        icon: '⏰'
+      },
+      {
+        id: 'shipper-3',
+        text: "Any delays affecting my cargo?",
+        icon: '⚠️'
+      }
+    ],
+    responses: {
+      'shipper-1': {
+        answer: `<strong>High-Priority Shipment Tracking</strong>
+        
+        Monitoring <strong>8 high-priority shipments</strong> with real-time visibility:
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            📦 Priority Shipment Status
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">AUTO-2847:</span>
+              <span class="predictive-value">On-time | ETA: 14:30 CST</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">CHEM-9921:</span>
+              <span class="predictive-value">12 min early | ETA: 16:45 CST</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">RETAIL-3384:</span>
+              <span class="predictive-value">At risk | Predicted delay: 45 min</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Predictive Accuracy:</strong> Current ETA precision ±18 minutes with 97% confidence across your shipments.`,
+        followUps: [
+          { id: 'shipper-1-1', text: 'Get detailed tracking', icon: '🗺️' },
+          { id: 'shipper-1-2', text: 'Show alternative routes', icon: '🔄' },
+          { id: 'shipper-1-3', text: 'Export tracking report', icon: '📊' }
+        ],
+        mapNumber: 8,
+        mapDescription: 'Your shipments with real-time location and ETA'
+      },
+      'shipper-2': {
+        answer: `<strong>ETA Accuracy Performance</strong>
+        
+        Today's Performance: <strong>97% accuracy</strong> (±18 minutes)
+        
+        <div class="roi-calculator">
+          <div class="roi-header">
+            <span>ETA Accuracy Breakdown</span>
+            <span class="roi-value">97%</span>
+          </div>
+          <div class="roi-breakdown">
+            <div class="roi-item">
+              <span>On-time (±15 min)</span>
+              <span>82%</span>
+            </div>
+            <div class="roi-item">
+              <span>Early arrival</span>
+              <span>8%</span>
+            </div>
+            <div class="roi-item">
+              <span>Within 30 min</span>
+              <span>7%</span>
+            </div>
+            <div class="roi-item">
+              <span>Delayed >30 min</span>
+              <span>3%</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Improvement:</strong> ETA accuracy improved by 4.2% vs last month through enhanced predictive algorithms.`,
+        followUps: [
+          { id: 'shipper-2-1', text: 'View historical trends', icon: '📈' },
+          { id: 'shipper-2-2', text: 'Compare to SLA', icon: '📋' },
+          { id: 'shipper-2-3', text: 'Get accuracy report', icon: '📊' }
+        ],
+        mapNumber: 9,
+        mapDescription: 'ETA performance by corridor'
+      },
+      'shipper-3': {
+        answer: `<strong>Delay Impact Analysis</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            ⚠️ 2 Shipments Affected
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">RETAIL-3384:</span>
+              <span class="predictive-value">45 min delay - Weather impact</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">AUTO-9182:</span>
+              <span class="predictive-value">20 min delay - Track maintenance</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Mitigation Options:</strong> RETAIL-3384 can be expedited via alternate routing (adds $340 cost, saves 35 min). AUTO-9182 will recover time at next interchange.`,
+        followUps: [
+          { id: 'shipper-3-1', text: 'Approve expedited routing', icon: '✅' },
+          { id: 'shipper-3-2', text: 'Notify consignees', icon: '📧' },
+          { id: 'shipper-3-3', text: 'View delay causes', icon: '🔍' }
+        ],
+        mapNumber: 10,
+        mapDescription: 'Delayed shipments with alternate routes'
+      }
+    }
+  },
+  infrastructure: {
+    initialQuestions: [
+      {
+        id: 'infra-1',
+        text: "Show track condition alerts",
+        icon: '🛤️'
+      },
+      {
+        id: 'infra-2',
+        text: "Which bridges need inspection?",
+        icon: '🌉'
+      },
+      {
+        id: 'infra-3',
+        text: "Predict infrastructure failures",
+        icon: '🔮'
+      }
+    ],
+    responses: {
+      'infra-1': {
+        answer: `<strong>Track Condition Analysis</strong>
+        
+        Track Condition Index: <strong>82.3/100</strong> with 5 segments requiring attention:
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🛤️ Critical Track Segments
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">MP 445-447:</span>
+              <span class="predictive-value">Rail wear 0.8mm | Replace in 30 days</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">MP 892-895:</span>
+              <span class="predictive-value">Ballast degradation | Schedule tamping</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">MP 223-225:</span>
+              <span class="predictive-value">Joint bars loose | Immediate tightening</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Predictive Savings:</strong> Early intervention on these segments will prevent $1.04M in emergency repairs this quarter.`,
+        followUps: [
+          { id: 'infra-1-1', text: 'Schedule maintenance windows', icon: '📅' },
+          { id: 'infra-1-2', text: 'View degradation trends', icon: '📈' },
+          { id: 'infra-1-3', text: 'Generate work orders', icon: '📝' }
+        ],
+        mapNumber: 9,
+        mapDescription: 'Track condition heat map with maintenance priorities'
+      },
+      'infra-2': {
+        answer: `<strong>Bridge Inspection Requirements</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🌉 3 Bridges Require Inspection
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Bridge 47 (River Cross):</span>
+              <span class="predictive-value">Due in 14 days | Stress: 78%</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Bridge 22 (Canyon):</span>
+              <span class="predictive-value">Due in 21 days | Stress: 71%</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Bridge 91 (Valley):</span>
+              <span class="predictive-value">Due in 28 days | Stress: 68%</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Structural Health:</strong> All bridges within safe operating limits. Predictive model shows no critical issues for next 90 days.`,
+        followUps: [
+          { id: 'infra-2-1', text: 'Schedule inspections', icon: '📅' },
+          { id: 'infra-2-2', text: 'View stress analysis', icon: '📊' },
+          { id: 'infra-2-3', text: 'Check inspection history', icon: '📋' }
+        ],
+        mapNumber: 10,
+        mapDescription: 'Bridge locations with structural health status'
+      },
+      'infra-3': {
+        answer: `<strong>Infrastructure Failure Prediction</strong>
+        
+        <div class="predictive-alert">
+          <div class="predictive-header">
+            🔮 Predicted Failures (90 days)
+          </div>
+          <div class="predictive-details">
+            <div class="predictive-item">
+              <span class="predictive-label">Switch 447 failure:</span>
+              <span class="predictive-value">62% probability @ ~45 days</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Rail break MP 892:</span>
+              <span class="predictive-value">48% probability @ ~60 days</span>
+            </div>
+            <div class="predictive-item">
+              <span class="predictive-label">Signal system J-12:</span>
+              <span class="predictive-value">31% probability @ ~75 days</span>
+            </div>
+          </div>
+        </div>
+        
+        <strong>Prevention ROI:</strong> Addressing these predictions proactively will save $2.3M vs reactive repairs and avoid 47 hours of potential delays.`,
+        followUps: [
+          { id: 'infra-3-1', text: 'Create prevention plan', icon: '🛡️' },
+          { id: 'infra-3-2', text: 'Allocate resources', icon: '💰' },
+          { id: 'infra-3-3', text: 'View failure history', icon: '📊' }
+        ],
+        mapNumber: 11,
+        mapDescription: 'Predicted failure points with probability heat map'
+      }
+    }
+  }
+};
+
+// Maps list for Josh
+const mapsList = [
+  "MAP 1: Utilization heat map by corridor (show MEM→CHI, LAX→SEA, etc.)",
+  "MAP 2: Revenue leakage nodes at major interchanges",
+  "MAP 3: Risk reduction corridors post-predictive maintenance", 
+  "MAP 4: Live problem locations with severity indicators",
+  "MAP 5: Bearing hot spots and nearest maintenance facilities",
+  "MAP 6: Weather impact zones next 48 hours",
+  "MAP 7: OTIF performance by lane with delay causes",
+  "MAP 8: Hazmat car locations and first responder zones",
+  "MAP 9: Track condition segments requiring inspection",
+  "MAP 10: Bridge stress levels and load restrictions",
+  "MAP 11: Customer shipment tracking (real-time)",
+  "MAP 12: Predicted failure locations next 72 hours",
+  "MAP 13: Dwell time heat map at yards",
+  "MAP 14: Speed restriction zones (temporary/permanent)",
+  "MAP 15: Incident response coverage areas"
+];
+
+// Show risk details in slide panel
+function showRiskDetails(component) {
+  const details = riskDetails[component];
+  if (!details) return;
+  
+  const panel = document.getElementById('slidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  const title = document.getElementById('slidePanelTitle');
+  const content = document.getElementById('slidePanelContent');
+  
+  title.textContent = details.title;
+  
+  // Generate detailed content
+  let html = `
+    <div class="metric-detail">
+      <div class="metric-detail-title">Risk Score</div>
+      <div class="metric-detail-value" style="color: ${getScoreColor(details.score)}">
+        ${details.score}/100
+        <span style="font-size: 0.75rem; color: var(--text-dim); margin-left: 0.5rem;">
+          (${details.trend})
+        </span>
+      </div>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Component Breakdown</div>
+      ${details.components.map(comp => `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: var(--panel); border-radius: 6px; margin-bottom: 0.5rem;">
+          <div>
+            <div style="font-weight: 500; font-size: 0.875rem;">${comp.name}</div>
+            <div style="font-size: 0.75rem; color: var(--text-dim);">${comp.detail}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="font-weight: 600; color: ${getScoreColor(comp.value)};">${comp.value}</div>
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${getStatusColor(comp.status)};"></div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Predictive Recommendations</div>
+      <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+        ${details.recommendations.map(rec => `
+          <li style="margin-bottom: 0.5rem; font-size: 0.875rem;">${rec}</li>
+        `).join('')}
+      </ul>
+    </div>
+    
+    <div class="metric-detail" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(16, 185, 129, 0.3);">
+      <div class="metric-detail-title">Financial Impact</div>
+      <div class="metric-detail-value" style="color: var(--success);">
+        ${details.financialImpact}
+      </div>
+    </div>
+  `;
+  
+  content.innerHTML = html;
+  
+  // Show panel
+  panel.classList.add('active');
+  overlay.classList.add('active');
+}
+
+// Show asset utilization details
+function showAssetDetails() {
+  const panel = document.getElementById('slidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  const title = document.getElementById('slidePanelTitle');
+  const content = document.getElementById('slidePanelContent');
+  
+  title.textContent = 'Asset Utilization Analysis';
+  
+  const html = `
+    <div class="metric-detail">
+      <div class="metric-detail-title">Current Utilization</div>
+      <div class="metric-detail-value">91%
+        <span style="font-size: 0.75rem; color: var(--success); margin-left: 0.5rem;">+3.2% MTD</span>
+      </div>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Utilization by Asset Type</div>
+      <div style="display: grid; gap: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Locomotives</span>
+          <span style="font-weight: 600;">94%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Freight Cars</span>
+          <span style="font-weight: 600;">89%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Tank Cars</span>
+          <span style="font-weight: 600;">87%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Intermodal</span>
+          <span style="font-weight: 600;">92%</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Underutilized Corridors</div>
+      <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+        <li style="margin-bottom: 0.5rem; font-size: 0.875rem;">
+          <strong>MEM→CHI:</strong> 81.2% (-5.2pp vs average)
+          <br><span style="color: var(--text-dim);">Revenue impact: -$3.4M/month</span>
+        </li>
+        <li style="margin-bottom: 0.5rem; font-size: 0.875rem;">
+          <strong>DAL→HOU:</strong> 83.5% (-3.9pp vs average)
+          <br><span style="color: var(--text-dim);">Revenue impact: -$1.8M/month</span>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Optimization Opportunities</div>
+      <div style="padding: 0.75rem; background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(99, 102, 241, 0.1)); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 6px;">
+        <div style="font-weight: 600; margin-bottom: 0.5rem;">Predictive Action</div>
+        <div style="font-size: 0.875rem;">
+          Redeploy 12 assets from LAX→SEA to MEM→CHI corridor
+        </div>
+        <div style="margin-top: 0.5rem; font-size: 0.875rem; color: var(--success);">
+          Projected improvement: +$3.4M/month
+        </div>
+      </div>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Historical Trend (6 months)</div>
+      <canvas id="assetDetailChart" width="360" height="120"></canvas>
+    </div>
+  `;
+  
+  content.innerHTML = html;
+  
+  // Draw detail chart
+  setTimeout(() => {
+    const canvas = document.getElementById('assetDetailChart');
+    if (canvas) {
+      drawDetailChart(canvas);
+    }
+  }, 100);
+  
+  // Show panel
+  panel.classList.add('active');
+  overlay.classList.add('active');
+}
+
+// Close slide panel
+function closeSlidePanel() {
+  const panel = document.getElementById('slidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  
+  panel.classList.remove('active');
+  overlay.classList.remove('active');
+}
+
+// Draw detail chart in slide panel
+function drawDetailChart(canvas) {
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  ctx.clearRect(0, 0, width, height);
+  
+  // Generate 6 months of data
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+  const values = [87, 85, 88, 89, 90, 91];
+  
+  // Draw grid
+  ctx.strokeStyle = 'rgba(100, 143, 255, 0.1)';
+  ctx.lineWidth = 1;
+  
+  for (let i = 0; i <= 4; i++) {
+    const y = (height / 4) * i;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(width, y);
+    ctx.stroke();
+  }
+  
+  // Draw line chart
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  months.forEach((month, i) => {
+    const x = (width / (months.length - 1)) * i;
+    const y = height - ((values[i] - 84) / 8) * height;
+    
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+    
+    // Draw point
+    ctx.fillStyle = '#10b981';
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw value
+    ctx.fillStyle = '#f8faff';
+    ctx.font = '10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`${values[i]}%`, x, y - 8);
+    
+    // Draw month
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText(month, x, height - 5);
+  });
+  
+  ctx.stroke();
+}
+
+// Helper functions
+function getScoreColor(score) {
+  if (score >= 90) return '#10b981';
+  if (score >= 80) return '#3b82f6';
+  if (score >= 70) return '#f59e0b';
+  return '#ef4444';
+}
+
+function getStatusColor(status) {
+  switch(status) {
+    case 'excellent': return '#10b981';
+    case 'good': return '#3b82f6';
+    case 'moderate': return '#f59e0b';
+    case 'warning': return '#ef4444';
+    default: return '#94a3b8';
+  }
+}
+
+// Update risk gauge
+function updateRiskGauge(score) {
+  const fill = document.getElementById('riskGaugeFill');
+  const value = document.getElementById('riskScoreValue');
+  
+  if (fill && value) {
+    // Calculate stroke offset (lower is fuller)
+    const circumference = 2 * Math.PI * 40;
+    const offset = circumference - (score / 100) * circumference;
+    
+    fill.style.strokeDashoffset = offset;
+    value.textContent = score;
+    
+    // Update color based on score
+    let color;
+    if (score >= 90) {
+      color = 'url(#gaugeGradientGood)';
+    } else if (score >= 70) {
+      color = 'url(#gaugeGradientModerate)';
+    } else {
+      color = 'url(#gaugeGradientPoor)';
+    }
+  }
+}
+
+// Initialize persona
+function switchPersona(persona) {
+  currentPersona = persona;
+  conversationDepth = 0;
+  conversationPath = [];
+  
+  // Update UI
+  document.querySelectorAll('.persona-tab').forEach(tab => {
+    tab.classList.toggle('active', tab.dataset.persona === persona);
+  });
+  
+  // Update risk score
+  const config = personaConfigs[persona];
+  updateRiskGauge(config.riskScore);
+  
+  // Update asset utilization
+  const assetUtilValue = document.querySelector('.asset-util-value');
+  if (assetUtilValue) {
+    assetUtilValue.innerHTML = `${config.assetUtil}%<span class="asset-util-change">+${(Math.random() * 5).toFixed(1)}%</span>`;
+  }
+  drawAssetUtilChart();
+  
+  // Update KPIs
+  updateKPIs();
+  
+  // Update charts
+  updateCharts();
+  
+  // Reset chat
+  resetChat();
+  
+  // Update prompt chips
+  updatePromptChips();
+}
+
+// Update KPIs based on persona
+function updateKPIs() {
+  const config = personaConfigs[currentPersona];
+  const kpiGrid = document.getElementById('kpiGrid');
+  
+  kpiGrid.innerHTML = config.kpis.map(kpi => `
+    <div class="kpi-card">
+      <div class="kpi-header">
+        <div class="kpi-title">${kpi.title}</div>
+        <div class="kpi-icon ${kpi.icon}">
+          ${kpi.icon === 'success' ? '✓' : kpi.icon === 'warning' ? '!' : kpi.icon === 'danger' ? '✗' : 'i'}
+        </div>
+      </div>
+      <div class="kpi-value">${kpi.value}</div>
+      ${kpi.change ? `
+        <div class="kpi-change ${kpi.positive ? 'positive' : 'negative'}">
+          <span>${kpi.positive ? '↑' : '↓'}</span>
+          <span>${kpi.change}</span>
+        </div>
+      ` : ''}
+      <div class="kpi-subtitle">Real-time RSAE</div>
+    </div>
+  `).join('');
+}
+
+// Update charts
+function updateCharts() {
+  const config = personaConfigs[currentPersona];
+  document.getElementById('chart1Title').textContent = config.charts.chart1.title;
+  document.getElementById('chart2Title').textContent = config.charts.chart2.title;
+  
+  // Draw sample charts using canvas
+  drawChart('chart1', config.charts.chart1.type, 'week');
+  drawChart('chart2', config.charts.chart2.type, 'week');
+  
+  // Set up chart button handlers
+  setupChartButtons();
+}
+
+// Setup chart button click handlers
+function setupChartButtons() {
+  // Remove old listeners by replacing elements
+  const chartContainers = document.querySelectorAll('.chart-container');
+  
+  chartContainers.forEach((container, index) => {
+    const buttons = container.querySelectorAll('.chart-btn');
+    buttons.forEach((btn) => {
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+      
+      newBtn.addEventListener('click', function() {
+        // Remove active class from siblings
+        const siblings = this.parentElement.querySelectorAll('.chart-btn');
+        siblings.forEach(s => s.classList.remove('active'));
+        
+        // Add active class to clicked button
+        this.classList.add('active');
+        
+        // Get the time period
+        const period = this.textContent.toLowerCase();
+        
+        // Redraw the chart with new data
+        const chartId = index === 0 ? 'chart1' : 'chart2';
+        const chartType = personaConfigs[currentPersona].charts[chartId].type;
+        
+        if (period === 'week' || period === 'month' || period === 'quarter') {
+          drawChart(chartId, chartType, period);
+        }
+      });
+    });
+  });
+}
+
+// Enhanced chart drawing with hover tooltips and data values
+function drawChart(canvasId, type, period = 'week') {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Clear canvas
+  ctx.clearRect(0, 0, width, height);
+  
+  // Generate and store data points
+  let dataPoints = 7;
+  let labels = [];
+  let values = [];
+  
+  if (period === 'week') {
+    dataPoints = 7;
+    labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  } else if (period === 'month') {
+    dataPoints = 8;
+    labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7', 'Week 8'];
+  } else {
+    dataPoints = 4;
+    labels = ['Q1', 'Q2', 'Q3', 'Q4'];
+  }
+  
+  // Generate values based on chart type and period
+  for (let i = 0; i < dataPoints; i++) {
+    let value;
+    if (canvasId === 'chart1') { // Revenue
+      value = 140 + Math.sin(i * 0.5) * 10 + Math.random() * 5;
+      if (period === 'month') value *= 4;
+      if (period === 'quarter') value *= 12;
+    } else if (canvasId === 'chart2') { // Cost
+      value = 80 + Math.cos(i * 0.3) * 8 + Math.random() * 4;
+      if (period === 'month') value *= 3.5;
+      if (period === 'quarter') value *= 10;
+    } else { // Asset Utilization
+      value = 88 + Math.sin(i * 0.4) * 4 + Math.random() * 2;
+    }
+    values.push(value);
+  }
+  
+  // Store data for tooltips
+  chartData[canvasId] = {
+    labels: labels,
+    values: values,
+    type: type,
+    period: period
+  };
+  
+  // Set styling
+  ctx.strokeStyle = '#6366f1';
+  ctx.fillStyle = 'rgba(99, 102, 241, 0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.font = '8px sans-serif';
+  
+  const padding = 20;
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 1.5;
+  
+  if (type === 'line') {
+    // Draw grid lines
+    ctx.strokeStyle = 'rgba(100, 143, 255, 0.15)';
+    ctx.lineWidth = 1;
+    
+    for (let i = 0; i <= 4; i++) {
+      const y = padding + (chartHeight / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(width - padding, y);
+      ctx.stroke();
+    }
+    
+    // Draw line chart
+    ctx.strokeStyle = '#6366f1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    
+    const points = [];
+    for (let i = 0; i < values.length; i++) {
+      const x = padding + (chartWidth / (values.length - 1)) * i;
+      const normalizedValue = (values[i] - Math.min(...values)) / (Math.max(...values) - Math.min(...values));
+      const y = padding + chartHeight - (normalizedValue * chartHeight * 0.8);
+      
+      points.push({ x, y, value: values[i], label: labels[i] });
+      
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    
+    ctx.stroke();
+    
+    // Fill area under line
+    ctx.lineTo(width - padding, height - padding);
+    ctx.lineTo(padding, height - padding);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(99, 102, 241, 0.1)';
+    ctx.fill();
+    
+    // Draw data points and values
+    points.forEach((point, i) => {
+      // Draw point
+      ctx.fillStyle = '#6366f1';
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw value label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '9px sans-serif';
+      ctx.textAlign = 'center';
+      const displayValue = canvasId === 'chart1' ? 
+        `$${point.value.toFixed(0)}M` : 
+        canvasId === 'assetUtilChart' ?
+        `${point.value.toFixed(0)}%` :
+        `$${point.value.toFixed(0)}K`;
+      ctx.fillText(displayValue, point.x, point.y - 8);
+      
+      // Draw x-axis label
+      ctx.fillText(point.label, point.x, height - 10);
+    });
+    
+  } else if (type === 'bar') {
+    const barCount = Math.min(values.length, 8);
+    const barWidth = (chartWidth - 20) / barCount;
+    
+    // Draw grid lines
+    ctx.strokeStyle = 'rgba(100, 143, 255, 0.1)';
+    ctx.lineWidth = 1;
+    
+    for (let i = 0; i <= 4; i++) {
+      const y = padding + (chartHeight / 4) * i;
+      ctx.beginPath();
+      ctx.moveTo(padding, y);
+      ctx.lineTo(width - padding, y);
+      ctx.stroke();
+    }
+    
+    const maxValue = Math.max(...values);
+    const bars = [];
+    
+    for (let i = 0; i < barCount; i++) {
+      const barHeight = (values[i] / maxValue) * chartHeight * 0.8;
+      const x = padding + i * barWidth + 10;
+      const y = height - padding - barHeight;
+      
+      bars.push({
+        x, y, 
+        width: barWidth - 10, 
+        height: barHeight,
+        value: values[i],
+        label: labels[i]
+      });
+      
+      // Draw bar with gradient
+      const gradient = ctx.createLinearGradient(0, y, 0, y + barHeight);
+      gradient.addColorStop(0, `rgba(${99 + i * 15}, ${102 + i * 10}, 241, 0.9)`);
+      gradient.addColorStop(1, `rgba(${99 + i * 15}, ${102 + i * 10}, 241, 0.5)`);
+      ctx.fillStyle = gradient;
+      ctx.fillRect(x, y, barWidth - 10, barHeight);
+      
+      // Draw value on top of bar
+      ctx.fillStyle = '#f8faff';
+      ctx.font = '9px sans-serif';
+      ctx.textAlign = 'center';
+      const displayValue = canvasId === 'chart2' ? 
+        `$${values[i].toFixed(0)}K` : 
+        `${values[i].toFixed(0)}`;
+      ctx.fillText(displayValue, x + (barWidth - 10) / 2, y - 5);
+      
+      // Draw x-axis label
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText(labels[i], x + (barWidth - 10) / 2, height - 10);
+    }
+    
+    chartData[canvasId].bars = bars;
+    
+  } else if (type === 'pie') {
+    // Draw pie chart for Safety dashboard
+    const centerX = width / 2;
+    const centerY = height / 2 - 10;
+    const radius = Math.min(width, height) / 3;
+    
+    const data = period === 'week' ? [30, 25, 20, 15, 10] : 
+                 period === 'month' ? [35, 20, 20, 15, 10] : 
+                 [40, 25, 15, 10, 10];
+    const colors = ['#ef4444', '#f59e0b', '#3b82f6', '#10b981', '#a855f7'];
+    const pieLabels = ['Critical', 'High', 'Medium', 'Low', 'Info'];
+    
+    let currentAngle = -Math.PI / 2;
+    const slices = [];
+    
+    data.forEach((value, index) => {
+      const sliceAngle = (value / 100) * Math.PI * 2;
+      
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+      ctx.lineTo(centerX, centerY);
+      ctx.closePath();
+      
+      ctx.fillStyle = colors[index];
+      ctx.fill();
+      
+      // Draw percentage label
+      const labelAngle = currentAngle + sliceAngle / 2;
+      const labelX = centerX + Math.cos(labelAngle) * (radius * 0.7);
+      const labelY = centerY + Math.sin(labelAngle) * (radius * 0.7);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${value}%`, labelX, labelY);
+      
+      // Store slice info
+      slices.push({
+        label: pieLabels[index],
+        value: value,
+        color: colors[index],
+        startAngle: currentAngle,
+        endAngle: currentAngle + sliceAngle
+      });
+      
+      currentAngle += sliceAngle;
+    });
+    
+    chartData[canvasId].slices = slices;
+    
+    // Draw legend
+    ctx.font = '9px sans-serif';
+    slices.forEach((slice, i) => {
+      const legendY = height - 20;
+      const legendX = 30 + i * 55;
+      
+      ctx.fillStyle = slice.color;
+      ctx.fillRect(legendX, legendY, 10, 10);
+      
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'left';
+      ctx.fillText(slice.label, legendX + 12, legendY + 8);
+    });
+  }
+  
+  // Draw axes
+  ctx.strokeStyle = '#8b98a8';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(padding, padding);
+  ctx.lineTo(padding, height - padding);
+  ctx.lineTo(width - padding, height - padding);
+  ctx.stroke();
+  
+  // Add event listener for hover
+  setupChartHover(canvasId);
+}
+
+// Setup chart hover functionality
+function setupChartHover(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const tooltip = document.getElementById(`tooltip${canvasId.slice(-1)}`);
+  
+  if (!tooltip) return;
+  
+  canvas.addEventListener('mousemove', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const data = chartData[canvasId];
+    if (!data) return;
+    
+    let found = false;
+    
+    if (data.type === 'bar' && data.bars) {
+      // Check if hovering over a bar
+      data.bars.forEach((bar, i) => {
+        if (x >= bar.x && x <= bar.x + bar.width &&
+            y >= bar.y && y <= bar.y + bar.height) {
+          showTooltip(tooltip, e.pageX, e.pageY, {
+            title: data.labels[i],
+            value: `$${bar.value.toFixed(1)}K`,
+            label: 'Cost Analysis'
+          });
+          found = true;
+        }
+      });
+    } else if (data.type === 'line') {
+      // Find nearest point
+      const padding = 35;
+      const pointX = Math.round((x - padding) / ((canvas.width - padding * 2) / (data.values.length - 1)));
+      
+      if (pointX >= 0 && pointX < data.values.length) {
+        const value = data.values[pointX];
+        const label = data.labels[pointX];
+        const displayValue = canvasId === 'chart1' ? 
+          `$${value.toFixed(1)}M` : 
+          canvasId === 'assetUtilChart' ?
+          `${value.toFixed(1)}%` :
+          `$${value.toFixed(1)}K`;
+        
+        showTooltip(tooltip, e.pageX, e.pageY, {
+          title: label,
+          value: displayValue,
+          label: canvasId === 'chart1' ? 'Revenue' : 
+                canvasId === 'assetUtilChart' ? 'Utilization' : 'Value'
+        });
+        found = true;
+      }
+    }
+    
+    if (!found && tooltip) {
+      tooltip.classList.remove('visible');
+    }
+  });
+  
+  canvas.addEventListener('mouseleave', () => {
+    if (tooltip) {
+      tooltip.classList.remove('visible');
+    }
+  });
+}
+
+// Show tooltip
+function showTooltip(tooltip, x, y, data) {
+  tooltip.innerHTML = `
+    <div class="tooltip-title">${data.title}</div>
+    <div class="tooltip-value">${data.value}</div>
+    <div class="tooltip-label">${data.label}</div>
+  `;
+  
+  tooltip.style.left = `${x + 10}px`;
+  tooltip.style.top = `${y - 40}px`;
+  tooltip.classList.add('visible');
+}
+
+// Draw Asset Utilization sparkline
+function drawAssetUtilChart() {
+  const canvas = document.getElementById('assetUtilChart');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  ctx.clearRect(0, 0, width, height);
+  
+  // Generate trend data
+  const points = 12;
+  const values = [];
+  for (let i = 0; i < points; i++) {
+    values.push(88 + Math.sin(i * 0.3) * 3 + Math.random() * 2);
+  }
+  
+  // Draw sparkline
+  ctx.strokeStyle = '#10b981';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  
+  for (let i = 0; i < points; i++) {
+    const x = (width / (points - 1)) * i;
+    const y = height - ((values[i] - 85) / 10) * height;
+    
+    if (i === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+  
+  ctx.stroke();
+  
+  // Fill area
+  ctx.lineTo(width, height);
+  ctx.lineTo(0, height);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+  ctx.fill();
+  
+  // Show last value
+  ctx.fillStyle = '#10b981';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  ctx.fillText(`${values[values.length - 1].toFixed(1)}%`, width - 5, 15);
+}
+
+// Reset chat
+function resetChat() {
+  const config = personaConfigs[currentPersona];
+  const container = document.getElementById('messagesContainer');
+  
+  container.innerHTML = `
+    <div class="message ai">
+      <div class="message-avatar">AI</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          <div class="message-text">${config.greeting}</div>
+          <div class="message-time">Just now</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Update prompt chips
+function updatePromptChips() {
+  const chips = conversationTree[currentPersona]?.initialQuestions || [];
+  const container = document.getElementById('promptChips');
+  
+  container.innerHTML = chips.map(chip => `
+    <div class="chip" onclick="handleChipClick('${chip.id}')">
+      <span class="chip-icon">${chip.icon}</span>
+      <span>${chip.text}</span>
+    </div>
+  `).join('');
+}
+
+// Handle chip click
+function handleChipClick(chipId) {
+  const tree = conversationTree[currentPersona];
+  const question = tree.initialQuestions.find(q => q.id === chipId) || 
+                  findQuestionInTree(chipId);
+  
+  if (question) {
+    addUserMessage(question.text);
+    
+    setTimeout(() => {
+      const response = tree.responses[chipId] || findResponseInTree(chipId);
+      if (response) {
+        addAIMessage(response.answer);
+        
+        // Update map if needed
+        if (response.mapNumber) {
+          updateMap(response.mapNumber, response.mapDescription);
+        }
+        
+        // Update chips with follow-ups
+        if (response.followUps) {
+          updateFollowUpChips(response.followUps);
+        }
+        
+        // Track conversation depth
+        conversationDepth++;
+        conversationPath.push(chipId);
+      }
+    }, 1000);
+  }
+}
+
+// Add user message
+function addUserMessage(text) {
+  const container = document.getElementById('messagesContainer');
+  const messageHtml = `
+    <div class="message user">
+      <div class="message-avatar">U</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          <div class="message-text">${text}</div>
+          <div class="message-time">${getCurrentTime()}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML += messageHtml;
+  container.scrollTop = container.scrollHeight;
+}
+
+// Add AI message
+function addAIMessage(text, includeActions = true) {
+  const container = document.getElementById('messagesContainer');
+  
+  // Show typing indicator
+  const typingHtml = `
+    <div class="message ai typing-message">
+      <div class="message-avatar">AI</div>
+      <div class="message-content">
+        <div class="message-bubble">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML += typingHtml;
+  container.scrollTop = container.scrollHeight;
+  
+  setTimeout(() => {
+    // Remove typing indicator
+    const typingMessage = container.querySelector('.typing-message');
+    if (typingMessage) {
+      typingMessage.remove();
+    }
+    
+    // Add actual message
+    const messageHtml = `
+      <div class="message ai">
+        <div class="message-avatar">AI</div>
+        <div class="message-content">
+          <div class="message-bubble">
+            <div class="message-text">${text}</div>
+            ${includeActions && conversationDepth < 5 ? `
+              <div class="message-actions">
+                <button class="action-btn primary" onclick="handleAction('details')">
+                  <span>📊</span>
+                  <span>View Details</span>
+                </button>
+                <button class="action-btn success" onclick="handleAction('execute')">
+                  <span>✓</span>
+                  <span>Execute</span>
+                </button>
+                <button class="action-btn" onclick="handleAction('schedule')">
+                  <span>📅</span>
+                  <span>Schedule</span>
+                </button>
+              </div>
+            ` : ''}
+            <div class="message-time">${getCurrentTime()}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    container.innerHTML += messageHtml;
+    container.scrollTop = container.scrollHeight;
+  }, 1500);
+}
+
+// Update follow-up chips
+function updateFollowUpChips(followUps) {
+  const container = document.getElementById('promptChips');
+  
+  if (conversationDepth >= 5) {
+    container.innerHTML = `
+      <div class="chip" onclick="resetDemo()">
+        <span class="chip-icon">🔄</span>
+        <span>Start New Analysis</span>
+      </div>
+      <div class="chip" onclick="exportReport()">
+        <span class="chip-icon">📤</span>
+        <span>Export Report</span>
+      </div>
+    `;
+  } else {
+    container.innerHTML = followUps.map(chip => `
+      <div class="chip" onclick="handleChipClick('${chip.id}')">
+        <span class="chip-icon">${chip.icon}</span>
+        <span>${chip.text}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Update map placeholder
+function updateMap(mapNumber, description) {
+  document.getElementById('mapNumber').textContent = `MAP ${mapNumber}`;
+  document.getElementById('mapDescription').innerHTML = `
+    ${description}
+    <br><small>Josh: ${mapsList[mapNumber - 1]}</small>
+  `;
+}
+
+// Handle actions
+function handleAction(action) {
+  let message = '';
+  
+  switch(action) {
+    case 'details':
+      message = 'Generating detailed analysis report...';
+      break;
+    case 'execute':
+      message = 'Executing recommended action. Work order #WO-2024-1847 created.';
+      break;
+    case 'schedule':
+      message = 'Opening maintenance scheduler...';
+      break;
+  }
+  
+  addAIMessage(message, false);
+}
+
+// Send message
+const DEMO_TOKEN = 'nexus-rail-2025';
+let conversationHistory = [];
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  
+  if (!text) return;
+  
+  addUserMessage(text);
+  conversationHistory.push({ role: 'user', content: text });
+  input.value = '';
+  
+  // Show typing indicator
+  const messagesContainer = document.querySelector('.messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'message ai typing-indicator-msg';
+  typingDiv.innerHTML = '<div style="display:flex;gap:4px;padding:12px 16px;background:var(--panel2);border-radius:12px;width:fit-content;"><span style="animation:bounce 1.4s infinite">●</span><span style="animation:bounce 1.4s infinite 0.2s">●</span><span style="animation:bounce 1.4s infinite 0.4s">●</span></div>';
+  messagesContainer.appendChild(typingDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  
+  // Try scripted response first
+  const scriptedResponse = generateIntelligentResponse(text);
+  const isDefaultResponse = scriptedResponse.includes('I recommend focusing on predictive maintenance');
+  
+  if (!isDefaultResponse) {
+    // Use scripted response
+    setTimeout(() => {
+      const typing = document.querySelector('.typing-indicator-msg');
+      if (typing) typing.remove();
+      addAIMessage(scriptedResponse);
+      conversationHistory.push({ role: 'assistant', content: scriptedResponse });
+    }, 1500);
+  } else {
+    // Call Claude API for unknown questions
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      
+      const apiResponse = await fetch('/.netlify/functions/rail-chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-Demo-Token': DEMO_TOKEN
+        },
+        body: JSON.stringify({
+          message: text,
+          conversationHistory: conversationHistory.slice(-10).map(msg => ({
+            role: msg.role,
+            content: msg.content.replace(/<[^>]*>/g, '')
+          }))
+        }),
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (!apiResponse.ok) throw new Error('API request failed');
+      
+      const data = await apiResponse.json();
+      const typing = document.querySelector('.typing-indicator-msg');
+      if (typing) typing.remove();
+      
+      let claudeResponse = data.response;
+      addAIMessage(claudeResponse);
+      conversationHistory.push({ role: 'assistant', content: claudeResponse });
+      
+    } catch (error) {
+      console.error('API Error:', error);
+      const typing = document.querySelector('.typing-indicator-msg');
+      if (typing) typing.remove();
+      addAIMessage(scriptedResponse);
+    }
+  }
+}
+
+// Add CSS for typing animation
+const style = document.createElement('style');
+style.textContent = '@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }';
+document.head.appendChild(style);
+
+// Generate intelligent response based on keywords
+function generateIntelligentResponse(text) {
+  const lowerText = text.toLowerCase();
+  
+  // Check for specific keywords and respond accordingly
+  if (lowerText.includes('bearing') || lowerText.includes('temperature')) {
+    return `Analyzing bearing temperature data across all assets...
+    
+    <div class="predictive-alert">
+      <div class="predictive-header">
+        🌡️ Temperature Anomaly Detected
+      </div>
+      <div class="predictive-details">
+        <div class="predictive-item">
+          <span class="predictive-label">Car ID:</span>
+          <span class="predictive-value">TTGX-48271</span>
+        </div>
+        <div class="predictive-item">
+          <span class="predictive-label">Current Gradient:</span>
+          <span class="predictive-value">+7.3°F/100mi</span>
+        </div>
+        <div class="predictive-item">
+          <span class="predictive-label">Predicted Failure:</span>
+          <span class="predictive-value">168 hours</span>
+        </div>
+      </div>
+    </div>
+    
+    Recommend scheduling maintenance at next available window.`;
+  }
+  
+  if (lowerText.includes('revenue') || lowerText.includes('money') || lowerText.includes('cost')) {
+    return `Financial analysis complete.
+    
+    <div class="roi-calculator">
+      <div class="roi-header">
+        <span>Revenue Optimization</span>
+        <span class="roi-value">+$2.3M</span>
+      </div>
+      <div class="roi-breakdown">
+        <div class="roi-item">
+          <span>Improved asset utilization</span>
+          <span>+$1.2M</span>
+        </div>
+        <div class="roi-item">
+          <span>Reduced maintenance costs</span>
+          <span>+$0.7M</span>
+        </div>
+        <div class="roi-item">
+          <span>Lower insurance premiums</span>
+          <span>+$0.4M</span>
+        </div>
+      </div>
+    </div>`;
+  }
+  
+  if (lowerText.includes('predict') || lowerText.includes('forecast')) {
+    return `Generating 24-month predictive forecast...
+    
+    Based on current sensor data and historical patterns:
+    - Equipment failure probability: <strong>3.2%</strong> (next 30 days)
+    - Maintenance cost projection: <strong>$4.7M</strong> (Q1 2025)
+    - Optimal replacement schedule: <strong>18 assets</strong> by Q3
+    
+    Predictive accuracy: <strong>94.3%</strong> based on 12-month validation`;
+  }
+  
+  // Default intelligent response
+  return `I've analyzed your query across our sensor network. Based on current data patterns, I recommend focusing on predictive maintenance optimization. 
+  
+  Would you like me to generate a detailed analysis of any specific metric?`;
+}
+
+// Sensor stream simulation
+function startSensorStream() {
+  // Expanded sensor events - mix of normal operations and potential risks
+  const events = [
+    // Normal operations (no alert needed)
+    { type: 'info', icon: '📡', title: 'GPS Update', detail: 'Train 891: Position confirmed MP 445', risk: false },
+    { type: 'info', icon: '✓', title: 'Brake Check', detail: 'Normal pressure 85 PSI - Train 103', risk: false },
+    { type: 'info', icon: '🌡️', title: 'Temperature Normal', detail: 'Bearing 145°F TTGX-4521', risk: false },
+    { type: 'info', icon: '🚪', title: 'Door State', detail: 'Door closed - Container A891', risk: false },
+    { type: 'info', icon: '📊', title: 'Vibration Normal', detail: '2.1Hz baseline - Segment 12-B', risk: false },
+    { type: 'info', icon: '⚡', title: 'Power Check', detail: 'Voltage stable 575V - Car 3421', risk: false },
+    
+    // Risk events (should trigger alerts)
+    { type: 'warning', icon: '🌡️', title: 'Temperature Elevated', detail: 'Bearing temp 182°F on TTGX-9821', risk: true, 
+      alert: { severity: 'high', title: 'Bearing Failure Predicted', description: 'TTGX-9821 critical temperature gradient - Failure in 6-8 hours', impact: '$45K', location: 'MP 445' }},
+    { type: 'warning', icon: '💥', title: 'Impact Detected', detail: 'Car 4821: 6.2g shock at MP 789', risk: true,
+      alert: { severity: 'high', title: 'Structural Damage Risk', description: 'Car 4821 impact event - Inspect before next load', impact: '$120K', location: 'MP 789' }},
+    { type: 'warning', icon: '🛑', title: 'Brake Pressure Low', detail: 'Train 247: 52 PSI (min 60)', risk: true,
+      alert: { severity: 'medium', title: 'Brake System Degradation', description: 'Train 247 pressure below threshold - Schedule maintenance', impact: '$18K', location: 'Chicago Yard' }},
+    { type: 'warning', icon: '📊', title: 'Vibration Spike', detail: 'Excessive 8.4Hz - Segment 27-A', risk: true,
+      alert: { severity: 'high', title: 'Track Geometry Failure', description: 'Segment 27-A vibration anomaly - Derailment risk', impact: '$2.4M', location: 'MP 334' }},
+    { type: 'warning', icon: '⏱️', title: 'Dwell Time High', detail: 'Train 103 idle 48 minutes - Chicago', risk: true,
+      alert: { severity: 'medium', title: 'Dwell Time Exceeded', description: 'Train 103 idle >45 minutes - Operations impact', impact: '$8K/hr', location: 'Chicago Yard' }}
+  ];
+  
+  // Generate sensor events frequently (every 2-4 seconds)
+  setInterval(() => {
+    const event = events[Math.floor(Math.random() * events.length)];
+    addSensorEvent(event);
+    
+    // If this is a risk event, potentially generate an alert
+    if (event.risk && event.alert && Math.random() > 0.6) {
+      // 40% chance to generate alert from risk event (keeps alerts less frequent)
+      setTimeout(() => {
+        addRiskAlert(event.alert);
+      }, 2000 + Math.random() * 3000); // Delay 2-5 seconds to show AI processing
+    }
+  }, 2000 + Math.random() * 2000); // 2-4 second intervals
+}
+
+// Add sensor event
+function addSensorEvent(event) {
+  const container = document.getElementById('sensorEvents');
+  if (!container) return;
+  
+  const eventDiv = document.createElement('div');
+  eventDiv.className = 'sensor-event';
+  
+  // Color code based on risk
+  const borderColor = event.risk ? 'var(--warning)' : 'var(--border)';
+  
+  eventDiv.style = `
+    padding: 0.4rem;
+    margin-bottom: 0.3rem;
+    background: var(--card);
+    border-left: 2px solid ${borderColor};
+    border-radius: 4px;
+    animation: slideIn 0.3s ease;
+  `;
+  
+  const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  eventDiv.innerHTML = `
+    <div style="display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.2rem;">
+      <span>${event.icon || '📡'}</span>
+      <span style="font-weight: 500; color: var(--text); font-size: 0.7rem;">${event.title}</span>
+      <span style="font-size: 0.6rem; color: var(--text-muted); margin-left: auto;">${time}</span>
+    </div>
+    <div style="font-size: 0.65rem; color: var(--text-dim);">${event.detail}</div>
+  `;
+  
+  container.insertBefore(eventDiv, container.firstChild);
+  
+  // Keep only last 10 events
+  while (container.children.length > 10) {
+    container.removeChild(container.lastChild);
+  }
+}
+
+// Add risk alert (only for significant risks)
+function addRiskAlert(alert) {
+  const container = document.getElementById('alertList');
+  if (!container) return;
+  
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'alert-item';
+  alertDiv.style.animation = 'slideIn 0.5s ease';
+  
+  alertDiv.innerHTML = `
+    <div class="alert-severity ${alert.severity}"></div>
+    <div class="alert-content">
+      <div class="alert-title">${alert.title}</div>
+      <div class="alert-description">${alert.description}</div>
+      <div class="alert-meta">
+        <div class="alert-location">📍 ${alert.location}</div>
+        <div class="alert-time">💰 Impact: ${alert.impact}</div>
+      </div>
+    </div>
+  `;
+  
+  container.insertBefore(alertDiv, container.firstChild);
+  
+  // Keep only last 8 alerts
+  while (container.children.length > 8) {
+    container.removeChild(container.lastChild);
+  }
+}
+
+// Toggle sensor stream
+function toggleSensorStream() {
+  const stream = document.getElementById('sensorStream');
+  const toggle = document.getElementById('streamToggle');
+  
+  stream.classList.toggle('minimized');
+  toggle.textContent = stream.classList.contains('minimized') ? '+' : '−';
+}
+
+// Generate initial alerts (seed the alert feed)
+function generateAlerts() {
+  const alerts = [
+    { severity: 'high', title: 'Bearing Failure Predicted', description: 'Car 1891 showing critical temperature gradient', location: 'MP 445', impact: '$45K' },
+    { severity: 'medium', title: 'Dwell Time Exceeded', description: 'Train 103 idle >45 minutes at Chicago yard', location: 'Chicago', impact: '$8K/hr' },
+    { severity: 'low', title: 'Weather Advisory', description: 'Snow expected MEM→CHI corridor', location: 'Multiple', impact: 'Monitor' }
+  ];
+  
+  const container = document.getElementById('alertList');
+  container.innerHTML = alerts.map(alert => `
+    <div class="alert-item">
+      <div class="alert-severity ${alert.severity}"></div>
+      <div class="alert-content">
+        <div class="alert-title">${alert.title}</div>
+        <div class="alert-description">${alert.description}</div>
+        <div class="alert-meta">
+          <div class="alert-location">📍 ${alert.location}</div>
+          <div class="alert-time">💰 Impact: ${alert.impact}</div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Utility functions
+function getCurrentTime() {
+  const now = new Date();
+  return now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}
+
+// Tour functionality
+let currentTourStep = 0;
+let demoModeInterval = null;
+
+const tourSteps = [
+  {
+    element: '.risk-score-container',
+    title: 'Unified Predictive Risk Score',
+    content: 'This is your single source of truth - a real-time risk score across all operations. Currently at 84/100, it predicts issues 240 hours in advance.',
+    position: 'right'
+  },
+  {
+    element: '.risk-components',
+    title: 'Risk Component Breakdown',
+    content: 'Five risk categories constantly analyzed. Click any component to see detailed analysis, recommendations, and financial impact. Each can save you millions.',
+    position: 'right'
+  },
+  {
+    element: '.asset-util-container',
+    title: 'Asset Utilization Tracking',
+    content: 'Real-time asset utilization at 91%. Click Details to identify underutilized corridors worth $3.4M/month in optimization opportunities.',
+    position: 'left'
+  },
+  {
+    element: '#kpiGrid',
+    title: 'Persona-Specific KPIs',
+    content: 'Dynamic metrics that change based on your role. Each KPI is powered by 1.2 million sensors updating in real-time.',
+    position: 'bottom'
+  },
+  {
+    element: '.chart-grid',
+    title: 'Interactive Data Visualization',
+    content: 'Hover over any data point for details. Toggle between Week, Month, and Quarter views. All charts show financial impact.',
+    position: 'top'
+  },
+  {
+    element: '.map-container',
+    title: 'Live Rail Network Map',
+    content: 'Real-time visualization of your entire network. Shows sensor density, risk zones, and predictive alerts. 15 different map views available.',
+    position: 'top'
+  },
+  {
+    element: '.chat-panel',
+    title: 'Conversational AI Intelligence',
+    content: 'Ask anything in natural language. 5 layers of conversation depth with 243 unique response paths. Every answer includes ROI calculations.',
+    position: 'left'
+  },
+  {
+    element: '.prompt-chips',
+    title: 'Suggested Questions',
+    content: 'Smart suggestions based on your role and current context. Click any chip to explore that topic with deep, actionable insights.',
+    position: 'left'
+  },
+  {
+    element: '.sensor-stream',
+    title: 'RSAE Sensor Stream',
+    content: 'Live feed from 1.2 million sensors. Detects shock events, temperature anomalies, door states, and brake pressure in real-time.',
+    position: 'top'
+  },
+  {
+    element: '.persona-selector',
+    title: 'Role-Based Dashboards',
+    content: 'Switch between 7 personas: CFO, Operations, Maintenance, Safety, Response, Shipper/3PL, and Infrastructure. Each has unique insights.',
+    position: 'bottom'
+  }
+];
+
+function showTour() {
+  currentTourStep = 0;
+  document.getElementById('tourOverlay').classList.add('active');
+  showTourStep(0);
+}
+
+function showTourStep(step) {
+  if (step >= tourSteps.length) {
+    endTour();
+    return;
+  }
+  
+  const stepData = tourSteps[step];
+  const element = document.querySelector(stepData.element);
+  
+  if (!element) {
+    nextTourStep();
+    return;
+  }
+  
+  // Get element position and dimensions
+  const rect = element.getBoundingClientRect();
+  const highlight = document.getElementById('tourHighlight');
+  const tooltip = document.getElementById('tourTooltip');
+  const arrow = document.getElementById('tourArrow');
+  
+  // Show and position highlight
+  highlight.classList.add('active');
+  highlight.style.display = 'block';
+  highlight.style.left = `${rect.left - 5}px`;
+  highlight.style.top = `${rect.top - 5}px`;
+  highlight.style.width = `${rect.width + 10}px`;
+  highlight.style.height = `${rect.height + 10}px`;
+  
+  // Update tooltip content
+  document.getElementById('tourStep').textContent = `Step ${step + 1} of ${tourSteps.length}`;
+  document.getElementById('tourTitle').textContent = stepData.title;
+  document.getElementById('tourContent').textContent = stepData.content;
+  
+  // Update button text
+  const nextBtn = document.getElementById('tourNextBtn');
+  if (step === tourSteps.length - 1) {
+    nextBtn.textContent = 'Finish Tour ✓';
+  } else {
+    nextBtn.textContent = 'Next →';
+  }
+  
+  // Position tooltip based on element position
+  tooltip.classList.add('active');
+  
+  // Calculate tooltip position
+  let tooltipLeft, tooltipTop;
+  arrow.className = 'tour-arrow';
+  
+  switch(stepData.position) {
+    case 'right':
+      tooltipLeft = rect.right + 20;
+      tooltipTop = rect.top + (rect.height / 2) - 100;
+      arrow.classList.add('left');
+      break;
+    case 'left':
+      tooltipLeft = rect.left - 420;
+      tooltipTop = rect.top + (rect.height / 2) - 100;
+      arrow.classList.add('right');
+      break;
+    case 'bottom':
+      tooltipLeft = rect.left + (rect.width / 2) - 200;
+      tooltipTop = rect.bottom + 20;
+      arrow.classList.add('top');
+      break;
+    case 'top':
+      tooltipLeft = rect.left + (rect.width / 2) - 200;
+      tooltipTop = rect.top - 180;
+      arrow.classList.add('bottom');
+      break;
+  }
+  
+  // Keep tooltip within viewport
+  tooltipLeft = Math.max(20, Math.min(tooltipLeft, window.innerWidth - 420));
+  tooltipTop = Math.max(20, Math.min(tooltipTop, window.innerHeight - 200));
+  
+  tooltip.style.left = `${tooltipLeft}px`;
+  tooltip.style.top = `${tooltipTop}px`;
+}
+
+function nextTourStep() {
+  currentTourStep++;
+  if (currentTourStep >= tourSteps.length) {
+    endTour();
+  } else {
+    showTourStep(currentTourStep);
+  }
+}
+
+function endTour() {
+  document.getElementById('tourOverlay').classList.remove('active');
+  document.getElementById('tourTooltip').classList.remove('active');
+  const highlight = document.getElementById('tourHighlight');
+  highlight.classList.remove('active');
+  highlight.style.display = 'none';
+  currentTourStep = 0;
+}
+
+// Demo Mode - Auto-play through features
+function toggleDemoMode() {
+  const indicator = document.getElementById('demoModeIndicator');
+  
+  if (demoModeInterval) {
+    clearInterval(demoModeInterval);
+    demoModeInterval = null;
+    indicator.classList.remove('active');
+  } else {
+    indicator.classList.add('active');
+    let demoStep = 0;
+    
+    const demoActions = [
+      () => switchPersona('cfo'),
+      () => handleChipClick('cfo-1'),
+      () => switchPersona('operations'),
+      () => handleChipClick('ops-1'),
+      () => showRiskDetails('mechanical'),
+      () => closeSlidePanel(),
+      () => switchPersona('maintenance'),
+      () => showAssetDetails(),
+      () => closeSlidePanel(),
+      () => switchPersona('safety')
+    ];
+    
+    demoModeInterval = setInterval(() => {
+      if (demoStep < demoActions.length) {
+        demoActions[demoStep]();
+        demoStep++;
+      } else {
+        demoStep = 0;
+      }
+    }, 4000);
+  }
+}
+
+// Keyboard shortcuts
+function showKeyboardShortcuts() {
+  const panel = document.getElementById('slidePanel');
+  const overlay = document.getElementById('panelOverlay');
+  const title = document.getElementById('slidePanelTitle');
+  const content = document.getElementById('slidePanelContent');
+  
+  title.textContent = 'Keyboard Shortcuts';
+  
+  const html = `
+    <div class="metric-detail">
+      <div class="metric-detail-title">Navigation</div>
+      <div style="display: grid; gap: 0.5rem; margin-top: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Switch Personas</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">1-7</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Toggle Chat</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">C</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Show Tour</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">T</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="metric-detail">
+      <div class="metric-detail-title">Actions</div>
+      <div style="display: grid; gap: 0.5rem; margin-top: 0.5rem;">
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Export Report</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">Cmd/Ctrl + E</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Reset Demo</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">R</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--panel); border-radius: 6px;">
+          <span>Close Panels</span>
+          <span style="font-family: monospace; background: var(--card); padding: 2px 8px; border-radius: 4px;">Esc</span>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  content.innerHTML = html;
+  panel.classList.add('active');
+  overlay.classList.add('active');
+}
+
+function exportReport() {
+  alert(`Exporting Comprehensive Analysis Report...
+  
+  Format: PDF with embedded data tables
+  Sections:
+  • Executive Summary
+  • Predictive Risk Analysis (${personaConfigs[currentPersona].riskScore}/100)
+  • Asset Utilization Report (${personaConfigs[currentPersona].assetUtil}%)
+  • Financial Impact Analysis
+  • Sensor Event Log (last 24 hours)
+  • Predictive Maintenance Schedule
+  • ROI Calculations
+  
+  Recipients: Executive team
+  
+  Report will be available in your email within 60 seconds.`);
+}
+
+function resetDemo() {
+  conversationDepth = 0;
+  conversationPath = [];
+  switchPersona('cfo');
+  closeSlidePanel();
+  if (demoModeInterval) {
+    toggleDemoMode();
+  }
+}
+
+function findQuestionInTree(id) {
+  // Deep search implementation for nested questions
+  // This would be expanded for the full 5-layer tree
+  return null;
+}
+
+function findResponseInTree(id) {
+  // Deep search implementation for nested responses
+  // This would be expanded for the full 5-layer tree
+  return null;
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', () => {
+  // Set up persona switcher
+  document.querySelectorAll('.persona-tab').forEach(tab => {
+    tab.addEventListener('click', () => switchPersona(tab.dataset.persona));
+  });
+  
+  // Initialize first persona
+  switchPersona('cfo');
+  
+  // Draw asset utilization chart
+  drawAssetUtilChart();
+  
+  // Start sensor stream
+  startSensorStream();
+  
+  // Generate initial alerts
+  generateAlerts();
+  
+  // Set up enter key for chat input
+  document.getElementById('chatInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  
+  // Auto-resize textarea
+  const chatInput = document.getElementById('chatInput');
+  chatInput.addEventListener('input', () => {
+    chatInput.style.height = 'auto';
+    chatInput.style.height = Math.min(chatInput.scrollHeight, 80) + 'px';
+  });
+  
+  // Keyboard shortcuts
+  document.addEventListener('keydown', (e) => {
+    // Skip shortcuts if typing in input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+    
+    // Escape - Close panels
+    if (e.key === 'Escape') {
+      closeSlidePanel();
+      endTour();
+    }
+    
+    // Number keys 1-7 - Switch personas
+    if (e.key >= '1' && e.key <= '7') {
+      const personas = ['cfo', 'operations', 'maintenance', 'safety', 'response', 'shipper', 'infrastructure'];
+      const index = parseInt(e.key) - 1;
+      if (personas[index]) {
+        switchPersona(personas[index]);
+      }
+    }
+    
+    // T - Show tour
+    if (e.key === 't' || e.key === 'T') {
+      showTour();
+    }
+    
+    // R - Reset demo
+    if (e.key === 'r' || e.key === 'R') {
+      resetDemo();
+    }
+    
+    // C - Focus chat
+    if (e.key === 'c' || e.key === 'C') {
+      document.getElementById('chatInput').focus();
+    }
+    
+    // Cmd/Ctrl + E - Export
+    if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+      e.preventDefault();
+      exportReport();
+    }
+    
+    // D - Toggle demo mode
+    if (e.key === 'd' || e.key === 'D') {
+      toggleDemoMode();
+    }
+  });
+  
+  // Create additional gradient definitions for risk gauge
+  const svg = document.querySelector('.risk-gauge-circle');
+  if (svg) {
+    const defs = svg.querySelector('defs');
+    
+    // Good gradient (green)
+    const goodGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    goodGradient.setAttribute('id', 'gaugeGradientGood');
+    goodGradient.innerHTML = `
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    `;
+    defs.appendChild(goodGradient);
+    
+    // Moderate gradient (yellow)
+    const modGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    modGradient.setAttribute('id', 'gaugeGradientModerate');
+    modGradient.innerHTML = `
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    `;
+    defs.appendChild(modGradient);
+    
+    // Poor gradient (red)
+    const poorGradient = document.createElementNS('http://www.w3.org/2000/svg', 'linearGradient');
+    poorGradient.setAttribute('id', 'gaugeGradientPoor');
+    poorGradient.innerHTML = `
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#991b1b;stop-opacity:1" />
+    `;
+    defs.appendChild(poorGradient);
+  }
+  
+  // Initialize risk score
+  updateRiskGauge(84);
+  
+  // Show welcome message after a short delay
+  setTimeout(() => {
+    console.log('💡 Press T for tour, 1-7 to switch personas, D for demo mode');
+  }, 1000);
+});
+
+// Add some initial sensor events
+setTimeout(() => {
+  addSensorEvent({ type: 'info', icon: '📡', title: 'GPS Update', detail: 'Train 891: Position confirmed MP 445', risk: false });
+}, 1000);
+
+setTimeout(() => {
+  addSensorEvent({ type: 'warning', icon: '🌡️', title: 'Temperature Elevated', detail: 'Bearing temp 182°F on TTGX-9821', risk: true });
+}, 3000);
+
+setTimeout(() => {
+  addSensorEvent({ type: 'info', icon: '✓', title: 'Brake Check', detail: 'Normal pressure 85 PSI - Train 103', risk: false });
+}, 5000);
+
+console.log('Rebirth Nexus Rail Intelligence Platform v2.2 Connected');
+console.log('Features: Predictive Risk Score, Asset Utilization, Real-Time Risk Analysis');
+console.log('Sensors: 1.2M active | Predictions: 28.8M/day | AI Risk Filtering: Active');
+console.log('© 2024 Rebirth Nexus Inc. All rights reserved.');
+</script>
+</body>
+</html>

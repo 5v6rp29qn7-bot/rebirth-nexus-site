@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus — Banking Intelligence Demo</title>
+    <link rel="icon" type="image/png" href="/RebirthNexusLogo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #051e34;
+            --bg-secondary: #0a2540;
+            --bg-card: #1a3a5c;
+            --text-primary: #ffffff;
+            --text-secondary: #cbd5e1;
+            --accent-gold: #d4af37;
+            --accent-red: #ef4444;
+            --border-subtle: #1e3a5a;
+        }
+        
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        /* Password Screen */
+        .password-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+        
+        .password-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            padding: 48px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .password-logo {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 24px;
+        }
+        
+        .password-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .password-subtitle {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+        }
+        
+        .password-input-group {
+            margin-bottom: 20px;
+        }
+        
+        .password-input {
+            width: 100%;
+            padding: 14px 18px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        .password-input:focus {
+            border-color: var(--accent-gold);
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+        }
+        
+        .password-input.error {
+            border-color: var(--accent-red);
+            animation: shake 0.5s ease-in-out;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        
+        .password-error {
+            color: var(--accent-red);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .password-error.show {
+            display: block;
+        }
+        
+        .password-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-gold), #c9a227);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .password-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .password-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .password-footer {
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .password-footer a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+        
+        .password-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Demo Container (hidden until authenticated) */
+        .demo-container {
+            display: none;
+            height: 100vh;
+        }
+        
+        .demo-container.active {
+            display: block;
+        }
+        
+        .demo-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        /* Loading state */
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .loading.show {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #000;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Password Screen -->
+    <div class="password-screen" id="passwordScreen">
+        <div class="password-card">
+            <img src="/RebirthNexusLogo.png" alt="Rebirth Nexus" class="password-logo">
+            <h1 class="password-title">Banking Intelligence Demo</h1>
+            <p class="password-subtitle">
+                Enter the access password provided by your<br>Rebirth Nexus contact.
+            </p>
+            
+            <form id="passwordForm">
+                <div class="password-input-group">
+                    <input 
+                        type="password" 
+                        id="passwordInput" 
+                        class="password-input" 
+                        placeholder="Enter password"
+                        autocomplete="off"
+                        autofocus
+                    >
+                    <p class="password-error" id="passwordError">Incorrect password. Please try again.</p>
+                </div>
+                
+                <button type="submit" class="password-btn" id="submitBtn">
+                    <span class="btn-text">Access Demo</span>
+                    <span class="loading" id="loading">
+                        <span class="loading-spinner"></span>
+                        Verifying...
+                    </span>
+                </button>
+            </form>
+            
+            <p class="password-footer">
+                Need access? <a href="/pilot.html">Request a demo</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- Demo Container -->
+    <div class="demo-container" id="demoContainer">
+        <iframe src="demo-content.html" id="demoFrame"></iframe>
+    </div>
+    
+    <script>
+        // Password configuration
+        const VALID_PASSWORD = 'sandfalcon';
+        const SESSION_KEY = 'nexus_banking_auth';
+        
+        // Check if already authenticated
+        function checkAuth() {
+            const auth = sessionStorage.getItem(SESSION_KEY);
+            if (auth === 'true') {
+                showDemo();
+            }
+        }
+        
+        // Show the demo
+        function showDemo() {
+            document.getElementById('passwordScreen').style.display = 'none';
+            document.getElementById('demoContainer').classList.add('active');
+        }
+        
+        // Handle form submission
+        document.getElementById('passwordForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const input = document.getElementById('passwordInput');
+            const error = document.getElementById('passwordError');
+            const btn = document.getElementById('submitBtn');
+            const btnText = btn.querySelector('.btn-text');
+            const loading = document.getElementById('loading');
+            
+            // Reset state
+            input.classList.remove('error');
+            error.classList.remove('show');
+            
+            // Show loading
+            btnText.style.display = 'none';
+            loading.classList.add('show');
+            btn.disabled = true;
+            
+            // Simulate brief verification delay
+            setTimeout(() => {
+                if (input.value === VALID_PASSWORD) {
+                    // Success
+                    sessionStorage.setItem(SESSION_KEY, 'true');
+                    showDemo();
+                } else {
+                    // Error
+                    input.classList.add('error');
+                    error.classList.add('show');
+                    input.value = '';
+                    input.focus();
+                    
+                    // Reset button
+                    btnText.style.display = 'inline';
+                    loading.classList.remove('show');
+                    btn.disabled = false;
+                }
+            }, 500);
+        });
+        
+        // Check auth on page load
+        checkAuth();
+    </script>
+</body>
+</html>

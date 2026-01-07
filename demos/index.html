@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rebirth Nexus — Interactive Demos</title>
+    <link rel="icon" type="image/png" href="/RebirthNexusLogo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --accent-gold: #d4af37;
+            --accent-emerald: #10b981;
+            --border-subtle: #2a2a3a;
+        }
+        
+        html, body {
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 24px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 24px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent-gold), #f5d76e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .demos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+        
+        .demo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .demo-card:hover {
+            border-color: var(--accent-gold);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(212, 175, 55, 0.15);
+        }
+        
+        .demo-icon {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+        }
+        
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .demo-company {
+            font-size: 0.9rem;
+            color: var(--accent-gold);
+            margin-bottom: 16px;
+        }
+        
+        .demo-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .demo-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        
+        .feature-tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .demo-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px 24px;
+            background: linear-gradient(135deg, var(--accent-gold), #c9a227);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .demo-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 60px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        
+        .footer-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+        }
+        
+        .footer-link {
+            color: var(--accent-gold);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+        
+        .access-note {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .access-note-text {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .access-note-text strong {
+            color: var(--accent-gold);
+        }
+        
+        @media (max-width: 480px) {
+            .demos-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .demo-card {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="/RebirthNexusLogo.png" alt="Rebirth Nexus" class="logo">
+            <h1>Interactive Demos</h1>
+            <p class="subtitle">
+                Experience Nexus in action. Each demo showcases live AI-powered predictive intelligence 
+                with real-time data integration.
+            </p>
+        </div>
+        
+        <div class="access-note">
+            <p class="access-note-text">
+                🔒 These demos require an <strong>access password</strong> provided by your Rebirth Nexus contact.
+            </p>
+        </div>
+        
+        <div class="demos-grid">
+            <div class="demo-card">
+                <div class="demo-icon">🚚</div>
+                <h2 class="demo-title">Supply Chain Intelligence</h2>
+                <p class="demo-company">Meridian Logistics (Fictional)</p>
+                <p class="demo-description">
+                    Watch Nexus predict and mitigate a winter storm's impact on a Fortune 500 logistics network. 
+                    Live weather data, cascading risk analysis, and autonomous mitigation recommendations.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">Live Weather APIs</span>
+                    <span class="feature-tag">Esri Maps</span>
+                    <span class="feature-tag">Risk Cascade</span>
+                    <span class="feature-tag">ROI Calculator</span>
+                </div>
+                <a href="/demos/logistics/" class="demo-btn">Launch Demo →</a>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🏦</div>
+                <h2 class="demo-title">Banking Intelligence</h2>
+                <p class="demo-company">Al Waha Commercial Bank (Fictional)</p>
+                <p class="demo-description">
+                    See how Nexus optimizes branch networks, identifies underserved markets, and assesses 
+                    climate risk exposure for UAE banking operations.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">UAE Market Data</span>
+                    <span class="feature-tag">Site Selection</span>
+                    <span class="feature-tag">Flood Risk</span>
+                    <span class="feature-tag">Expat Demographics</span>
+                </div>
+                <a href="/demos/banking/" class="demo-btn">Launch Demo →</a>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🚂</div>
+                <h2 class="demo-title">Rail Intelligence</h2>
+                <p class="demo-company">Class I Railroad Operations (Fictional)</p>
+                <p class="demo-description">
+                    Explore predictive maintenance, weather-driven route optimization, and real-time 
+                    fleet visibility across a national rail network.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">Fleet Tracking</span>
+                    <span class="feature-tag">Predictive Maintenance</span>
+                    <span class="feature-tag">Weather Correlation</span>
+                    <span class="feature-tag">FRA Compliance</span>
+                </div>
+                <a href="/demos/rail/" class="demo-btn">Launch Demo →</a>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🎯</div>
+                <h2 class="demo-title">Retail C3 Intelligence</h2>
+                <p class="demo-company">Fortune 500 Retailer (Fictional)</p>
+                <p class="demo-description">
+                    Experience a Command & Control Center predicting organized retail crime, 
+                    optimizing LP deployment, and protecting margins across 2,000+ stores.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">ORC Prediction</span>
+                    <span class="feature-tag">LP Optimization</span>
+                    <span class="feature-tag">Shrink Reduction</span>
+                    <span class="feature-tag">Crisis Response</span>
+                </div>
+                <a href="/demos/retail/" class="demo-btn">Launch Demo →</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                Ready to see Nexus with your own data? Let's talk.
+            </p>
+            <div class="footer-links">
+                <a href="/" class="footer-link">← Back to Home</a>
+                <a href="/pilot.html" class="footer-link">Request Pilot</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

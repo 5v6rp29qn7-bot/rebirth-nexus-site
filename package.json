@@ -1,0 +1,9 @@
+{
+  "name": "rebirth-nexus-demos",
+  "version": "1.0.0",
+  "description": "Rebirth Nexus Interactive Demos with Claude AI Integration",
+  "private": true,
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.24.0"
+  }
+}

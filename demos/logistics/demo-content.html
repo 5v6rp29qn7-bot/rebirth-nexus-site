@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexus — Supply Chain Intelligence</title>
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a24;
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --text-muted: #606070;
+            --accent-gold: #d4af37;
+            --accent-emerald: #10b981;
+            --accent-cyan: #22d3ee;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+            --border-subtle: #2a2a3a;
+        }
+        html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); }
+        
+        .app-container { display: flex; flex-direction: column; height: 100%; }
+        .main-content { display: flex; flex: 1; overflow: hidden; }
+        
+        .intel-feed { width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; flex-shrink: 0; }
+        .feed-header { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+        .feed-title { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        .feed-live { font-size: 10px; background: rgba(239, 68, 68, 0.2); color: var(--accent-red); padding: 3px 8px; border-radius: 10px; display: flex; align-items: center; gap: 4px; }
+        .feed-live::before { content: ""; width: 6px; height: 6px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .feed-items { flex: 1; overflow-y: auto; padding: 8px; }
+        .feed-item { background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s; }
+        .feed-item:hover { border-color: var(--accent-gold); }
+        .feed-item.critical { border-left: 3px solid var(--accent-red); }
+        .feed-item.warning { border-left: 3px solid var(--accent-amber); }
+        .feed-item.info { border-left: 3px solid var(--accent-cyan); }
+        .feed-item-time { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+        .feed-item-title { font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+        .feed-item-detail { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+        .feed-item-meta { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+        .feed-tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: var(--bg-secondary); color: var(--text-muted); }
+        .feed-tag.red { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .feed-tag.amber { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+        .feed-tag.green { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+        .feed-actions { display: flex; gap: 6px; margin-top: 8px; }
+        .feed-action { font-size: 10px; padding: 4px 8px; border-radius: 4px; background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); cursor: pointer; }
+        .feed-action:hover { border-color: var(--accent-gold); }
+        
+        .center-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-primary); position: relative; }
+        .center-header { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); }
+        .view-toggle { display: flex; gap: 4px; background: var(--bg-tertiary); padding: 4px; border-radius: 8px; }
+        .view-btn { padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+        .view-btn.active { background: var(--accent-gold); color: #000; }
+        .view-btn:hover:not(.active) { color: var(--text-primary); }
+        .partner-badges { display: flex; gap: 12px; align-items: center; }
+        .partner-badge { font-size: 10px; color: var(--text-muted); opacity: 0.7; }
+        
+        #mapView { position: absolute; top: 0; left: 0; right: 0; bottom: 0; }
+        .map-view-container { flex: 1; position: relative; min-height: 0; }
+        .map-view-container.hidden { display: none; }
+        
+        .analytics-view { flex: 1; overflow-y: auto; padding: 20px; display: none; }
+        .analytics-view.active { display: block; }
+        .analytics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .analytics-card { background: var(--bg-secondary); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px; }
+        .analytics-card.wide { grid-column: span 2; }
+        .analytics-card.full { grid-column: span 4; }
+        .analytics-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .analytics-value { font-size: 24px; font-weight: 700; }
+        .analytics-value.red { color: var(--accent-red); }
+        .analytics-value.green { color: var(--accent-emerald); }
+        .analytics-value.gold { color: var(--accent-gold); }
+        .analytics-trend { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        .analytics-section-title { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+        .shipment-table { width: 100%; border-collapse: collapse; }
+        .shipment-table th { text-align: left; font-size: 10px; color: var(--text-muted); text-transform: uppercase; padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); }
+        .shipment-table td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid var(--border-subtle); }
+        .shipment-table tr:hover { background: var(--bg-tertiary); cursor: pointer; }
+        .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
+        .status-badge.critical { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .status-badge.warning { background: rgba(245, 158, 11, 0.2); color: var(--accent-amber); }
+        .status-badge.ok { background: rgba(16, 185, 129, 0.2); color: var(--accent-emerald); }
+        
+        .weather-overlay { position: absolute; top: 16px; right: 16px; background: rgba(10, 10, 15, 0.95); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; z-index: 100; width: 260px; }
+        .weather-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+        .weather-title::before { content: "🌩️"; }
+        .weather-alert { background: rgba(239, 68, 68, 0.15); border: 1px solid var(--accent-red); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+        .weather-alert-title { font-weight: 600; font-size: 12px; color: var(--accent-red); margin-bottom: 3px; }
+        .weather-alert-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+        .weather-data { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .weather-item { background: var(--bg-tertiary); padding: 6px 8px; border-radius: 6px; text-align: center; }
+        .weather-item-label { font-size: 9px; color: var(--text-muted); }
+        .weather-item-value { font-size: 13px; font-weight: 600; margin-top: 2px; }
+        
+        .map-legend { position: absolute; bottom: 16px; left: 16px; background: rgba(10, 10, 15, 0.9); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; z-index: 100; }
+        .legend-title { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; margin-bottom: 4px; }
+        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .legend-dot.red { background: var(--accent-red); }
+        .legend-dot.amber { background: var(--accent-amber); }
+        .legend-dot.green { background: var(--accent-emerald); }
+        .legend-dot.blue { background: var(--accent-cyan); }
+        
+        .chat-panel { width: 380px; background: var(--bg-secondary); border-left: 1px solid var(--border-subtle); display: flex; flex-direction: column; flex-shrink: 0; }
+        .chat-header { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
+        .tour-btn-header { margin-left: auto; background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .tour-btn-header:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+        .logo-icon { width: 32px; height: 32px; border-radius: 8px; overflow: hidden; }
+        .logo-icon img { width: 100%; height: 100%; object-fit: contain; }
+        .logo-text { font-weight: 600; font-size: 14px; }
+        .logo-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .alert-banner { background: linear-gradient(90deg, rgba(239, 68, 68, 0.2), rgba(239, 68, 68, 0.1)); border-bottom: 1px solid var(--accent-red); padding: 8px 16px; display: flex; align-items: center; gap: 8px; }
+        .alert-icon { font-size: 14px; }
+        .alert-text { font-size: 11px; font-weight: 500; color: var(--accent-red); flex: 1; }
+        .alert-time { font-size: 10px; color: var(--text-muted); }
+        
+        .kpi-strip { display: flex; gap: 8px; padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); overflow-x: auto; }
+        .kpi-mini { background: var(--bg-tertiary); padding: 8px 12px; border-radius: 6px; text-align: center; min-width: 80px; }
+        .kpi-mini-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+        .kpi-mini-value { font-size: 14px; font-weight: 600; margin-top: 2px; }
+        .kpi-mini-value.red { color: var(--accent-red); }
+        .kpi-mini-value.green { color: var(--accent-emerald); }
+        .kpi-mini-value.gold { color: var(--accent-gold); }
+        
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 12px 16px; scroll-behavior: smooth; }
+        .message { margin-bottom: 14px; }
+        .message.user { text-align: right; }
+        .message-content { display: inline-block; max-width: 95%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; text-align: left; }
+        .message.assistant .message-content { background: var(--bg-tertiary); border: 1px solid var(--border-subtle); }
+        .message.user .message-content { background: var(--accent-gold); color: #000; }
+        .message.proactive .message-content { border-color: var(--accent-cyan); background: rgba(34, 211, 238, 0.1); }
+        
+        .provenance { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-subtle); }
+        .provenance-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px; }
+        .provenance-sources { display: flex; gap: 6px; flex-wrap: wrap; }
+        .provenance-tag { font-size: 9px; padding: 3px 6px; border-radius: 4px; background: var(--bg-secondary); color: var(--text-secondary); display: flex; align-items: center; gap: 4px; }
+        .provenance-tag::before { content: "✓"; color: var(--accent-emerald); font-size: 8px; }
+        .confidence-row { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; color: var(--text-muted); }
+        
+        .chips-section { padding: 12px 16px; background: var(--bg-tertiary); border-top: 1px solid var(--border-subtle); }
+        .chips-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip { background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 6px 12px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .chip:hover { border-color: var(--accent-gold); background: rgba(212, 175, 55, 0.1); }
+        .chip.overview { border-color: var(--accent-emerald); color: var(--accent-emerald); }
+        
+        .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border-subtle); }
+        .input-wrapper { display: flex; gap: 8px; }
+        .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-primary); padding: 10px 14px; border-radius: 20px; font-size: 13px; outline: none; }
+        .chat-input:focus { border-color: var(--accent-gold); }
+        .send-btn { background: var(--accent-gold); color: #000; border: none; padding: 10px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; font-size: 12px; }
+        
+        .status-bar { background: var(--bg-tertiary); border-top: 1px solid var(--border-subtle); padding: 8px 20px; display: flex; gap: 24px; align-items: center; }
+        .status-item { display: flex; align-items: center; gap: 6px; font-size: 11px; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+        .status-dot.green { background: var(--accent-emerald); }
+        .status-dot.amber { background: var(--accent-amber); }
+        .status-dot.red { background: var(--accent-red); }
+        .status-value { font-weight: 600; }
+        .status-label { color: var(--text-muted); }
+        
+        .typing-indicator { display: flex; gap: 4px; align-items: center; padding: 10px 14px; }
+        .typing-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-3px); } }
+        
+        .viz-roi-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin: 10px 0; }
+        .roi-card { background: var(--bg-secondary); padding: 10px; border-radius: 8px; text-align: center; border: 1px solid var(--border-subtle); }
+        .roi-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 3px; }
+        .roi-value { font-size: 14px; font-weight: 600; }
+        .roi-value.gold, .risk-value.gold { color: var(--accent-gold); }
+        .roi-value.green, .risk-value.green { color: var(--accent-emerald); }
+        .roi-value.red, .risk-value.red { color: var(--accent-red); }
+        .roi-value.amber, .risk-value.amber { color: var(--accent-amber); }
+        .roi-value.cyan, .risk-value.cyan { color: var(--accent-cyan); }
+        
+        .viz-risk-matrix, .risk-matrix { background: var(--bg-secondary); border-radius: 8px; overflow: hidden; margin: 10px 0; border: 1px solid var(--border-subtle); }
+        .risk-matrix-header { padding: 8px 10px; background: var(--bg-tertiary); font-weight: 600; font-size: 11px; border-bottom: 1px solid var(--border-subtle); }
+        .risk-item { display: flex; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--border-subtle); gap: 8px; }
+        .risk-item:last-child { border-bottom: none; }
+        .risk-level { width: 3px; height: 28px; border-radius: 2px; flex-shrink: 0; }
+        .risk-level.critical { background: var(--accent-red); }
+        .risk-level.high { background: var(--accent-amber); }
+        .risk-level.medium { background: var(--accent-cyan); }
+        .risk-level.low { background: var(--accent-emerald); }
+        .risk-info { flex: 1; min-width: 0; }
+        .risk-name { font-weight: 500; font-size: 12px; margin-bottom: 2px; }
+        .risk-detail { font-size: 10px; color: var(--text-secondary); }
+        .risk-value { font-weight: 600; font-size: 12px; flex-shrink: 0; }
+        
+        .viz-timeline { margin: 10px 0; }
+        .timeline-item { display: flex; gap: 10px; margin-bottom: 10px; }
+        .timeline-marker { width: 10px; height: 10px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+        .timeline-marker.red { background: var(--accent-red); }
+        .timeline-marker.amber { background: var(--accent-amber); }
+        .timeline-marker.green { background: var(--accent-emerald); }
+        .timeline-marker.cyan { background: var(--accent-cyan); }
+        .timeline-content { flex: 1; }
+        .timeline-time { font-size: 10px; color: var(--accent-gold); font-weight: 500; }
+        .timeline-title { font-size: 12px; font-weight: 500; margin: 2px 0; }
+        .timeline-desc { font-size: 11px; color: var(--text-secondary); }
+        
+        /* Tour Overlay */
+        .tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.50); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .tour-overlay.active { opacity: 1; pointer-events: auto; }
+        .tour-card { background: var(--bg-secondary); border: 1px solid var(--accent-gold); border-radius: 16px; max-width: 540px; padding: 32px 36px; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .tour-step-indicator { display: flex; gap: 6px; margin-bottom: 16px; }
+        .tour-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border-subtle); transition: all 0.3s; }
+        .tour-step-dot.active { background: var(--accent-gold); width: 24px; border-radius: 4px; }
+        .tour-step-dot.completed { background: var(--accent-emerald); }
+        .tour-title { font-size: 22px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary); }
+        .tour-subtitle { font-size: 12px; color: var(--accent-gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tour-content { font-size: 14px; line-height: 1.7; color: var(--text-secondary); margin-bottom: 20px; }
+        .tour-content strong { color: var(--text-primary); }
+        .tour-content .highlight { color: var(--accent-gold); font-weight: 500; }
+        .tour-highlight-box { background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 16px; margin: 12px 0; }
+        .tour-highlight-box .pillar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+        .tour-highlight-box .pillar:last-child { margin-bottom: 0; }
+        .tour-highlight-box .pillar-icon { width: 20px; text-align: center; }
+        .tour-highlight-box .pillar-name { color: var(--text-primary); font-weight: 500; }
+        .tour-highlight-box .pillar-desc { color: var(--text-muted); margin-left: auto; font-size: 11px; }
+        .tour-buttons { display: flex; gap: 12px; justify-content: flex-end; }
+        .tour-btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .tour-btn.primary { background: var(--accent-gold); color: #000; }
+        .tour-btn.primary:hover { background: #e5c04a; }
+        .tour-btn.secondary { background: transparent; border: 1px solid var(--border-subtle); color: var(--text-secondary); }
+        .tour-btn.secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+        .tour-skip { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--text-muted); font-size: 12px; cursor: pointer; }
+        .tour-skip:hover { color: var(--text-primary); }
+        
+        /* Spotlight effect */
+        .tour-spotlight { position: fixed; z-index: 9998; border: 2px solid var(--accent-gold); border-radius: 8px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.45); pointer-events: none; transition: all 0.4s ease-out; }
+        .tour-content p { margin-bottom: 14px; }
+        .tour-content p:last-child { margin-bottom: 0; }
+        .tour-highlight-box { margin: 16px 0; }
+        .tour-highlight-box .pillar { margin-bottom: 10px; }
+        
+        @media (max-width: 1200px) { .intel-feed { display: none; } }
+        @media (max-width: 900px) {
+            .main-content { flex-direction: column; }
+            .chat-panel { width: 100%; height: 55%; border-left: none; border-top: 1px solid var(--border-subtle); }
+            .center-panel { height: 45%; }
+            .weather-overlay { display: none; }
+        }
+        .esri-ui-corner { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="intel-feed">
+                <div class="feed-header">
+                    <div class="feed-title">🔴 Live Intelligence</div>
+                    <div class="feed-live">LIVE</div>
+                </div>
+                <div class="feed-items" id="feedItems"></div>
+            </div>
+            
+            <div class="center-panel">
+                <div class="center-header">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="map">🗺️ Map</button>
+                        <button class="view-btn" data-view="analytics">📊 Analytics</button>
+                    </div>
+                    <div class="partner-badges">
+                        <span class="partner-badge">Powered by Esri</span>
+                        <span class="partner-badge">AWS</span>
+                        <span class="partner-badge">Microsoft</span>
+                    </div>
+                </div>
+                
+                <div class="map-view-container" id="mapContainer">
+                    <div id="mapView"></div>
+                    <div class="weather-overlay">
+                        <div class="weather-title">Live Weather Intel</div>
+                        <div class="weather-alert">
+                            <div class="weather-alert-title">Winter Storm Warning</div>
+                            <div class="weather-alert-text" id="weatherAlertText">Severe winter storm approaching Chicago metro area. 8-12 inches expected.</div>
+                        </div>
+                        <div class="weather-data">
+                            <div class="weather-item"><div class="weather-item-label">Chicago</div><div class="weather-item-value" id="weatherChicago">28°F</div></div>
+                            <div class="weather-item"><div class="weather-item-label">Wind</div><div class="weather-item-value" id="weatherWind">35 mph</div></div>
+                            <div class="weather-item"><div class="weather-item-label">Visibility</div><div class="weather-item-value">0.5 mi</div></div>
+                            <div class="weather-item"><div class="weather-item-label">Roads</div><div class="weather-item-value" id="weatherRoads">Hazardous</div></div>
+                        </div>
+                    </div>
+                    <div class="map-legend">
+                        <div class="legend-title">Network Status</div>
+                        <div class="legend-item"><div class="legend-dot red"></div>At-Risk Facility</div>
+                        <div class="legend-item"><div class="legend-dot amber"></div>Weather Impact</div>
+                        <div class="legend-item"><div class="legend-dot green"></div>Backup Facility</div>
+                        <div class="legend-item"><div class="legend-dot blue"></div>Active Route</div>
+                    </div>
+                </div>
+                
+                <div class="analytics-view" id="analyticsView">
+                    <div class="analytics-grid">
+                        <div class="analytics-card"><div class="analytics-label">Total Exposure</div><div class="analytics-value red">$2.10M</div><div class="analytics-trend">↑ 12% from initial assessment</div></div>
+                        <div class="analytics-card"><div class="analytics-label">Routes at Risk</div><div class="analytics-value red">127</div><div class="analytics-trend">of 342 active routes</div></div>
+                        <div class="analytics-card"><div class="analytics-label">Value Protected</div><div class="analytics-value green" id="analyticsProtected">$0</div><div class="analytics-trend">if mitigation executed</div></div>
+                        <div class="analytics-card"><div class="analytics-label">ROI on Action</div><div class="analytics-value gold">38:1</div><div class="analytics-trend">$45K cost → $1.73M saved</div></div>
+                    </div>
+                    <div class="analytics-card full">
+                        <div class="analytics-section-title">📦 Critical Shipments (12 of 127 at highest risk)</div>
+                        <table class="shipment-table">
+                            <thead><tr><th>Shipment</th><th>Customer</th><th>Contents</th><th>SLA Window</th><th>Exposure</th><th>Status</th></tr></thead>
+                            <tbody id="shipmentTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card wide">
+                            <div class="analytics-section-title">⚠️ Risk Breakdown</div>
+                            <div class="viz-risk-matrix">
+                                <div class="risk-item"><div class="risk-level critical"></div><div class="risk-info"><div class="risk-name">Chicago Hub</div><div class="risk-detail">Direct storm path</div></div><div class="risk-value red">$890K</div></div>
+                                <div class="risk-item"><div class="risk-level high"></div><div class="risk-info"><div class="risk-name">Suppliers</div><div class="risk-detail">3 in storm zone</div></div><div class="risk-value amber">$540K</div></div>
+                                <div class="risk-item"><div class="risk-level high"></div><div class="risk-info"><div class="risk-name">Customer SLA</div><div class="risk-detail">23 priority accounts</div></div><div class="risk-value amber">$420K</div></div>
+                                <div class="risk-item"><div class="risk-level medium"></div><div class="risk-info"><div class="risk-name">Inventory</div><div class="risk-detail">Cross-dock timing</div></div><div class="risk-value cyan">$250K</div></div>
+                            </div>
+                        </div>
+                        <div class="analytics-card wide">
+                            <div class="analytics-section-title">🚀 Recommended Actions</div>
+                            <div class="viz-risk-matrix" id="actionsMatrix">
+                                <div class="risk-item action-item" data-action="Phase 1: Regional bypass"><div class="risk-level low"></div><div class="risk-info"><div class="risk-name">Phase 1: Regional Bypass</div><div class="risk-detail">Reroute through Kansas City</div></div><div class="risk-value green">+$720K</div></div>
+                                <div class="risk-item action-item" data-action="Phase 2: Customer outreach"><div class="risk-level low"></div><div class="risk-info"><div class="risk-name">Phase 2: Customer Outreach</div><div class="risk-detail">Proactive notification</div></div><div class="risk-value green">+$380K</div></div>
+                                <div class="risk-item action-item" data-action="Phase 3: Inventory transfer"><div class="risk-level low"></div><div class="risk-info"><div class="risk-name">Phase 3: Inventory Transfer</div><div class="risk-detail">Pre-position stock</div></div><div class="risk-value green">+$630K</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="chat-panel">
+                <div class="chat-header">
+                    <div class="logo-icon"><img src="RebirthNexusLogo.png" alt="Nexus"></div>
+                    <div><div class="logo-text">Rebirth Nexus</div><div class="logo-sub">Predictive Intelligence</div></div>
+                    <button class="tour-btn-header" onclick="startTour()" title="Restart guided tour">ℹ️ Tour</button>
+                </div>
+                <div class="alert-banner">
+                    <span class="alert-icon">⚠️</span>
+                    <span class="alert-text">WEATHER ALERT — Midwest Region</span>
+                    <span class="alert-time" id="alertTime">Live</span>
+                </div>
+                <div class="kpi-strip">
+                    <div class="kpi-mini"><div class="kpi-mini-label">Exposure</div><div class="kpi-mini-value red">$2.10M</div></div>
+                    <div class="kpi-mini"><div class="kpi-mini-label">Routes</div><div class="kpi-mini-value red">127</div></div>
+                    <div class="kpi-mini"><div class="kpi-mini-label">Protected</div><div class="kpi-mini-value green" id="dashProtected">$0</div></div>
+                    <div class="kpi-mini"><div class="kpi-mini-label">ROI</div><div class="kpi-mini-value gold">38:1</div></div>
+                </div>
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages"></div>
+                    <div class="chips-section"><div class="chips-label">Quick Actions</div><div class="chips-grid" id="chipsGrid"></div></div>
+                    <div class="chat-input-area">
+                        <div class="input-wrapper">
+                            <input type="text" class="chat-input" id="chatInput" placeholder="Ask Nexus about risks, mitigation, status...">
+                            <button class="send-btn" id="sendBtn"><span>Send</span><span>→</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-item"><div class="status-dot green"></div><span class="status-value">127</span><span class="status-label">Active Routes</span></div>
+            <div class="status-item"><div class="status-dot red"></div><span class="status-value">12</span><span class="status-label">Critical</span></div>
+            <div class="status-item"><div class="status-dot amber"></div><span class="status-value">4</span><span class="status-label">Alerts</span></div>
+            <div class="status-item"><div class="status-dot green"></div><span class="status-value">96%</span><span class="status-label">SLA On-Track</span></div>
+            <div class="status-item" style="margin-left:auto;"><span class="status-label">Last sync:</span><span class="status-value" id="lastSync">Just now</span></div>
+        </div>
+    </div>
+    
+    <script src="https://js.arcgis.com/4.28/"></script>
+    <script src="demo-logic.js"></script>
+    <script>
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const view = btn.dataset.view;
+                document.getElementById('mapContainer').classList.toggle('hidden', view !== 'map');
+                document.getElementById('analyticsView').classList.toggle('active', view === 'analytics');
+            });
+        });
+        
+        document.querySelectorAll('.action-item').forEach(item => {
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', () => {
+                const action = item.dataset.action;
+                if (window.handleChipClick) window.handleChipClick(action);
+            });
+        });
+        
+        document.getElementById('shipmentTableBody').addEventListener('click', (e) => {
+            const row = e.target.closest('tr');
+            if (row && row.dataset.shipment && window.handleShipmentClick) {
+                window.handleShipmentClick(row.dataset.shipment);
+            }
+        });
+        
+        require(["esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"], function(Map, MapView, Graphic, GraphicsLayer) {
+            const map = new Map({ basemap: "dark-gray-vector" });
+            const view = new MapView({ container: "mapView", map: map, center: [-89.5, 40], zoom: 5 });
+            
+            const facilitiesLayer = new GraphicsLayer();
+            const routesLayer = new GraphicsLayer();
+            const weatherLayer = new GraphicsLayer();
+            map.addMany([routesLayer, weatherLayer, facilitiesLayer]);
+            
+            const facilities = [
+                { name: "Chicago Hub", lat: 41.8781, lng: -87.6298, status: "at-risk", type: "hub" },
+                { name: "Detroit DC", lat: 42.3314, lng: -83.0458, status: "at-risk", type: "distribution" },
+                { name: "Kansas City Backup", lat: 39.0997, lng: -94.5786, status: "backup", type: "backup" },
+                { name: "Memphis Hub", lat: 35.1495, lng: -90.0490, status: "operational", type: "hub" },
+                { name: "Indianapolis DC", lat: 39.7684, lng: -86.1581, status: "at-risk", type: "distribution" },
+                { name: "St. Louis Hub", lat: 38.6270, lng: -90.1994, status: "operational", type: "hub" },
+                { name: "Minneapolis DC", lat: 44.9778, lng: -93.2650, status: "at-risk", type: "distribution" },
+                { name: "Columbus DC", lat: 39.9612, lng: -82.9988, status: "operational", type: "distribution" }
+            ];
+            
+            facilities.forEach(fac => {
+                const color = fac.status === "at-risk" ? "#ef4444" : fac.status === "backup" ? "#10b981" : "#22d3ee";
+                facilitiesLayer.add(new Graphic({
+                    geometry: { type: "point", longitude: fac.lng, latitude: fac.lat },
+                    symbol: { type: "simple-marker", color: color, size: fac.type === "hub" ? "16px" : "12px", outline: { color: "white", width: 1.5 } },
+                    attributes: fac,
+                    popupTemplate: { title: fac.name, content: "Status: " + fac.status.toUpperCase() }
+                }));
+            });
+            
+            weatherLayer.add(new Graphic({
+                geometry: { type: "polygon", rings: [[[-91, 45], [-85, 45], [-85, 40], [-91, 40], [-91, 45]]] },
+                symbol: { type: "simple-fill", color: [239, 68, 68, 0.15], outline: { color: [239, 68, 68, 0.5], width: 2 } }
+            }));
+            
+            [{ path: [[-87.63, 41.88], [-86.16, 39.77]], color: "#ef4444" },
+             { path: [[-87.63, 41.88], [-83.05, 42.33]], color: "#ef4444" },
+             { path: [[-94.58, 39.10], [-90.20, 38.63]], color: "#22d3ee" },
+             { path: [[-90.05, 35.15], [-86.16, 39.77]], color: "#22d3ee" }].forEach(r => {
+                routesLayer.add(new Graphic({
+                    geometry: { type: "polyline", paths: [r.path] },
+                    symbol: { type: "simple-line", color: r.color, width: 2, style: "short-dash" }
+                }));
+            });
+            
+            window.flyToLocation = function(name) {
+                const loc = facilities.find(f => f.name.toLowerCase().includes(name.toLowerCase()));
+                if (loc) {
+                    view.goTo({ center: [loc.lng, loc.lat], zoom: 9 }, { duration: 1200, easing: "ease-in-out" });
+                    view.popup.open({ location: { longitude: loc.lng, latitude: loc.lat }, title: loc.name, content: "Status: " + loc.status.toUpperCase() });
+                }
+            };
+            window.flyToOverview = function() {
+                view.goTo({ center: [-89.5, 40], zoom: 5 }, { duration: 1200, easing: "ease-in-out" });
+                view.popup.close();
+            };
+            window.mapView = view;
+        });
+        
+        async function fetchWeatherData() {
+            try {
+                const response = await fetch('https://api.weather.gov/gridpoints/LOT/76,73/forecast');
+                if (response.ok) {
+                    const data = await response.json();
+                    const current = data.properties.periods[0];
+                    document.getElementById('weatherChicago').textContent = current.temperature + '°F';
+                    document.getElementById('weatherWind').textContent = current.windSpeed;
+                }
+            } catch (e) { console.log('Weather API unavailable'); }
+        }
+        fetchWeatherData();
+        
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('alertTime').textContent = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('lastSync').textContent = 'Just now';
+        }, 1000);
+    </script>
+    
+    <!-- Guided Tour -->
+    <div class="tour-overlay" id="tourOverlay">
+        <div class="tour-card">
+            <button class="tour-skip" id="tourSkip">Skip Tour ✕</button>
+            <div class="tour-step-indicator" id="tourSteps"></div>
+            <div class="tour-subtitle" id="tourSubtitle"></div>
+            <div class="tour-title" id="tourTitle"></div>
+            <div class="tour-content" id="tourContent"></div>
+            <div class="tour-buttons">
+                <button class="tour-btn secondary" id="tourPrev">← Back</button>
+                <button class="tour-btn primary" id="tourNext">Next →</button>
+            </div>
+        </div>
+    </div>
+    <div class="tour-spotlight" id="tourSpotlight" style="display:none;"></div>
+    
+    <script>
+    const tourSteps = [
+        {
+            subtitle: "Welcome to Rebirth Nexus",
+            title: "Predictive Intelligence Platform",
+            content: `<p>You're looking at a <strong>live intelligence operation</strong>. A winter storm is threatening the Midwest logistics corridor.</p>
+                <p>But this isn't just a dashboard — it's a <span class="highlight">decision-making system</span> that has already analyzed the situation and prepared actionable recommendations.</p>
+                <p>Let me show you how it works.</p>`,
+            target: null
+        },
+        {
+            subtitle: "The Five Pillars",
+            title: "How Nexus Synthesizes Intelligence",
+            content: `<p><em>You don't need to understand the architecture yet — just notice what it delivers.</em></p>
+                <p>Every insight you see comes from <strong>correlating five data pillars</strong> in real-time:</p>
+                <div class="tour-highlight-box">
+                    <div class="pillar"><span class="pillar-icon">📦</span><span class="pillar-name">Your Operations</span><span class="pillar-desc">Internal systems, financials, processes</span></div>
+                    <div class="pillar"><span class="pillar-icon">🗺️</span><span class="pillar-name">Geospatial Context</span><span class="pillar-desc">Esri ArcGIS, routes, facilities</span></div>
+                    <div class="pillar"><span class="pillar-icon">🌐</span><span class="pillar-name">Third-Party Intelligence</span><span class="pillar-desc">Market data, risk scores, IoT feeds</span></div>
+                    <div class="pillar"><span class="pillar-icon">🤝</span><span class="pillar-name">Partner Ecosystem</span><span class="pillar-desc">Insurers, data providers, SLAs</span></div>
+                    <div class="pillar"><span class="pillar-icon">🧠</span><span class="pillar-name">Predictive Analytics</span><span class="pillar-desc">Risk scores, forecasts, simulations</span></div>
+                </div>
+                <p>This is what makes Nexus different: <span class="highlight">synthesis, not just aggregation</span>.</p>`,
+            target: null
+        },
+        {
+            subtitle: "Live Intelligence Feed",
+            title: "Real-Time Event Detection",
+            content: `<p>The Intel Feed shows <strong>system-detected events</strong> as they happen — temperature alerts, SLA warnings, supplier delays, emerging risks.</p>
+                <p>Each event is clickable. When you click one, Nexus immediately provides context and recommended actions.</p>
+                <p><span class="highlight">The system is always watching</span>, so you don't have to.</p>`,
+            target: '.intel-feed'
+        },
+        {
+            subtitle: "Geospatial Intelligence",
+            title: "Your Network at a Glance",
+            content: `<p>The map shows your network with <strong>real-time status</strong>:</p>
+                <p>🔴 <strong>Red markers/lines</strong> = At-risk facilities and routes</p>
+                <p>🟢 <strong>Green markers</strong> = Backup facilities with capacity</p>
+                <p>🔵 <strong>Blue lines</strong> = Active operational routes</p>
+                <p>This is <span class="highlight">Esri ArcGIS</span> integrated directly into the intelligence layer.</p>`,
+            target: '#mapContainer'
+        },
+        {
+            subtitle: "Conversational Interface",
+            title: "Ask Questions, Get Answers",
+            content: `<p>This is where you interact with Nexus. Ask questions in <strong>plain English</strong> — about risks, mitigation options, specific assets, anything.</p>
+                <p>Responses are generated in <span class="highlight">real-time by AI</span>, synthesizing data from all five pillars.</p>
+                <p>Every answer includes <strong>data provenance</strong>: which sources were used, confidence level, and last update time. No black boxes.</p>`,
+            target: '.chat-panel'
+        },
+        {
+            subtitle: "The Key Insight",
+            title: "Decisions, Not Just Data",
+            content: `<p>The real power of Nexus is in what it <strong>doesn't</strong> show you: the hours of analysis, the data correlation, the scenario modeling.</p>
+                <p>You see the result: <span class="highlight">"Spend $45K to protect $1.73M"</span> with a clear approval path and pre-positioned resources.</p>
+                <p>That's predictive intelligence in action.</p>`,
+            target: null
+        },
+        {
+            subtitle: "Ready to Explore",
+            title: "Try It Yourself",
+            content: `<p>The scenario is live. Here are some things to try:</p>
+                <p>• Click <strong>"What's our biggest risk?"</strong> to see risk breakdown</p>
+                <p>• Click <strong>"Mitigation options"</strong> to see the action plan</p>
+                <p>• Click any <strong>Intel Feed item</strong> on the left</p>
+                <p>• Type any question — <span class="highlight">real-time AI</span> will respond</p>
+                <p>The system may also <strong>proactively alert you</strong> as conditions change.</p>`,
+            target: null
+        }
+    ];
+    
+    let currentTourStep = 0;
+    
+    function initTour() {
+        const overlay = document.getElementById('tourOverlay');
+        const stepsContainer = document.getElementById('tourSteps');
+        
+        // Create step dots
+        stepsContainer.innerHTML = tourSteps.map((_, i) => 
+            `<div class="tour-step-dot" data-step="${i}"></div>`
+        ).join('');
+        
+        // Show tour
+        setTimeout(() => {
+            overlay.classList.add('active');
+            renderTourStep(0);
+        }, 1500);
+        
+        // Event listeners
+        document.getElementById('tourNext').addEventListener('click', nextTourStep);
+        document.getElementById('tourPrev').addEventListener('click', prevTourStep);
+        document.getElementById('tourSkip').addEventListener('click', endTour);
+    }
+    
+    function renderTourStep(step) {
+        const data = tourSteps[step];
+        document.getElementById('tourSubtitle').textContent = data.subtitle;
+        document.getElementById('tourTitle').textContent = data.title;
+        document.getElementById('tourContent').innerHTML = data.content;
+        
+        // Update dots
+        document.querySelectorAll('.tour-step-dot').forEach((dot, i) => {
+            dot.classList.remove('active', 'completed');
+            if (i < step) dot.classList.add('completed');
+            if (i === step) dot.classList.add('active');
+        });
+        
+        // Update buttons
+        document.getElementById('tourPrev').style.visibility = step === 0 ? 'hidden' : 'visible';
+        document.getElementById('tourNext').textContent = step === tourSteps.length - 1 ? "Start Exploring →" : "Next →";
+        
+        // Spotlight
+        const spotlight = document.getElementById('tourSpotlight');
+        if (data.target) {
+            const el = document.querySelector(data.target);
+            if (el) {
+                const rect = el.getBoundingClientRect();
+                spotlight.style.display = 'block';
+                spotlight.style.top = rect.top - 4 + 'px';
+                spotlight.style.left = rect.left - 4 + 'px';
+                spotlight.style.width = rect.width + 8 + 'px';
+                spotlight.style.height = rect.height + 8 + 'px';
+            }
+        } else {
+            spotlight.style.display = 'none';
+        }
+    }
+    
+    function nextTourStep() {
+        if (currentTourStep < tourSteps.length - 1) {
+            currentTourStep++;
+            renderTourStep(currentTourStep);
+        } else {
+            endTour();
+        }
+    }
+    
+    function prevTourStep() {
+        if (currentTourStep > 0) {
+            currentTourStep--;
+            renderTourStep(currentTourStep);
+        }
+    }
+    
+    function endTour() {
+        document.getElementById('tourOverlay').classList.remove('active');
+        document.getElementById('tourSpotlight').style.display = 'none';
+        sessionStorage.setItem('nexusTourShown', 'true');
+    }
+    
+    // Auto-start tour each session (use sessionStorage so it resets on new sessions)
+    if (!sessionStorage.getItem('nexusTourShown')) {
+        initTour();
+    }
+    
+    // Allow re-triggering tour via button or console
+    window.startTour = function() {
+        currentTourStep = 0;
+        document.getElementById('tourOverlay').classList.add('active');
+        renderTourStep(0);
+    };
+    </script>
+</body>
+</html>
