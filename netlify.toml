@@ -1,0 +1,50 @@
+# Netlify Configuration for Rebirth Nexus Demos
+
+[build]
+  # Functions directory
+  functions = "netlify/functions"
+  
+  # Publish directory (root for static files)
+  publish = "."
+
+[functions]
+  # Node.js version for functions
+  node_bundler = "esbuild"
+
+# Environment variables (set in Netlify dashboard, not here)
+# ANTHROPIC_API_KEY = "your-key"
+# DEMO_TOKEN = "nexus-demo-2024"
+
+# Headers for security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Redirects
+[[redirects]]
+  from = "/demos"
+  to = "/demos/"
+  status = 301
+
+[[redirects]]
+  from = "/demos/logistics"
+  to = "/demos/logistics/"
+  status = 301
+
+[[redirects]]
+  from = "/demos/banking"
+  to = "/demos/banking/"
+  status = 301
+
+[[redirects]]
+  from = "/demos/rail"
+  to = "/demos/rail/"
+  status = 301
+
+[[redirects]]
+  from = "/demos/retail"
+  to = "/demos/retail/"
+  status = 301
