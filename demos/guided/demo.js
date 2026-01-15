@@ -542,21 +542,21 @@ function showTourStep(stepIndex) {
     // Activate pillar
     if (step.pillarActivation) activatePillar(step.pillarActivation);
     
-    // Handle spotlight
+    // Handle spotlight - but ALWAYS keep tour overlay active (visible)
     const spotlightTarget = isMobile() && rawStep.mobileSpotlight ? rawStep.mobileSpotlight : step.spotlight;
+    
+    // Always keep overlay active so tour card stays visible
+    overlay.classList.add('active');
     
     if (spotlightTarget) {
         const target = document.getElementById(spotlightTarget);
         if (target && target.offsetParent !== null) {
             positionSpotlight(target);
-            overlay.classList.remove('active');
         } else {
             spotlight.style.display = 'none';
-            overlay.classList.add('active');
         }
     } else {
         spotlight.style.display = 'none';
-        overlay.classList.add('active');
     }
     
     if (step.waitFor) setupWaitFor(step.waitFor);
