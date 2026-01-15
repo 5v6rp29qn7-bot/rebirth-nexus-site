@@ -407,17 +407,66 @@ body {
 }
 .chat-input-area button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* === TOUR CARD (Positioned, No Overlay Tint) === */
+/* === TOUR SYSTEM === */
+
+/* Tint overlay - covers everything with subtle dark tint */
+.tour-tint {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9998;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s;
+    pointer-events: none;
+}
+.tour-tint.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Gold highlight box around elements */
+.tour-highlight-box {
+    position: fixed;
+    border: 3px solid var(--gold);
+    border-radius: 12px;
+    z-index: 9999;
+    pointer-events: none;
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+    animation: highlightPulse 1.5s infinite;
+    opacity: 0;
+    transition: opacity 0.3s, top 0.3s, left 0.3s, width 0.3s, height 0.3s;
+}
+.tour-highlight-box.active {
+    opacity: 1;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.4); }
+    50% { box-shadow: 0 0 40px rgba(212, 175, 55, 0.7); }
+}
+
+/* Highlighted elements get elevated above tint */
+.tour-elevated {
+    position: relative !important;
+    z-index: 10001 !important;
+}
+
+/* Tour card - always centered */
 .tour-card {
     position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: var(--bg-card);
     border: 2px solid var(--gold);
     border-radius: 16px;
     padding: 24px 28px;
     width: 420px;
+    max-width: 90vw;
     max-height: 80vh;
     overflow-y: auto;
-    z-index: 10000;
+    z-index: 10002;
     box-shadow: 0 20px 60px rgba(0,0,0,0.8);
     opacity: 0;
     visibility: hidden;
@@ -426,35 +475,6 @@ body {
 .tour-card.active {
     opacity: 1;
     visibility: visible;
-}
-
-/* Tour card positions */
-.tour-card.pos-center {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-.tour-card.pos-right {
-    top: 50%;
-    right: 420px;
-    transform: translateY(-50%);
-}
-.tour-card.pos-left {
-    top: 50%;
-    left: 300px;
-    transform: translateY(-50%);
-}
-.tour-card.pos-top-right {
-    top: 100px;
-    right: 420px;
-}
-.tour-card.pos-bottom-right {
-    bottom: 150px;
-    right: 420px;
-}
-.tour-card.pos-bottom-left {
-    bottom: 150px;
-    left: 300px;
 }
 
 .tour-progress {
@@ -542,21 +562,6 @@ body {
 .tour-btn.primary:hover { filter: brightness(1.1); }
 .tour-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-dim); }
 .tour-btn.secondary:hover { border-color: var(--text-muted); }
-
-/* === ARROW POINTER === */
-.tour-arrow {
-    position: fixed;
-    z-index: 10001;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s;
-}
-.tour-arrow.active {
-    opacity: 1;
-}
-.tour-arrow svg {
-    filter: drop-shadow(0 0 10px var(--gold));
-}
 
 /* === VISUALIZATIONS IN CHAT === */
 .viz-cards {

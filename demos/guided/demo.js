@@ -39,8 +39,8 @@ const STEPS = [
             🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'right',
-        arrowTo: 'intelFeed'
+        position: 'center',
+        highlight: 'intelFeed'
     },
     {
         id: 'weather',
@@ -51,8 +51,8 @@ const STEPS = [
             <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'left',
-        arrowTo: 'weatherCard'
+        position: 'center',
+        highlight: 'weatherCard'
     },
     {
         id: 'analytics-intro',
@@ -62,11 +62,10 @@ const STEPS = [
             <p>The center panel shows two views:</p>
             <p><strong>🗺️ Map View</strong> — Geospatial intelligence showing store locations and risk zones.</p>
             <p><strong>📊 Analytics View</strong> — Tabular data for operations teams.</p>
-            <div class="tour-instruction">👆 Click the glowing <strong>Analytics</strong> tab above</div>
+            <div class="tour-instruction">👆 Click the glowing <strong>Analytics</strong> tab</div>
         `,
-        position: 'bottom-left',
+        position: 'center',
         highlight: 'analyticsTab',
-        arrowTo: 'analyticsTab',
         waitFor: 'analyticsClick'
     },
     {
@@ -78,9 +77,8 @@ const STEPS = [
             <p>Notice the <strong>$4.2M exposure</strong> card and the <strong>Critical Stores</strong> table.</p>
             <div class="tour-instruction">👆 Click the glowing <strong>Map</strong> tab to return</div>
         `,
-        position: 'bottom-left',
+        position: 'center',
         highlight: 'mapTab',
-        arrowTo: 'mapTab',
         waitFor: 'mapClick'
     },
     {
@@ -92,8 +90,8 @@ const STEPS = [
             <p>No training required. No complex queries. Just ask questions like you would ask a colleague.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'bottom-left',
-        arrowTo: 'chatPanel'
+        position: 'center',
+        highlight: 'chatPanel'
     },
     {
         id: 'risk',
@@ -101,11 +99,10 @@ const STEPS = [
         title: 'Exploring the Risk',
         content: `
             <p>Let's dig into what's actually at risk.</p>
-            <div class="tour-instruction">👆 Click the glowing chip in the chat panel →</div>
+            <div class="tour-instruction">👆 Click the glowing chip: <strong>"What's our biggest risk?"</strong></div>
         `,
-        position: 'bottom-left',
+        position: 'center',
         highlight: 'chip-risk',
-        arrowTo: 'chip-risk',
         waitFor: 'chip-risk'
     },
     {
@@ -114,11 +111,10 @@ const STEPS = [
         title: 'The Mitigation Plan',
         content: `
             <p>Nexus doesn't just show problems — it shows <strong>exactly what to do</strong>.</p>
-            <div class="tour-instruction">👆 Click the glowing chip below →</div>
+            <div class="tour-instruction">👆 Click the glowing chip: <strong>"What actions should we take?"</strong></div>
         `,
-        position: 'bottom-left',
+        position: 'center',
         highlight: 'chip-actions',
-        arrowTo: 'chip-actions',
         waitFor: 'chip-actions'
     },
     {
@@ -493,7 +489,8 @@ function showTourStep(index) {
     }
     
     const card = document.getElementById('tourCard');
-    const arrow = document.getElementById('tourArrow');
+    const tint = document.getElementById('tourTint');
+    const highlightBox = document.getElementById('tourHighlightBox');
     
     // Update progress dots
     document.getElementById('tourProgress').innerHTML = STEPS.map((_, i) => {
@@ -521,47 +518,45 @@ function showTourStep(index) {
         actionsEl.innerHTML = '';
     }
     
-    // Position card
-    card.className = 'tour-card active pos-' + (step.position || 'center');
+    // Show card
+    card.classList.add('active');
     
     // Clear old highlights
+    document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
     document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     
-    // Apply highlight
+    // Handle highlight
     if (step.highlight) {
-        const highlightEl = document.getElementById(step.highlight);
-        if (highlightEl) {
-            highlightEl.classList.add('highlight');
+        const target = document.getElementById(step.highlight);
+        if (target) {
+            // Show tint
+            tint.classList.add('active');
+            
+            // Elevate the target above tint
+            target.classList.add('tour-elevated');
+            
+            // Position gold box around target
+            const rect = target.getBoundingClientRect();
+            const padding = 8;
+            highlightBox.style.top = (rect.top - padding) + 'px';
+            highlightBox.style.left = (rect.left - padding) + 'px';
+            highlightBox.style.width = (rect.width + padding * 2) + 'px';
+            highlightBox.style.height = (rect.height + padding * 2) + 'px';
+            highlightBox.classList.add('active');
+            
+            // Also add highlight class for clickable elements
+            target.classList.add('highlight');
+        }
+    } else {
+        // No highlight - show tint but no box (for welcome/complete screens)
+        if (index === 0 || step.id === 'complete') {
+            tint.classList.remove('active');
+            highlightBox.classList.remove('active');
+        } else {
+            tint.classList.add('active');
+            highlightBox.classList.remove('active');
         }
     }
-    
-    // Position arrow
-    if (step.arrowTo) {
-        positionArrow(step.arrowTo);
-    } else {
-        hideArrow();
-    }
-}
-
-function positionArrow(targetId) {
-    const target = document.getElementById(targetId);
-    const arrow = document.getElementById('tourArrow');
-    
-    if (!target) {
-        hideArrow();
-        return;
-    }
-    
-    const rect = target.getBoundingClientRect();
-    
-    // Position arrow to point at target (arrow points to top-right)
-    arrow.style.left = (rect.left - 60) + 'px';
-    arrow.style.top = (rect.top - 60) + 'px';
-    arrow.classList.add('active');
-}
-
-function hideArrow() {
-    document.getElementById('tourArrow').classList.remove('active');
 }
 
 function handleTourAction(action) {
@@ -581,7 +576,9 @@ function handleTourAction(action) {
 function endTour() {
     tourStarted = false;
     document.getElementById('tourCard').classList.remove('active');
-    hideArrow();
+    document.getElementById('tourTint').classList.remove('active');
+    document.getElementById('tourHighlightBox').classList.remove('active');
+    document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
     document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     document.getElementById('chatInput').disabled = false;
     document.getElementById('sendBtn').disabled = false;
