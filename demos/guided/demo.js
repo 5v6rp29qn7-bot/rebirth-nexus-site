@@ -423,7 +423,7 @@ function handleChipClick(chipKey) {
         if (tourStarted) {
             const step = STEPS[currentStep];
             if (step && step.waitFor === `chip-${chipKey}`) {
-                hideArrow();
+                document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 500);
             }
         }
@@ -431,28 +431,35 @@ function handleChipClick(chipKey) {
 }
 
 function initTabs() {
-    document.getElementById('mapTab').addEventListener('click', () => {
+    const mapTab = document.getElementById('mapTab');
+    const analyticsTab = document.getElementById('analyticsTab');
+    
+    mapTab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('Map tab clicked, tourStarted:', tourStarted, 'currentStep:', currentStep);
         switchView('map');
         // Advance tour if waiting
         if (tourStarted) {
             const step = STEPS[currentStep];
+            console.log('Current step waitFor:', step?.waitFor);
             if (step && step.waitFor === 'mapClick') {
-                document.getElementById('mapTab').classList.remove('highlight');
-                document.getElementById('mapTab').classList.remove('tour-elevated');
+                mapTab.classList.remove('highlight', 'tour-elevated');
                 document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
         }
     });
     
-    document.getElementById('analyticsTab').addEventListener('click', () => {
+    analyticsTab.addEventListener('click', (e) => {
+        e.stopPropagation();
+        console.log('Analytics tab clicked, tourStarted:', tourStarted, 'currentStep:', currentStep);
         switchView('analytics');
         // Advance tour if waiting
         if (tourStarted) {
             const step = STEPS[currentStep];
+            console.log('Current step waitFor:', step?.waitFor);
             if (step && step.waitFor === 'analyticsClick') {
-                document.getElementById('analyticsTab').classList.remove('highlight');
-                document.getElementById('analyticsTab').classList.remove('tour-elevated');
+                analyticsTab.classList.remove('highlight', 'tour-elevated');
                 document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
@@ -527,6 +534,11 @@ function showTourStep(index) {
     document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
     document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     
+    // Always hide highlight box first, then show if needed
+    highlightBox.classList.remove('active');
+    highlightBox.style.top = '-200px';
+    highlightBox.style.left = '-200px';
+    
     // Handle highlight
     if (step.highlight) {
         const target = document.getElementById(step.highlight);
@@ -551,13 +563,11 @@ function showTourStep(index) {
                 highlightBox.classList.add('active');
             });
         } else {
-            // Target not found, hide highlight box
-            highlightBox.classList.remove('active');
+            // Target not found
             tint.classList.add('active');
         }
     } else {
-        // No highlight - show tint but no box (for welcome/complete screens)
-        highlightBox.classList.remove('active');
+        // No highlight - just tint (or no tint for welcome/complete)
         if (index === 0 || step.id === 'complete') {
             tint.classList.remove('active');
         } else {

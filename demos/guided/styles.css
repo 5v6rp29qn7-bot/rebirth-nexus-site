@@ -454,6 +454,13 @@ body {
 .tour-elevated {
     position: relative !important;
     z-index: 10001 !important;
+    pointer-events: auto !important;
+}
+
+/* Clickable highlight style */
+.highlight {
+    cursor: pointer !important;
+    pointer-events: auto !important;
 }
 
 /* Tour card - always centered */
