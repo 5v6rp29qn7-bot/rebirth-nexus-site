@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Nexus - Conversational Predictive Intelligence Platform Demo">
+    
+    <title>Nexus — Guided Intelligence Demo</title>
+    
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Esri ArcGIS -->
+    <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
+    
+    <!-- Demo Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <!-- LEFT: Intel Feed (Desktop Only) -->
+            <div class="intel-feed" id="intelFeed">
+                <div class="feed-header">
+                    <div class="feed-title">
+                        <span class="sr-only">Live</span>
+                        🔴 Live Intelligence
+                    </div>
+                    <div class="feed-live" aria-label="Live updates active">LIVE</div>
+                </div>
+                <div class="feed-items" id="feedItems" role="feed" aria-label="Intelligence alerts">
+                    <!-- Feed items injected by JS -->
+                </div>
+            </div>
+            
+            <!-- CENTER: Map + Analytics -->
+            <div class="center-panel">
+                <div class="center-header">
+                    <div class="view-toggle" id="viewToggle" role="tablist" aria-label="View selection">
+                        <button class="view-btn active" data-view="map" id="mapBtn" role="tab" aria-selected="true" aria-controls="mapContainer">
+                            <span aria-hidden="true">🗺️</span> Map
+                        </button>
+                        <button class="view-btn" data-view="analytics" id="analyticsBtn" role="tab" aria-selected="false" aria-controls="analyticsView">
+                            <span aria-hidden="true">📊</span> Analytics
+                        </button>
+                    </div>
+                    <div class="partner-badges">
+                        <span class="partner-badge" id="badge-esri">
+                            Powered by Esri
+                            <span class="tooltip">Geospatial intelligence & mapping</span>
+                        </span>
+                        <span class="partner-badge" id="badge-rebirth">
+                            Rebirth Analytics
+                            <span class="tooltip">Supplier financial health scoring</span>
+                        </span>
+                        <span class="partner-badge" id="badge-allianz">
+                            Allianz Trade
+                            <span class="tooltip">Credit risk & default probability</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Data Pillars Strip (Desktop) -->
+                <div class="pillars-strip" id="pillarsStrip" aria-label="Active data pillars">
+                    <!-- Injected by JS -->
+                </div>
+                
+                <!-- MOBILE: Weather Alert Banner (replaces desktop overlay) -->
+                <div class="mobile-weather-banner" id="mobileWeatherBanner" role="alert">
+                    <span class="alert-icon" aria-hidden="true">⚠️</span>
+                    <div class="alert-text">Winter Storm Warning — Chicago Metro</div>
+                    <div class="alert-meta">NOAA • 48hr</div>
+                </div>
+                
+                <div class="map-view-container" id="mapContainer" role="tabpanel" aria-labelledby="mapBtn">
+                    <div id="mapView"></div>
+                    
+                    <!-- DESKTOP: Weather Overlay -->
+                    <div class="weather-overlay" id="weatherOverlay">
+                        <div class="weather-title">
+                            <span aria-hidden="true">🌩️</span> Live Weather Intel
+                        </div>
+                        <div class="weather-meta">
+                            <span class="timestamp">NOAA Advisory: 14:32 UTC</span>
+                            <span class="confidence">Confidence: 0.89</span>
+                        </div>
+                        <div class="weather-alert" role="alert">
+                            <div class="weather-alert-title">Winter Storm Warning</div>
+                            <div class="weather-alert-text">Severe winter storm approaching Chicago metro. 8-12 inches expected over 48 hours.</div>
+                        </div>
+                        <div class="weather-data">
+                            <div class="weather-item">
+                                <div class="weather-item-label">Chicago</div>
+                                <div class="weather-item-value">28°F</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Wind</div>
+                                <div class="weather-item-value">35 mph</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Visibility</div>
+                                <div class="weather-item-value">0.5 mi</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Roads</div>
+                                <div class="weather-item-value" style="color: var(--accent-red);">Hazardous</div>
+                            </div>
+                        </div>
+                        <div class="weather-meta" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
+                            <span>Next refresh: 15 min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="map-legend" aria-label="Map legend">
+                        <div class="legend-title">Network Status</div>
+                        <div class="legend-item"><div class="legend-dot red" aria-hidden="true"></div>At-Risk Store</div>
+                        <div class="legend-item"><div class="legend-dot amber" aria-hidden="true"></div>Weather Impact</div>
+                        <div class="legend-item"><div class="legend-dot green" aria-hidden="true"></div>Unaffected Store</div>
+                        <div class="legend-item"><div class="legend-dot blue" aria-hidden="true"></div>Distribution Center</div>
+                    </div>
+                </div>
+                
+                <div class="analytics-view" id="analyticsView" role="tabpanel" aria-labelledby="analyticsBtn">
+                    <!-- Analytics content injected by JS -->
+                </div>
+            </div>
+            
+            <!-- RIGHT: Chat Panel -->
+            <div class="chat-panel" id="chatPanel">
+                <div class="chat-header">
+                    <div class="logo-icon" aria-hidden="true">N</div>
+                    <div>
+                        <div class="logo-text">Nexus</div>
+                        <div class="logo-sub">Predictive Intelligence</div>
+                    </div>
+                </div>
+                
+                <div class="kpi-strip" id="kpiStrip" aria-label="Key metrics">
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Exposure</div>
+                        <div class="kpi-mini-value red" id="kpi-exposure">$4.2M</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Stores</div>
+                        <div class="kpi-mini-value amber" id="kpi-stores">12</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Protected</div>
+                        <div class="kpi-mini-value green" id="kpi-protected">$0</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">ROI</div>
+                        <div class="kpi-mini-value gold" id="kpi-roi">—</div>
+                    </div>
+                </div>
+                
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversation with Nexus" aria-live="polite">
+                        <!-- Messages injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="chips-section" id="chipsSection">
+                    <div class="chips-label">Quick Actions</div>
+                    <div class="chips-grid" id="chipsGrid" role="group" aria-label="Suggested queries">
+                        <!-- Chips injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="chat-input-area" id="chatInputArea">
+                    <div class="input-wrapper">
+                        <label for="chatInput" class="sr-only">Ask Nexus a question</label>
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask Nexus anything..." disabled aria-disabled="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <button class="send-btn" id="sendBtn" disabled aria-disabled="true" aria-label="Send message">Send →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tour Overlay -->
+    <div class="tour-overlay" id="tourOverlay" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+        <div class="tour-card" id="tourCard">
+            <div class="tour-step-indicator" id="tourStepIndicator" aria-label="Tour progress"></div>
+            <div class="tour-subtitle" id="tourSubtitle"></div>
+            <h2 class="tour-title" id="tourTitle"></h2>
+            <div class="tour-content" id="tourContent"></div>
+            <div class="tour-buttons" id="tourButtons"></div>
+        </div>
+    </div>
+    
+    <!-- Spotlight Element -->
+    <div class="tour-spotlight" id="tourSpotlight" style="display: none;" aria-hidden="true"></div>
+    
+    <!-- POC Request Modal -->
+    <div class="poc-modal" id="pocModal" role="dialog" aria-modal="true" aria-labelledby="pocModalTitle">
+        <div class="poc-modal-content">
+            <h2 class="poc-modal-title" id="pocModalTitle">Request a Pilot</h2>
+            <p class="poc-modal-subtitle">Choose your preferred next step. Our team will reach out within 24 hours.</p>
+            <div class="poc-options">
+                <div class="poc-option" tabindex="0" role="button" aria-label="30-Day Pilot">
+                    <div class="poc-option-title">30-Day Pilot (2 Data Feeds)</div>
+                    <div class="poc-option-desc">Connect your TMS and one third-party source. See Nexus in action on your actual operations.</div>
+                </div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="Run scenario on your network">
+                    <div class="poc-option-title">Run This Scenario on Your Network</div>
+                    <div class="poc-option-desc">We'll model a winter storm, port strike, or supplier disruption using your store/supplier data.</div>
+                </div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="See top 10 nodes at risk">
+                    <div class="poc-option-title">See Your Top 10 Nodes at Risk</div>
+                    <div class="poc-option-desc">Quick risk assessment of your most critical suppliers and locations. Delivered in 1 week.</div>
+                </div>
+            </div>
+            <button class="poc-close" aria-label="Close modal">Maybe Later</button>
+        </div>
+    </div>
+
+    <!-- ArcGIS SDK -->
+    <script src="https://js.arcgis.com/4.28/"></script>
+    
+    <!-- Demo Logic -->
+    <script src="demo.js"></script>
+</body>
+</html>
