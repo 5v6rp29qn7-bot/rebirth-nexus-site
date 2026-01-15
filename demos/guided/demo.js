@@ -7,7 +7,7 @@
 const RESPONSE_DELAY = 800;
 let currentTourStep = 0;
 let mapView = null;
-let tourActive = true;
+let tourActive = false;  // Don't start active - wait for Begin Tour click
 
 // === DEVICE DETECTION ===
 const isMobile = () => window.innerWidth <= 768;
@@ -684,7 +684,12 @@ function handleChipClick(actionKey) {
             }
         }
         chatMessages.scrollTop = chatMessages.scrollHeight;
-        if (tourActive) setTimeout(() => showTourStep(currentTourStep + 1), 500);
+        
+        // Only auto-advance if current step is waiting for THIS chip
+        const step = TOUR_STEPS[currentTourStep];
+        if (tourActive && step && step.waitFor && step.waitFor === 'chip-' + actionKey) {
+            setTimeout(() => showTourStep(currentTourStep + 1), 500);
+        }
     }, RESPONSE_DELAY);
 }
 
@@ -715,8 +720,15 @@ function setupEventListeners() {
             e.stopPropagation(); // Prevent bubbling
             if (e.target.classList.contains('tour-btn')) {
                 const action = e.target.dataset.action;
-                console.log('Tour button clicked:', action); // Debug
-                if (action === 'next') showTourStep(currentTourStep + 1);
+                console.log('Tour button clicked:', action, 'current step:', currentTourStep);
+                if (action === 'next') {
+                    // Activate tour when leaving welcome screen (step 0)
+                    if (currentTourStep === 0) {
+                        tourActive = true;
+                        console.log('Tour activated!');
+                    }
+                    showTourStep(currentTourStep + 1);
+                }
                 else if (action === 'explore') endTour();
                 else if (action === 'contact') showPocModal();
             }
