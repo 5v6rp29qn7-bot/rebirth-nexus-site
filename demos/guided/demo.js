@@ -8,6 +8,90 @@ let currentStep = 0;
 let tourStarted = false;
 let mapView = null;
 
+// In guided mode, we only allow interaction with the currently-highlighted element
+// (and tour card buttons). Everything else is effectively read-only.
+function setTourLock(on) {
+    document.body.classList.toggle('tour-lock', !!on);
+}
+
+function getCurrentStep() {
+    return STEPS[currentStep] || null;
+}
+
+function isExpectedInteraction(kind, value) {
+    // If the tour hasn't started, allow everything.
+    if (!tourStarted) return true;
+    const step = getCurrentStep();
+    if (!step || !step.waitFor) return true;
+
+    if (kind === 'chip') {
+        return step.waitFor === `chip-${value}`;
+    }
+
+    if (kind === 'tab') {
+        return step.waitFor === value;
+    }
+
+    return true;
+}
+
+let freeChatInitialized = false;
+function initFreeChatInput() {
+    if (freeChatInitialized) return;
+    freeChatInitialized = true;
+
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('sendBtn');
+
+    function submit() {
+        const text = (input.value || '').trim();
+        if (!text) return;
+        input.value = '';
+
+        const messages = document.getElementById('chatMessages');
+        messages.innerHTML += `
+            <div class="message user"><div class="bubble">${escapeHtml(text)}</div></div>
+        `;
+        messages.scrollTop = messages.scrollHeight;
+
+        // Lightweight keyword routing to keep the demo feeling responsive.
+        const t = text.toLowerCase();
+        const key = t.includes('risk') ? 'risk' : t.includes('cascade') ? 'cascade' : t.includes('action') ? 'actions' : null;
+        if (key && RESPONSES[key]) {
+            setTimeout(() => {
+                messages.innerHTML += `
+                    <div class="message assistant"><div class="bubble">${RESPONSES[key].content}</div></div>
+                `;
+                renderChips(RESPONSES[key].chips);
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        } else {
+            setTimeout(() => {
+                messages.innerHTML += `
+                    <div class="message assistant"><div class="bubble">
+                        <p>This is a guided demo environment. For best results, use the chips below (or ask about <strong>risk</strong>, <strong>cascade</strong>, or <strong>actions</strong>).</p>
+                    </div></div>
+                `;
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        }
+    }
+
+    send.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submit();
+    });
+}
+
+function escapeHtml(str) {
+    return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
 // === TOUR STEPS ===
 const STEPS = [
     {
@@ -47,12 +131,12 @@ const STEPS = [
         label: 'Step 2 of 8',
         title: 'Third-Party Intelligence',
         content: `
-            <p>Look at the <strong>weather card</strong> in the top-right of the map.</p>
-            <p>It shows <strong>live NOAA data</strong> integrated into the platform — timestamps, confidence scores, and real conditions.</p>
-            <p>This is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
+            <p>The weather card shows <strong>live NOAA data</strong> integrated into the platform.</p>
+            <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'center'
+        position: 'center',
+        highlight: 'weatherCard'
     },
     {
         id: 'analytics-intro',
@@ -369,6 +453,10 @@ function renderChips(chipKeys) {
 }
 
 function handleChipClick(chipKey) {
+    // During the guided tour, ignore chips that are not the requested next action.
+    if (tourStarted && !isExpectedInteraction('chip', chipKey)) {
+        return;
+    }
     // Remove highlight
     document.querySelectorAll('.chip.highlight').forEach(c => c.classList.remove('highlight'));
     
@@ -423,7 +511,6 @@ function handleChipClick(chipKey) {
         if (tourStarted) {
             const step = STEPS[currentStep];
             if (step && step.waitFor === `chip-${chipKey}`) {
-                document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 500);
             }
         }
@@ -431,36 +518,27 @@ function handleChipClick(chipKey) {
 }
 
 function initTabs() {
-    const mapTab = document.getElementById('mapTab');
-    const analyticsTab = document.getElementById('analyticsTab');
-    
-    mapTab.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('Map tab clicked, tourStarted:', tourStarted, 'currentStep:', currentStep);
+    document.getElementById('mapTab').addEventListener('click', () => {
+        if (tourStarted && !isExpectedInteraction('tab', 'mapClick')) return;
         switchView('map');
         // Advance tour if waiting
         if (tourStarted) {
             const step = STEPS[currentStep];
-            console.log('Current step waitFor:', step?.waitFor);
             if (step && step.waitFor === 'mapClick') {
-                mapTab.classList.remove('highlight', 'tour-elevated');
-                document.getElementById('tourHighlightBox').classList.remove('active');
+                document.getElementById('mapTab').classList.remove('highlight');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
         }
     });
     
-    analyticsTab.addEventListener('click', (e) => {
-        e.stopPropagation();
-        console.log('Analytics tab clicked, tourStarted:', tourStarted, 'currentStep:', currentStep);
+    document.getElementById('analyticsTab').addEventListener('click', () => {
+        if (tourStarted && !isExpectedInteraction('tab', 'analyticsClick')) return;
         switchView('analytics');
         // Advance tour if waiting
         if (tourStarted) {
             const step = STEPS[currentStep];
-            console.log('Current step waitFor:', step?.waitFor);
             if (step && step.waitFor === 'analyticsClick') {
-                analyticsTab.classList.remove('highlight', 'tour-elevated');
-                document.getElementById('tourHighlightBox').classList.remove('active');
+                document.getElementById('analyticsTab').classList.remove('highlight');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
         }
@@ -529,15 +607,13 @@ function showTourStep(index) {
     
     // Show card
     card.classList.add('active');
+
+    // Lock the UI once the tour has begun (step 0 -> next)
+    setTourLock(tourStarted);
     
     // Clear old highlights
     document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
     document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-    
-    // Always hide highlight box first, then show if needed
-    highlightBox.classList.remove('active');
-    highlightBox.style.top = '-200px';
-    highlightBox.style.left = '-200px';
     
     // Handle highlight
     if (step.highlight) {
@@ -561,25 +637,90 @@ function showTourStep(index) {
                 highlightBox.style.width = (rect.width + padding * 2) + 'px';
                 highlightBox.style.height = (rect.height + padding * 2) + 'px';
                 highlightBox.classList.add('active');
+
+                // If we are highlighting a small control (chip/tab), move the tour card so it doesn't cover it.
+                // Keep "center" for welcome/complete.
+                if (step.position !== 'center') {
+                    positionTourCardNear(rect);
+                } else {
+                    resetTourCardPosition();
+                }
             });
         } else {
-            // Target not found
+            // Target not found, hide highlight box
+            highlightBox.classList.remove('active');
             tint.classList.add('active');
+            resetTourCardPosition();
         }
     } else {
-        // No highlight - just tint (or no tint for welcome/complete)
+        // No highlight - show tint but no box (for welcome/complete screens)
+        highlightBox.classList.remove('active');
         if (index === 0 || step.id === 'complete') {
             tint.classList.remove('active');
         } else {
             tint.classList.add('active');
         }
+
+        // No highlight: keep centered
+        resetTourCardPosition();
     }
+}
+
+function resetTourCardPosition() {
+    const card = document.getElementById('tourCard');
+    card.style.top = '';
+    card.style.left = '';
+    card.style.right = '';
+    card.style.bottom = '';
+    card.style.transform = '';
+}
+
+function positionTourCardNear(targetRect) {
+    const card = document.getElementById('tourCard');
+    const margin = 16;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    // Force layout to get card size
+    const cardRect = card.getBoundingClientRect();
+    let top = null, left = null;
+
+    // Prefer placing to the right; otherwise left; otherwise below; otherwise above.
+    const canRight = targetRect.right + margin + cardRect.width <= vw;
+    const canLeft = targetRect.left - margin - cardRect.width >= 0;
+    const canBelow = targetRect.bottom + margin + cardRect.height <= vh;
+    const canAbove = targetRect.top - margin - cardRect.height >= 0;
+
+    if (canRight) {
+        left = targetRect.right + margin;
+        top = Math.max(margin, Math.min(vh - cardRect.height - margin, targetRect.top));
+    } else if (canLeft) {
+        left = targetRect.left - margin - cardRect.width;
+        top = Math.max(margin, Math.min(vh - cardRect.height - margin, targetRect.top));
+    } else if (canBelow) {
+        top = targetRect.bottom + margin;
+        left = Math.max(margin, Math.min(vw - cardRect.width - margin, targetRect.left));
+    } else if (canAbove) {
+        top = targetRect.top - margin - cardRect.height;
+        left = Math.max(margin, Math.min(vw - cardRect.width - margin, targetRect.left));
+    } else {
+        // Fallback center
+        resetTourCardPosition();
+        return;
+    }
+
+    card.style.top = `${top}px`;
+    card.style.left = `${left}px`;
+    card.style.right = 'auto';
+    card.style.bottom = 'auto';
+    card.style.transform = 'none';
 }
 
 function handleTourAction(action) {
     if (action === 'next') {
         if (currentStep === 0) {
             tourStarted = true;
+            setTourLock(true);
         }
         showTourStep(currentStep + 1);
     } else if (action === 'end') {
@@ -592,6 +733,7 @@ function handleTourAction(action) {
 
 function endTour() {
     tourStarted = false;
+    setTourLock(false);
     document.getElementById('tourCard').classList.remove('active');
     document.getElementById('tourTint').classList.remove('active');
     document.getElementById('tourHighlightBox').classList.remove('active');
@@ -599,6 +741,9 @@ function endTour() {
     document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     document.getElementById('chatInput').disabled = false;
     document.getElementById('sendBtn').disabled = false;
+
+    // Enable lightweight free-form chat so "Send" isn't a dead control.
+    initFreeChatInput();
     
     // Show free exploration message
     const messages = document.getElementById('chatMessages');

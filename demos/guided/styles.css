@@ -28,6 +28,16 @@ body {
     overflow: hidden;
 }
 
+/* === TOUR LOCKDOWN (guided mode) ===
+   When the tour is running, prevent "free exploration" clicks.
+   Pointer events are re-enabled only for the highlighted element and the tour card.
+*/
+body.tour-lock .app { pointer-events: none; }
+body.tour-lock .tour-card { pointer-events: auto; }
+body.tour-lock .tour-card * { pointer-events: auto; }
+body.tour-lock .tour-elevated { pointer-events: auto !important; }
+
+
 /* === LAYOUT === */
 .app {
     display: grid;
@@ -454,13 +464,6 @@ body {
 .tour-elevated {
     position: relative !important;
     z-index: 10001 !important;
-    pointer-events: auto !important;
-}
-
-/* Clickable highlight style */
-.highlight {
-    cursor: pointer !important;
-    pointer-events: auto !important;
 }
 
 /* Tour card - always centered */
