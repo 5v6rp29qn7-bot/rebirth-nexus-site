@@ -428,6 +428,10 @@ body {
 /* Gold highlight box around elements */
 .tour-highlight-box {
     position: fixed;
+    top: -100px;
+    left: -100px;
+    width: 0;
+    height: 0;
     border: 3px solid var(--gold);
     border-radius: 12px;
     z-index: 9999;
@@ -435,7 +439,7 @@ body {
     box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
     animation: highlightPulse 1.5s infinite;
     opacity: 0;
-    transition: opacity 0.3s, top 0.3s, left 0.3s, width 0.3s, height 0.3s;
+    transition: opacity 0.3s, top 0.4s ease-out, left 0.4s ease-out, width 0.4s ease-out, height 0.4s ease-out;
 }
 .tour-highlight-box.active {
     opacity: 1;

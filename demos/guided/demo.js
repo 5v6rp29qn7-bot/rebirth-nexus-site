@@ -535,26 +535,31 @@ function showTourStep(index) {
             // Elevate the target above tint
             target.classList.add('tour-elevated');
             
-            // Position gold box around target
-            const rect = target.getBoundingClientRect();
-            const padding = 8;
-            highlightBox.style.top = (rect.top - padding) + 'px';
-            highlightBox.style.left = (rect.left - padding) + 'px';
-            highlightBox.style.width = (rect.width + padding * 2) + 'px';
-            highlightBox.style.height = (rect.height + padding * 2) + 'px';
-            highlightBox.classList.add('active');
-            
             // Also add highlight class for clickable elements
             target.classList.add('highlight');
+            
+            // Position gold box around target (use requestAnimationFrame to ensure element is rendered)
+            requestAnimationFrame(() => {
+                const rect = target.getBoundingClientRect();
+                const padding = 8;
+                highlightBox.style.top = (rect.top - padding) + 'px';
+                highlightBox.style.left = (rect.left - padding) + 'px';
+                highlightBox.style.width = (rect.width + padding * 2) + 'px';
+                highlightBox.style.height = (rect.height + padding * 2) + 'px';
+                highlightBox.classList.add('active');
+            });
+        } else {
+            // Target not found, hide highlight box
+            highlightBox.classList.remove('active');
+            tint.classList.add('active');
         }
     } else {
         // No highlight - show tint but no box (for welcome/complete screens)
+        highlightBox.classList.remove('active');
         if (index === 0 || step.id === 'complete') {
             tint.classList.remove('active');
-            highlightBox.classList.remove('active');
         } else {
             tint.classList.add('active');
-            highlightBox.classList.remove('active');
         }
     }
 }
