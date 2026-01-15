@@ -138,7 +138,8 @@ body.tour-lock .tour-elevated { pointer-events: auto !important; }
 .tab.active { background: var(--gold); color: #000; border-color: var(--gold); }
 
 /* SUPER OBVIOUS HIGHLIGHT for tabs */
-.tab.highlight {
+.tab.highlight,
+.tab.tour-highlight {
     background: var(--gold) !important;
     color: #000 !important;
     border-color: var(--gold) !important;
@@ -374,7 +375,8 @@ body.tour-lock .tour-elevated { pointer-events: auto !important; }
 .chip:hover { border-color: var(--gold); color: var(--gold); }
 
 /* SUPER OBVIOUS HIGHLIGHT for chips */
-.chip.highlight {
+.chip.highlight,
+.chip.tour-highlight {
     background: var(--gold) !important;
     color: #000 !important;
     border-color: var(--gold) !important;

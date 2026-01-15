@@ -1,99 +1,15 @@
 // ============================================
-// NEXUS GUIDED DEMO - v2
-// Positioned tour card, arrows, no tint
+// NEXUS GUIDED DEMO - REBUILT v3
+// Bulletproof tour logic with clean highlighting
 // ============================================
 
 // === STATE ===
 let currentStep = 0;
-let tourStarted = false;
+let tourActive = false;
 let mapView = null;
 
-// In guided mode, we only allow interaction with the currently-highlighted element
-// (and tour card buttons). Everything else is effectively read-only.
-function setTourLock(on) {
-    document.body.classList.toggle('tour-lock', !!on);
-}
-
-function getCurrentStep() {
-    return STEPS[currentStep] || null;
-}
-
-function isExpectedInteraction(kind, value) {
-    // If the tour hasn't started, allow everything.
-    if (!tourStarted) return true;
-    const step = getCurrentStep();
-    if (!step || !step.waitFor) return true;
-
-    if (kind === 'chip') {
-        return step.waitFor === `chip-${value}`;
-    }
-
-    if (kind === 'tab') {
-        return step.waitFor === value;
-    }
-
-    return true;
-}
-
-let freeChatInitialized = false;
-function initFreeChatInput() {
-    if (freeChatInitialized) return;
-    freeChatInitialized = true;
-
-    const input = document.getElementById('chatInput');
-    const send = document.getElementById('sendBtn');
-
-    function submit() {
-        const text = (input.value || '').trim();
-        if (!text) return;
-        input.value = '';
-
-        const messages = document.getElementById('chatMessages');
-        messages.innerHTML += `
-            <div class="message user"><div class="bubble">${escapeHtml(text)}</div></div>
-        `;
-        messages.scrollTop = messages.scrollHeight;
-
-        // Lightweight keyword routing to keep the demo feeling responsive.
-        const t = text.toLowerCase();
-        const key = t.includes('risk') ? 'risk' : t.includes('cascade') ? 'cascade' : t.includes('action') ? 'actions' : null;
-        if (key && RESPONSES[key]) {
-            setTimeout(() => {
-                messages.innerHTML += `
-                    <div class="message assistant"><div class="bubble">${RESPONSES[key].content}</div></div>
-                `;
-                renderChips(RESPONSES[key].chips);
-                messages.scrollTop = messages.scrollHeight;
-            }, 500);
-        } else {
-            setTimeout(() => {
-                messages.innerHTML += `
-                    <div class="message assistant"><div class="bubble">
-                        <p>This is a guided demo environment. For best results, use the chips below (or ask about <strong>risk</strong>, <strong>cascade</strong>, or <strong>actions</strong>).</p>
-                    </div></div>
-                `;
-                messages.scrollTop = messages.scrollHeight;
-            }, 500);
-        }
-    }
-
-    send.addEventListener('click', submit);
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') submit();
-    });
-}
-
-function escapeHtml(str) {
-    return str
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;')
-        .replaceAll('"', '&quot;')
-        .replaceAll("'", '&#39;');
-}
-
 // === TOUR STEPS ===
-const STEPS = [
+const TOUR_STEPS = [
     {
         id: 'welcome',
         label: 'Welcome to Rebirth Nexus',
@@ -110,7 +26,7 @@ const STEPS = [
             </div>
         `,
         buttons: [{ text: 'Begin Tour →', action: 'next', primary: true }],
-        position: 'center'
+        target: null
     },
     {
         id: 'intel-feed',
@@ -123,8 +39,7 @@ const STEPS = [
             🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'center',
-        highlight: 'intelFeed'
+        target: 'intelFeed'
     },
     {
         id: 'weather',
@@ -135,8 +50,7 @@ const STEPS = [
             <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'center',
-        highlight: 'weatherCard'
+        target: 'weatherCard'
     },
     {
         id: 'analytics-intro',
@@ -148,9 +62,8 @@ const STEPS = [
             <p><strong>📊 Analytics View</strong> — Tabular data for operations teams.</p>
             <div class="tour-instruction">👆 Click the glowing <strong>Analytics</strong> tab</div>
         `,
-        position: 'center',
-        highlight: 'analyticsTab',
-        waitFor: 'analyticsClick'
+        target: 'analyticsTab',
+        waitFor: { type: 'tab', value: 'analytics' }
     },
     {
         id: 'analytics-view',
@@ -161,9 +74,8 @@ const STEPS = [
             <p>Notice the <strong>$4.2M exposure</strong> card and the <strong>Critical Stores</strong> table.</p>
             <div class="tour-instruction">👆 Click the glowing <strong>Map</strong> tab to return</div>
         `,
-        position: 'center',
-        highlight: 'mapTab',
-        waitFor: 'mapClick'
+        target: 'mapTab',
+        waitFor: { type: 'tab', value: 'map' }
     },
     {
         id: 'chat',
@@ -174,8 +86,7 @@ const STEPS = [
             <p>No training required. No complex queries. Just ask questions like you would ask a colleague.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'center',
-        highlight: 'chatPanel'
+        target: 'chatPanel'
     },
     {
         id: 'risk',
@@ -185,9 +96,8 @@ const STEPS = [
             <p>Let's dig into what's actually at risk.</p>
             <div class="tour-instruction">👆 Click the glowing chip: <strong>"What's our biggest risk?"</strong></div>
         `,
-        position: 'center',
-        highlight: 'chip-risk',
-        waitFor: 'chip-risk'
+        target: 'chip-risk',
+        waitFor: { type: 'chip', value: 'risk' }
     },
     {
         id: 'actions',
@@ -197,9 +107,8 @@ const STEPS = [
             <p>Nexus doesn't just show problems — it shows <strong>exactly what to do</strong>.</p>
             <div class="tour-instruction">👆 Click the glowing chip: <strong>"What actions should we take?"</strong></div>
         `,
-        position: 'center',
-        highlight: 'chip-actions',
-        waitFor: 'chip-actions'
+        target: 'chip-actions',
+        waitFor: { type: 'chip', value: 'actions' }
     },
     {
         id: 'complete',
@@ -216,7 +125,7 @@ const STEPS = [
             { text: 'Explore Freely', action: 'end', primary: false },
             { text: 'Request a Pilot →', action: 'contact', primary: true }
         ],
-        position: 'center'
+        target: null
     }
 ];
 
@@ -318,14 +227,238 @@ const CHIP_LABELS = {
     competitor: "Show competitor opportunity"
 };
 
-// === INITIALIZATION ===
-document.addEventListener('DOMContentLoaded', () => {
-    initIntelFeed();
-    initMap();
-    initChat();
-    initTabs();
-    showTourStep(0);
-});
+// ============================================
+// TOUR SYSTEM
+// ============================================
+
+function showStep(index) {
+    currentStep = index;
+    const step = TOUR_STEPS[index];
+    
+    if (!step) {
+        endTour();
+        return;
+    }
+    
+    const card = document.getElementById('tourCard');
+    const tint = document.getElementById('tourTint');
+    const highlightBox = document.getElementById('tourHighlightBox');
+    
+    // Update progress dots
+    document.getElementById('tourProgress').innerHTML = TOUR_STEPS.map((_, i) => {
+        const cls = i < index ? 'tour-dot done' : i === index ? 'tour-dot active' : 'tour-dot';
+        return `<div class="${cls}"></div>`;
+    }).join('');
+    
+    // Update content
+    document.getElementById('tourStepLabel').textContent = step.label;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourContent').innerHTML = step.content;
+    
+    // Update buttons
+    const actionsEl = document.getElementById('tourActions');
+    if (step.buttons && step.buttons.length > 0) {
+        actionsEl.innerHTML = step.buttons.map(btn => 
+            `<button class="tour-btn ${btn.primary ? 'primary' : 'secondary'}" data-action="${btn.action}">${btn.text}</button>`
+        ).join('');
+        
+        actionsEl.querySelectorAll('.tour-btn').forEach(btn => {
+            btn.addEventListener('click', () => handleTourAction(btn.dataset.action));
+        });
+    } else {
+        actionsEl.innerHTML = '';
+    }
+    
+    // Show card
+    card.classList.add('active');
+    
+    // Clear previous highlights
+    clearHighlights();
+    
+    // Handle highlighting
+    if (step.target) {
+        const targetEl = document.getElementById(step.target);
+        
+        if (targetEl) {
+            // Show tint
+            tint.classList.add('active');
+            
+            // Elevate target above tint
+            targetEl.classList.add('tour-elevated');
+            targetEl.classList.add('tour-highlight');
+            
+            // Position the gold box
+            requestAnimationFrame(() => {
+                positionHighlightBox(targetEl);
+                highlightBox.classList.add('active');
+            });
+        } else {
+            // Target not found - hide highlight box
+            highlightBox.classList.remove('active');
+            tint.classList.add('active');
+        }
+    } else {
+        // No target - no highlight box, no tint for welcome/complete
+        highlightBox.classList.remove('active');
+        tint.classList.remove('active');
+    }
+    
+    // Enable tour lock after welcome
+    if (index > 0) {
+        document.body.classList.add('tour-lock');
+    }
+}
+
+function positionHighlightBox(targetEl) {
+    const highlightBox = document.getElementById('tourHighlightBox');
+    const rect = targetEl.getBoundingClientRect();
+    const padding = 8;
+    
+    highlightBox.style.top = (rect.top - padding) + 'px';
+    highlightBox.style.left = (rect.left - padding) + 'px';
+    highlightBox.style.width = (rect.width + padding * 2) + 'px';
+    highlightBox.style.height = (rect.height + padding * 2) + 'px';
+}
+
+function clearHighlights() {
+    document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
+    document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+}
+
+function handleTourAction(action) {
+    if (action === 'next') {
+        tourActive = true;
+        showStep(currentStep + 1);
+    } else if (action === 'end') {
+        endTour();
+    } else if (action === 'contact') {
+        endTour();
+        alert('Thank you! Our team will reach out within 24 hours to schedule your pilot.');
+    }
+}
+
+function advanceTour() {
+    // Small delay for visual feedback
+    setTimeout(() => showStep(currentStep + 1), 400);
+}
+
+function endTour() {
+    tourActive = false;
+    document.body.classList.remove('tour-lock');
+    document.getElementById('tourCard').classList.remove('active');
+    document.getElementById('tourTint').classList.remove('active');
+    document.getElementById('tourHighlightBox').classList.remove('active');
+    clearHighlights();
+    
+    // Enable free chat
+    document.getElementById('chatInput').disabled = false;
+    document.getElementById('sendBtn').disabled = false;
+    initFreeChatInput();
+    
+    // Show exploration message
+    const messages = document.getElementById('chatMessages');
+    messages.innerHTML += `
+        <div class="message assistant">
+            <div class="bubble">
+                <p>You're now in <strong>free exploration mode</strong>. Try clicking any of the chips below, or type your own questions!</p>
+            </div>
+        </div>
+    `;
+    messages.scrollTop = messages.scrollHeight;
+}
+
+// Check if an interaction should advance the tour
+function checkTourAdvance(type, value) {
+    if (!tourActive) return false;
+    
+    const step = TOUR_STEPS[currentStep];
+    if (!step || !step.waitFor) return false;
+    
+    if (step.waitFor.type === type && step.waitFor.value === value) {
+        advanceTour();
+        return true;
+    }
+    return false;
+}
+
+// Check if an interaction is allowed during tour
+function isInteractionAllowed(type, value) {
+    if (!tourActive) return true;
+    
+    const step = TOUR_STEPS[currentStep];
+    if (!step || !step.waitFor) return true;
+    
+    // Only allow the expected interaction
+    return step.waitFor.type === type && step.waitFor.value === value;
+}
+
+// ============================================
+// FREE CHAT INPUT
+// ============================================
+
+let freeChatInitialized = false;
+
+function initFreeChatInput() {
+    if (freeChatInitialized) return;
+    freeChatInitialized = true;
+    
+    const input = document.getElementById('chatInput');
+    const send = document.getElementById('sendBtn');
+    
+    function submit() {
+        const text = (input.value || '').trim();
+        if (!text) return;
+        input.value = '';
+        
+        const messages = document.getElementById('chatMessages');
+        messages.innerHTML += `
+            <div class="message user"><div class="bubble">${escapeHtml(text)}</div></div>
+        `;
+        messages.scrollTop = messages.scrollHeight;
+        
+        const t = text.toLowerCase();
+        const key = t.includes('risk') ? 'risk' : 
+                    t.includes('cascade') ? 'cascade' : 
+                    t.includes('action') ? 'actions' : null;
+        
+        if (key && RESPONSES[key]) {
+            setTimeout(() => {
+                messages.innerHTML += `
+                    <div class="message assistant"><div class="bubble">${RESPONSES[key].content}</div></div>
+                `;
+                renderChips(RESPONSES[key].chips);
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        } else {
+            setTimeout(() => {
+                messages.innerHTML += `
+                    <div class="message assistant"><div class="bubble">
+                        <p>This is a guided demo environment. For best results, use the chips below (or ask about <strong>risk</strong>, <strong>cascade</strong>, or <strong>actions</strong>).</p>
+                    </div></div>
+                `;
+                messages.scrollTop = messages.scrollHeight;
+            }, 500);
+        }
+    }
+    
+    send.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') submit();
+    });
+}
+
+function escapeHtml(str) {
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+// ============================================
+// INTEL FEED
+// ============================================
 
 function initIntelFeed() {
     const container = document.getElementById('feedItems');
@@ -342,6 +475,10 @@ function initIntelFeed() {
         </div>
     `).join('');
 }
+
+// ============================================
+// MAP
+// ============================================
 
 function initMap() {
     require(["esri/Map", "esri/views/MapView", "esri/Graphic", "esri/layers/GraphicsLayer"], 
@@ -403,6 +540,10 @@ function initMap() {
     });
 }
 
+// ============================================
+// CHAT
+// ============================================
+
 function initChat() {
     renderChat('initial');
 }
@@ -442,23 +583,35 @@ function renderChips(chipKeys) {
         chip.addEventListener('click', () => handleChipClick(chip.dataset.chip));
     });
     
-    // Re-apply highlight if needed
-    if (tourStarted) {
-        const step = STEPS[currentStep];
-        if (step && step.highlight && step.highlight.startsWith('chip-')) {
-            const chipEl = document.getElementById(step.highlight);
-            if (chipEl) chipEl.classList.add('highlight');
+    // Re-apply highlight if tour is waiting for a chip
+    if (tourActive) {
+        const step = TOUR_STEPS[currentStep];
+        if (step && step.target && step.target.startsWith('chip-')) {
+            const chipEl = document.getElementById(step.target);
+            if (chipEl) {
+                chipEl.classList.add('tour-elevated');
+                chipEl.classList.add('tour-highlight');
+                requestAnimationFrame(() => {
+                    positionHighlightBox(chipEl);
+                    document.getElementById('tourHighlightBox').classList.add('active');
+                });
+            }
         }
     }
 }
 
 function handleChipClick(chipKey) {
-    // During the guided tour, ignore chips that are not the requested next action.
-    if (tourStarted && !isExpectedInteraction('chip', chipKey)) {
+    // During tour, only allow expected interactions
+    if (tourActive && !isInteractionAllowed('chip', chipKey)) {
         return;
     }
-    // Remove highlight
-    document.querySelectorAll('.chip.highlight').forEach(c => c.classList.remove('highlight'));
+    
+    // Clear highlight from chip
+    const chipEl = document.getElementById(`chip-${chipKey}`);
+    if (chipEl) {
+        chipEl.classList.remove('tour-elevated');
+        chipEl.classList.remove('tour-highlight');
+    }
     
     // Show user message
     const messages = document.getElementById('chatMessages');
@@ -507,41 +660,39 @@ function handleChipClick(chipKey) {
         }
         messages.scrollTop = messages.scrollHeight;
         
-        // Advance tour if waiting for this chip
-        if (tourStarted) {
-            const step = STEPS[currentStep];
-            if (step && step.waitFor === `chip-${chipKey}`) {
-                setTimeout(() => showTourStep(currentStep + 1), 500);
-            }
-        }
+        // Check if tour should advance
+        checkTourAdvance('chip', chipKey);
+        
     }, 800);
 }
 
+// ============================================
+// TABS
+// ============================================
+
 function initTabs() {
     document.getElementById('mapTab').addEventListener('click', () => {
-        if (tourStarted && !isExpectedInteraction('tab', 'mapClick')) return;
-        switchView('map');
-        // Advance tour if waiting
-        if (tourStarted) {
-            const step = STEPS[currentStep];
-            if (step && step.waitFor === 'mapClick') {
-                document.getElementById('mapTab').classList.remove('highlight');
-                setTimeout(() => showTourStep(currentStep + 1), 300);
-            }
+        // During tour, only allow if it's the expected interaction
+        if (tourActive && !isInteractionAllowed('tab', 'map')) {
+            return;
         }
+        
+        switchView('map');
+        
+        // Check if tour should advance
+        checkTourAdvance('tab', 'map');
     });
     
     document.getElementById('analyticsTab').addEventListener('click', () => {
-        if (tourStarted && !isExpectedInteraction('tab', 'analyticsClick')) return;
-        switchView('analytics');
-        // Advance tour if waiting
-        if (tourStarted) {
-            const step = STEPS[currentStep];
-            if (step && step.waitFor === 'analyticsClick') {
-                document.getElementById('analyticsTab').classList.remove('highlight');
-                setTimeout(() => showTourStep(currentStep + 1), 300);
-            }
+        // During tour, only allow if it's the expected interaction
+        if (tourActive && !isInteractionAllowed('tab', 'analytics')) {
+            return;
         }
+        
+        switchView('analytics');
+        
+        // Check if tour should advance
+        checkTourAdvance('tab', 'analytics');
     });
 }
 
@@ -564,195 +715,16 @@ function switchView(view) {
     }
 }
 
-// === TOUR FUNCTIONS ===
+// ============================================
+// INITIALIZATION
+// ============================================
 
-function showTourStep(index) {
-    currentStep = index;
-    const step = STEPS[index];
+document.addEventListener('DOMContentLoaded', () => {
+    initIntelFeed();
+    initMap();
+    initChat();
+    initTabs();
     
-    if (!step) {
-        endTour();
-        return;
-    }
-    
-    const card = document.getElementById('tourCard');
-    const tint = document.getElementById('tourTint');
-    const highlightBox = document.getElementById('tourHighlightBox');
-    
-    // Update progress dots
-    document.getElementById('tourProgress').innerHTML = STEPS.map((_, i) => {
-        const cls = i < index ? 'tour-dot done' : i === index ? 'tour-dot active' : 'tour-dot';
-        return `<div class="${cls}"></div>`;
-    }).join('');
-    
-    // Update content
-    document.getElementById('tourStepLabel').textContent = step.label;
-    document.getElementById('tourTitle').textContent = step.title;
-    document.getElementById('tourContent').innerHTML = step.content;
-    
-    // Update buttons
-    const actionsEl = document.getElementById('tourActions');
-    if (step.buttons) {
-        actionsEl.innerHTML = step.buttons.map(btn => 
-            `<button class="tour-btn ${btn.primary ? 'primary' : 'secondary'}" data-action="${btn.action}">${btn.text}</button>`
-        ).join('');
-        
-        // Attach handlers
-        actionsEl.querySelectorAll('.tour-btn').forEach(btn => {
-            btn.addEventListener('click', () => handleTourAction(btn.dataset.action));
-        });
-    } else {
-        actionsEl.innerHTML = '';
-    }
-    
-    // Show card
-    card.classList.add('active');
-
-    // Lock the UI once the tour has begun (step 0 -> next)
-    setTourLock(tourStarted);
-    
-    // Clear old highlights
-    document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
-    document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-    
-    // Handle highlight
-    if (step.highlight) {
-        const target = document.getElementById(step.highlight);
-        if (target) {
-            // Show tint
-            tint.classList.add('active');
-            
-            // Elevate the target above tint
-            target.classList.add('tour-elevated');
-            
-            // Also add highlight class for clickable elements
-            target.classList.add('highlight');
-            
-            // Position gold box around target (use requestAnimationFrame to ensure element is rendered)
-            requestAnimationFrame(() => {
-                const rect = target.getBoundingClientRect();
-                const padding = 8;
-                highlightBox.style.top = (rect.top - padding) + 'px';
-                highlightBox.style.left = (rect.left - padding) + 'px';
-                highlightBox.style.width = (rect.width + padding * 2) + 'px';
-                highlightBox.style.height = (rect.height + padding * 2) + 'px';
-                highlightBox.classList.add('active');
-
-                // If we are highlighting a small control (chip/tab), move the tour card so it doesn't cover it.
-                // Keep "center" for welcome/complete.
-                if (step.position !== 'center') {
-                    positionTourCardNear(rect);
-                } else {
-                    resetTourCardPosition();
-                }
-            });
-        } else {
-            // Target not found, hide highlight box
-            highlightBox.classList.remove('active');
-            tint.classList.add('active');
-            resetTourCardPosition();
-        }
-    } else {
-        // No highlight - show tint but no box (for welcome/complete screens)
-        highlightBox.classList.remove('active');
-        if (index === 0 || step.id === 'complete') {
-            tint.classList.remove('active');
-        } else {
-            tint.classList.add('active');
-        }
-
-        // No highlight: keep centered
-        resetTourCardPosition();
-    }
-}
-
-function resetTourCardPosition() {
-    const card = document.getElementById('tourCard');
-    card.style.top = '';
-    card.style.left = '';
-    card.style.right = '';
-    card.style.bottom = '';
-    card.style.transform = '';
-}
-
-function positionTourCardNear(targetRect) {
-    const card = document.getElementById('tourCard');
-    const margin = 16;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    // Force layout to get card size
-    const cardRect = card.getBoundingClientRect();
-    let top = null, left = null;
-
-    // Prefer placing to the right; otherwise left; otherwise below; otherwise above.
-    const canRight = targetRect.right + margin + cardRect.width <= vw;
-    const canLeft = targetRect.left - margin - cardRect.width >= 0;
-    const canBelow = targetRect.bottom + margin + cardRect.height <= vh;
-    const canAbove = targetRect.top - margin - cardRect.height >= 0;
-
-    if (canRight) {
-        left = targetRect.right + margin;
-        top = Math.max(margin, Math.min(vh - cardRect.height - margin, targetRect.top));
-    } else if (canLeft) {
-        left = targetRect.left - margin - cardRect.width;
-        top = Math.max(margin, Math.min(vh - cardRect.height - margin, targetRect.top));
-    } else if (canBelow) {
-        top = targetRect.bottom + margin;
-        left = Math.max(margin, Math.min(vw - cardRect.width - margin, targetRect.left));
-    } else if (canAbove) {
-        top = targetRect.top - margin - cardRect.height;
-        left = Math.max(margin, Math.min(vw - cardRect.width - margin, targetRect.left));
-    } else {
-        // Fallback center
-        resetTourCardPosition();
-        return;
-    }
-
-    card.style.top = `${top}px`;
-    card.style.left = `${left}px`;
-    card.style.right = 'auto';
-    card.style.bottom = 'auto';
-    card.style.transform = 'none';
-}
-
-function handleTourAction(action) {
-    if (action === 'next') {
-        if (currentStep === 0) {
-            tourStarted = true;
-            setTourLock(true);
-        }
-        showTourStep(currentStep + 1);
-    } else if (action === 'end') {
-        endTour();
-    } else if (action === 'contact') {
-        endTour();
-        alert('Thank you! Our team will reach out within 24 hours to schedule your pilot.');
-    }
-}
-
-function endTour() {
-    tourStarted = false;
-    setTourLock(false);
-    document.getElementById('tourCard').classList.remove('active');
-    document.getElementById('tourTint').classList.remove('active');
-    document.getElementById('tourHighlightBox').classList.remove('active');
-    document.querySelectorAll('.tour-elevated').forEach(el => el.classList.remove('tour-elevated'));
-    document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
-    document.getElementById('chatInput').disabled = false;
-    document.getElementById('sendBtn').disabled = false;
-
-    // Enable lightweight free-form chat so "Send" isn't a dead control.
-    initFreeChatInput();
-    
-    // Show free exploration message
-    const messages = document.getElementById('chatMessages');
-    messages.innerHTML += `
-        <div class="message assistant">
-            <div class="bubble">
-                <p>You're now in <strong>free exploration mode</strong>. Try clicking any of the chips below, or type your own questions!</p>
-            </div>
-        </div>
-    `;
-    messages.scrollTop = messages.scrollHeight;
-}
+    // Start tour
+    showStep(0);
+});
