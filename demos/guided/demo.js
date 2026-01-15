@@ -39,7 +39,7 @@ const STEPS = [
             🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'left',
+        position: 'right',
         arrowTo: 'intelFeed'
     },
     {
@@ -51,7 +51,7 @@ const STEPS = [
             <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'bottom-left',
+        position: 'left',
         arrowTo: 'weatherCard'
     },
     {

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
     <title>Nexus — Guided Intelligence Demo</title>
     <link rel="icon" type="image/png" href="/logo.png">
     
@@ -15,8 +16,77 @@
     <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
     
     <link rel="stylesheet" href="styles.css">
+    
+    <!-- Password Protection -->
+    <style>
+        .password-gate {
+            position: fixed;
+            inset: 0;
+            background: #0a0a0f;
+            z-index: 99999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .password-gate.hidden { display: none; }
+        .password-gate h1 { color: #d4af37; font-size: 24px; }
+        .password-gate p { color: #a0a0b0; font-size: 14px; }
+        .password-gate input {
+            background: #1a1a24;
+            border: 1px solid #2a2a3a;
+            color: #f0f0f5;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 250px;
+            text-align: center;
+        }
+        .password-gate input:focus { outline: none; border-color: #d4af37; }
+        .password-gate button {
+            background: #d4af37;
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .password-gate .error { color: #ef4444; font-size: 12px; display: none; }
+        .password-gate .error.show { display: block; }
+    </style>
 </head>
 <body>
+    <!-- Password Gate -->
+    <div class="password-gate" id="passwordGate">
+        <h1>🔒 Nexus Demo</h1>
+        <p>Enter password to continue</p>
+        <input type="password" id="passwordInput" placeholder="Password" autofocus>
+        <button onclick="checkPassword()">Enter</button>
+        <div class="error" id="passwordError">Incorrect password</div>
+    </div>
+    
+    <script>
+        // Simple password: nexus2025
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === 'nexus2025') {
+                document.getElementById('passwordGate').classList.add('hidden');
+                sessionStorage.setItem('nexusDemo', 'authenticated');
+            } else {
+                document.getElementById('passwordError').classList.add('show');
+            }
+        }
+        // Check on Enter key
+        document.getElementById('passwordInput').addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') checkPassword();
+        });
+        // Check if already authenticated this session
+        if (sessionStorage.getItem('nexusDemo') === 'authenticated') {
+            document.getElementById('passwordGate').classList.add('hidden');
+        }
+    </script>
     <!-- Main App -->
     <div class="app">
         <!-- Left: Intel Feed -->
