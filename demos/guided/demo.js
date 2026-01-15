@@ -47,12 +47,12 @@ const STEPS = [
         label: 'Step 2 of 8',
         title: 'Third-Party Intelligence',
         content: `
-            <p>The weather card shows <strong>live NOAA data</strong> integrated into the platform.</p>
-            <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
+            <p>Look at the <strong>weather card</strong> in the top-right of the map.</p>
+            <p>It shows <strong>live NOAA data</strong> integrated into the platform — timestamps, confidence scores, and real conditions.</p>
+            <p>This is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
         buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-        position: 'center',
-        highlight: 'weatherCard'
+        position: 'center'
     },
     {
         id: 'analytics-intro',
@@ -438,7 +438,8 @@ function initTabs() {
             const step = STEPS[currentStep];
             if (step && step.waitFor === 'mapClick') {
                 document.getElementById('mapTab').classList.remove('highlight');
-                hideArrow();
+                document.getElementById('mapTab').classList.remove('tour-elevated');
+                document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
         }
@@ -451,7 +452,8 @@ function initTabs() {
             const step = STEPS[currentStep];
             if (step && step.waitFor === 'analyticsClick') {
                 document.getElementById('analyticsTab').classList.remove('highlight');
-                hideArrow();
+                document.getElementById('analyticsTab').classList.remove('tour-elevated');
+                document.getElementById('tourHighlightBox').classList.remove('active');
                 setTimeout(() => showTourStep(currentStep + 1), 300);
             }
         }
