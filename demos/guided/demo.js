@@ -494,14 +494,19 @@ function shouldSkipStep(step) {
 }
 
 function showTourStep(stepIndex) {
+    console.log('showTourStep called with index:', stepIndex); // Debug
+    
     while (stepIndex < TOUR_STEPS.length && shouldSkipStep(TOUR_STEPS[stepIndex])) {
         stepIndex++;
     }
     
     if (stepIndex >= TOUR_STEPS.length) {
+        console.log('Ending tour - stepIndex >= length'); // Debug
         endTour();
         return;
     }
+    
+    console.log('Showing step:', stepIndex, TOUR_STEPS[stepIndex].id); // Debug
     
     currentTourStep = stepIndex;
     const rawStep = TOUR_STEPS[stepIndex];
@@ -703,16 +708,26 @@ function switchView(view) {
 }
 
 function setupEventListeners() {
-    // Tour buttons
+    // Tour buttons - only respond to actual button clicks
     const tourButtons = document.getElementById('tourButtons');
     if (tourButtons) {
         tourButtons.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent bubbling
             if (e.target.classList.contains('tour-btn')) {
                 const action = e.target.dataset.action;
+                console.log('Tour button clicked:', action); // Debug
                 if (action === 'next') showTourStep(currentTourStep + 1);
                 else if (action === 'explore') endTour();
                 else if (action === 'contact') showPocModal();
             }
+        });
+    }
+    
+    // Prevent clicks on tour card from doing anything unexpected
+    const tourCard = document.getElementById('tourCard');
+    if (tourCard) {
+        tourCard.addEventListener('click', (e) => {
+            e.stopPropagation(); // Don't let clicks escape the card
         });
     }
     
@@ -739,16 +754,12 @@ function setupEventListeners() {
 
 function setupKeyboardNavigation() {
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && tourActive) {
-            const step = TOUR_STEPS[currentTourStep];
-            if (step && step.buttons && step.buttons.length > 0 && !step.waitFor) {
-                const primary = step.buttons.find(b => b.primary);
-                if (primary) {
-                    if (primary.action === 'next') showTourStep(currentTourStep + 1);
-                    else if (primary.action === 'explore') endTour();
-                    else if (primary.action === 'contact') showPocModal();
-                }
-            }
+        // Only advance on Enter if a tour button is focused
+        if (e.key === 'Enter' && tourActive && e.target.classList.contains('tour-btn')) {
+            const action = e.target.dataset.action;
+            if (action === 'next') showTourStep(currentTourStep + 1);
+            else if (action === 'explore') endTour();
+            else if (action === 'contact') showPocModal();
         }
         if (e.key === 'Escape') {
             const modal = document.getElementById('pocModal');
