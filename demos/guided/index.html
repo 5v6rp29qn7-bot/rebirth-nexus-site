@@ -31,7 +31,7 @@
         <!-- Center: Map -->
         <main class="center-panel">
             <div class="center-header">
-                <div class="view-tabs">
+                <div class="view-tabs" id="viewTabs">
                     <button class="tab active" id="mapTab" data-view="map">🗺️ Map</button>
                     <button class="tab" id="analyticsTab" data-view="analytics">📊 Analytics</button>
                 </div>
@@ -59,10 +59,18 @@
                         <div class="stat"><span class="label">Roads</span><span class="value red">Hazardous</span></div>
                     </div>
                 </div>
+                
+                <!-- Legend -->
+                <div class="map-legend">
+                    <div class="legend-item"><span class="dot red"></span> At-Risk Store</div>
+                    <div class="legend-item"><span class="dot amber"></span> Weather Impact</div>
+                    <div class="legend-item"><span class="dot green"></span> Unaffected Store</div>
+                    <div class="legend-item"><span class="dot blue square"></span> Distribution Center</div>
+                </div>
             </div>
             
-            <!-- Analytics View (hidden by default) -->
-            <div class="analytics-container hidden" id="analyticsContainer">
+            <!-- Analytics View -->
+            <div class="analytics-container" id="analyticsContainer">
                 <div class="analytics-grid">
                     <div class="analytics-card red"><div class="card-label">Total Exposure</div><div class="card-value">$4.2M</div></div>
                     <div class="analytics-card amber"><div class="card-label">Stores at Risk</div><div class="card-value">12</div></div>
@@ -81,14 +89,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            
-            <!-- Legend -->
-            <div class="map-legend">
-                <div class="legend-item"><span class="dot red"></span> At-Risk Store</div>
-                <div class="legend-item"><span class="dot amber"></span> Weather Impact</div>
-                <div class="legend-item"><span class="dot green"></span> Unaffected Store</div>
-                <div class="legend-item"><span class="dot blue square"></span> Distribution Center</div>
             </div>
         </main>
 
@@ -111,19 +111,23 @@
         </aside>
     </div>
 
-    <!-- Tour Modal (simple modal approach) -->
-    <div class="tour-modal" id="tourModal">
-        <div class="tour-card">
-            <div class="tour-progress" id="tourProgress"></div>
-            <div class="tour-step-label" id="tourStepLabel"></div>
-            <h2 class="tour-title" id="tourTitle"></h2>
-            <div class="tour-content" id="tourContent"></div>
-            <div class="tour-actions" id="tourActions"></div>
-        </div>
+    <!-- Tour Card (positioned, no overlay) -->
+    <div class="tour-card pos-center" id="tourCard">
+        <div class="tour-progress" id="tourProgress"></div>
+        <div class="tour-step-label" id="tourStepLabel"></div>
+        <h2 class="tour-title" id="tourTitle"></h2>
+        <div class="tour-content" id="tourContent"></div>
+        <div class="tour-actions" id="tourActions"></div>
     </div>
 
-    <!-- Spotlight (separate from modal) -->
-    <div class="spotlight" id="spotlight"></div>
+    <!-- Arrow pointer -->
+    <div class="tour-arrow" id="tourArrow">
+        <svg width="80" height="80" viewBox="0 0 80 80">
+            <path d="M10 70 L70 10 M70 10 L70 35 M70 10 L45 10" 
+                  stroke="#d4af37" stroke-width="4" fill="none" 
+                  stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+    </div>
 
     <!-- Scripts -->
     <script src="https://js.arcgis.com/4.28/"></script>

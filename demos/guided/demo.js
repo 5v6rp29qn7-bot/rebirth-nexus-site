@@ -1,6 +1,6 @@
 // ============================================
-// NEXUS GUIDED DEMO - CLEAN REBUILD
-// Simple, bulletproof tour logic
+// NEXUS GUIDED DEMO - v2
+// Positioned tour card, arrows, no tint
 // ============================================
 
 // === STATE ===
@@ -25,20 +25,22 @@ const STEPS = [
                 <div class="tour-pillar"><span class="tour-pillar-icon">🔮</span><span class="tour-pillar-name">Predictive Engine</span><span class="tour-pillar-desc">Scenarios & forecasts</span></div>
             </div>
         `,
-        buttons: [{ text: 'Begin Tour →', action: 'next', primary: true }]
+        buttons: [{ text: 'Begin Tour →', action: 'next', primary: true }],
+        position: 'center'
     },
     {
         id: 'intel-feed',
         label: 'Step 1 of 8',
         title: 'The Intel Feed',
         content: `
-            <p>The <strong>Intel Feed</strong> (left panel) shows a real-time stream of events affecting your operations.</p>
+            <p>The <strong>Intel Feed</strong> shows a real-time stream of events affecting your operations.</p>
             <p>Two alerts are waiting:</p>
             <p>🔴 <strong>Winter Storm Alert</strong> — A risk cascade threatening 12 stores<br>
             🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>
         `,
-        spotlight: 'intelFeed',
-        buttons: [{ text: 'Continue →', action: 'next', primary: true }]
+        buttons: [{ text: 'Continue →', action: 'next', primary: true }],
+        position: 'left',
+        arrowTo: 'intelFeed'
     },
     {
         id: 'weather',
@@ -48,20 +50,23 @@ const STEPS = [
             <p>The weather card shows <strong>live NOAA data</strong> integrated into the platform.</p>
             <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
         `,
-        spotlight: 'weatherCard',
-        buttons: [{ text: 'Continue →', action: 'next', primary: true }]
+        buttons: [{ text: 'Continue →', action: 'next', primary: true }],
+        position: 'bottom-left',
+        arrowTo: 'weatherCard'
     },
     {
-        id: 'analytics',
+        id: 'analytics-intro',
         label: 'Step 3 of 8',
         title: 'Map & Analytics Views',
         content: `
             <p>The center panel shows two views:</p>
             <p><strong>🗺️ Map View</strong> — Geospatial intelligence showing store locations and risk zones.</p>
             <p><strong>📊 Analytics View</strong> — Tabular data for operations teams.</p>
-            <div class="tour-instruction">Click the <strong>Analytics</strong> tab to see the operational view</div>
+            <div class="tour-instruction">👆 Click the glowing <strong>Analytics</strong> tab above</div>
         `,
-        spotlight: 'analyticsTab',
+        position: 'bottom-left',
+        highlight: 'analyticsTab',
+        arrowTo: 'analyticsTab',
         waitFor: 'analyticsClick'
     },
     {
@@ -71,8 +76,11 @@ const STEPS = [
         content: `
             <p>The Analytics view shows your operational exposure in detail.</p>
             <p>Notice the <strong>$4.2M exposure</strong> card and the <strong>Critical Stores</strong> table.</p>
-            <div class="tour-instruction">Click the <strong>Map</strong> tab to return</div>
+            <div class="tour-instruction">👆 Click the glowing <strong>Map</strong> tab to return</div>
         `,
+        position: 'bottom-left',
+        highlight: 'mapTab',
+        arrowTo: 'mapTab',
         waitFor: 'mapClick'
     },
     {
@@ -83,8 +91,9 @@ const STEPS = [
             <p>The right panel is where you interact with Nexus using <strong>plain English</strong>.</p>
             <p>No training required. No complex queries. Just ask questions like you would ask a colleague.</p>
         `,
-        spotlight: 'chatPanel',
-        buttons: [{ text: 'Continue →', action: 'next', primary: true }]
+        buttons: [{ text: 'Continue →', action: 'next', primary: true }],
+        position: 'bottom-left',
+        arrowTo: 'chatPanel'
     },
     {
         id: 'risk',
@@ -92,8 +101,11 @@ const STEPS = [
         title: 'Exploring the Risk',
         content: `
             <p>Let's dig into what's actually at risk.</p>
-            <div class="tour-instruction">Click <strong>"What's our biggest risk?"</strong></div>
+            <div class="tour-instruction">👆 Click the glowing chip in the chat panel →</div>
         `,
+        position: 'bottom-left',
+        highlight: 'chip-risk',
+        arrowTo: 'chip-risk',
         waitFor: 'chip-risk'
     },
     {
@@ -102,8 +114,11 @@ const STEPS = [
         title: 'The Mitigation Plan',
         content: `
             <p>Nexus doesn't just show problems — it shows <strong>exactly what to do</strong>.</p>
-            <div class="tour-instruction">Click <strong>"What actions should we take?"</strong></div>
+            <div class="tour-instruction">👆 Click the glowing chip below →</div>
         `,
+        position: 'bottom-left',
+        highlight: 'chip-actions',
+        arrowTo: 'chip-actions',
         waitFor: 'chip-actions'
     },
     {
@@ -120,7 +135,8 @@ const STEPS = [
         buttons: [
             { text: 'Explore Freely', action: 'end', primary: false },
             { text: 'Request a Pilot →', action: 'contact', primary: true }
-        ]
+        ],
+        position: 'center'
     }
 ];
 
@@ -338,16 +354,28 @@ function renderChat(responseKey) {
 function renderChips(chipKeys) {
     const container = document.getElementById('chatChips');
     container.innerHTML = chipKeys.map(key => 
-        `<button class="chip" data-chip="${key}">${CHIP_LABELS[key] || key}</button>`
+        `<button class="chip" data-chip="${key}" id="chip-${key}">${CHIP_LABELS[key] || key}</button>`
     ).join('');
     
     // Attach click handlers
     container.querySelectorAll('.chip').forEach(chip => {
         chip.addEventListener('click', () => handleChipClick(chip.dataset.chip));
     });
+    
+    // Re-apply highlight if needed
+    if (tourStarted) {
+        const step = STEPS[currentStep];
+        if (step && step.highlight && step.highlight.startsWith('chip-')) {
+            const chipEl = document.getElementById(step.highlight);
+            if (chipEl) chipEl.classList.add('highlight');
+        }
+    }
 }
 
 function handleChipClick(chipKey) {
+    // Remove highlight
+    document.querySelectorAll('.chip.highlight').forEach(c => c.classList.remove('highlight'));
+    
     // Show user message
     const messages = document.getElementById('chatMessages');
     messages.innerHTML += `
@@ -399,6 +427,7 @@ function handleChipClick(chipKey) {
         if (tourStarted) {
             const step = STEPS[currentStep];
             if (step && step.waitFor === `chip-${chipKey}`) {
+                hideArrow();
                 setTimeout(() => showTourStep(currentStep + 1), 500);
             }
         }
@@ -406,8 +435,31 @@ function handleChipClick(chipKey) {
 }
 
 function initTabs() {
-    document.getElementById('mapTab').addEventListener('click', () => switchView('map'));
-    document.getElementById('analyticsTab').addEventListener('click', () => switchView('analytics'));
+    document.getElementById('mapTab').addEventListener('click', () => {
+        switchView('map');
+        // Advance tour if waiting
+        if (tourStarted) {
+            const step = STEPS[currentStep];
+            if (step && step.waitFor === 'mapClick') {
+                document.getElementById('mapTab').classList.remove('highlight');
+                hideArrow();
+                setTimeout(() => showTourStep(currentStep + 1), 300);
+            }
+        }
+    });
+    
+    document.getElementById('analyticsTab').addEventListener('click', () => {
+        switchView('analytics');
+        // Advance tour if waiting
+        if (tourStarted) {
+            const step = STEPS[currentStep];
+            if (step && step.waitFor === 'analyticsClick') {
+                document.getElementById('analyticsTab').classList.remove('highlight');
+                hideArrow();
+                setTimeout(() => showTourStep(currentStep + 1), 300);
+            }
+        }
+    });
 }
 
 function switchView(view) {
@@ -420,25 +472,12 @@ function switchView(view) {
         mapTab.classList.remove('active');
         analyticsTab.classList.add('active');
         mapContainer.classList.add('hidden');
-        analyticsContainer.classList.remove('hidden');
+        analyticsContainer.classList.add('active');
     } else {
         mapTab.classList.add('active');
         analyticsTab.classList.remove('active');
         mapContainer.classList.remove('hidden');
-        analyticsContainer.classList.add('hidden');
-    }
-    
-    // Advance tour if waiting
-    if (tourStarted) {
-        const step = STEPS[currentStep];
-        if (step && step.waitFor === 'analyticsClick' && view === 'analytics') {
-            analyticsTab.classList.remove('highlight');
-            setTimeout(() => showTourStep(currentStep + 1), 300);
-        }
-        if (step && step.waitFor === 'mapClick' && view === 'map') {
-            mapTab.classList.remove('highlight');
-            setTimeout(() => showTourStep(currentStep + 1), 300);
-        }
+        analyticsContainer.classList.remove('active');
     }
 }
 
@@ -453,8 +492,8 @@ function showTourStep(index) {
         return;
     }
     
-    const modal = document.getElementById('tourModal');
-    const spotlight = document.getElementById('spotlight');
+    const card = document.getElementById('tourCard');
+    const arrow = document.getElementById('tourArrow');
     
     // Update progress dots
     document.getElementById('tourProgress').innerHTML = STEPS.map((_, i) => {
@@ -482,27 +521,47 @@ function showTourStep(index) {
         actionsEl.innerHTML = '';
     }
     
-    // Show modal
-    modal.classList.add('active');
+    // Position card
+    card.className = 'tour-card active pos-' + (step.position || 'center');
     
-    // Handle spotlight
-    spotlight.classList.remove('active');
-    if (step.spotlight) {
-        const target = document.getElementById(step.spotlight);
-        if (target) {
-            const rect = target.getBoundingClientRect();
-            spotlight.style.top = (rect.top - 8) + 'px';
-            spotlight.style.left = (rect.left - 8) + 'px';
-            spotlight.style.width = (rect.width + 16) + 'px';
-            spotlight.style.height = (rect.height + 16) + 'px';
-            spotlight.classList.add('active');
+    // Clear old highlights
+    document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+    
+    // Apply highlight
+    if (step.highlight) {
+        const highlightEl = document.getElementById(step.highlight);
+        if (highlightEl) {
+            highlightEl.classList.add('highlight');
         }
     }
     
-    // Handle waitFor
-    if (step.waitFor) {
-        setupWaitFor(step.waitFor);
+    // Position arrow
+    if (step.arrowTo) {
+        positionArrow(step.arrowTo);
+    } else {
+        hideArrow();
     }
+}
+
+function positionArrow(targetId) {
+    const target = document.getElementById(targetId);
+    const arrow = document.getElementById('tourArrow');
+    
+    if (!target) {
+        hideArrow();
+        return;
+    }
+    
+    const rect = target.getBoundingClientRect();
+    
+    // Position arrow to point at target (arrow points to top-right)
+    arrow.style.left = (rect.left - 60) + 'px';
+    arrow.style.top = (rect.top - 60) + 'px';
+    arrow.classList.add('active');
+}
+
+function hideArrow() {
+    document.getElementById('tourArrow').classList.remove('active');
 }
 
 function handleTourAction(action) {
@@ -519,28 +578,11 @@ function handleTourAction(action) {
     }
 }
 
-function setupWaitFor(waitFor) {
-    if (waitFor === 'analyticsClick') {
-        const tab = document.getElementById('analyticsTab');
-        tab.classList.add('highlight');
-    } else if (waitFor === 'mapClick') {
-        const tab = document.getElementById('mapTab');
-        tab.classList.add('highlight');
-    } else if (waitFor.startsWith('chip-')) {
-        const chipKey = waitFor.replace('chip-', '');
-        const chips = document.querySelectorAll('.chip');
-        chips.forEach(chip => {
-            if (chip.dataset.chip === chipKey) {
-                chip.classList.add('highlight');
-            }
-        });
-    }
-}
-
 function endTour() {
     tourStarted = false;
-    document.getElementById('tourModal').classList.remove('active');
-    document.getElementById('spotlight').classList.remove('active');
+    document.getElementById('tourCard').classList.remove('active');
+    hideArrow();
+    document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
     document.getElementById('chatInput').disabled = false;
     document.getElementById('sendBtn').disabled = false;
     
