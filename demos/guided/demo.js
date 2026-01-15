@@ -45,40 +45,34 @@ const INTEL_FEED = [
 // === TOUR STEPS ===
 const TOUR_STEPS = [
     {
-        id: 'welcome', subtitle: 'Welcome to Nexus', title: 'Predictive Intelligence Platform',
-        content: `<p>You're about to experience <strong>Nexus</strong> — the conversational intelligence platform that turns scattered signals into decisions you can defend.</p>
+        id: 'welcome', subtitle: 'Welcome to Rebirth Nexus', title: 'Predictive Intelligence Platform',
+        content: `<p>You're about to experience <strong>Rebirth Nexus</strong> — the conversational intelligence platform that turns scattered signals into decisions you can defend.</p>
             <p>In this guided demo, you'll see how Nexus detected a winter storm <span class="highlight">48 hours before impact</span>, calculated $4.2M in exposure, and prepared mitigation options with a <span class="highlight">60:1 ROI</span>.</p>
             <div class="tour-highlight-box">
-                <div class="pillar"><span class="pillar-icon">📊</span><span class="pillar-name">Operational Data</span><span class="pillar-desc">Your TMS, WMS, ERP</span></div>
-                <div class="pillar"><span class="pillar-icon">🗺️</span><span class="pillar-name">Geospatial</span><span class="pillar-desc">Esri ArcGIS</span></div>
-                <div class="pillar"><span class="pillar-icon">🌐</span><span class="pillar-name">Third-Party Intel</span><span class="pillar-desc">NOAA, Allianz Trade</span></div>
-                <div class="pillar"><span class="pillar-icon">🤝</span><span class="pillar-name">Partner Ecosystem</span><span class="pillar-desc">Rebirth Analytics</span></div>
-                <div class="pillar"><span class="pillar-icon">🔮</span><span class="pillar-name">Predictive Engine</span><span class="pillar-desc">Cascade simulation</span></div>
+                <div class="pillar"><span class="pillar-icon">📊</span><span class="pillar-name">Operational Data</span><span class="pillar-desc">ERP, CRM, IoT & more</span></div>
+                <div class="pillar"><span class="pillar-icon">🗺️</span><span class="pillar-name">Geospatial</span><span class="pillar-desc">Location, routes, assets</span></div>
+                <div class="pillar"><span class="pillar-icon">🌐</span><span class="pillar-name">Third-Party Intel</span><span class="pillar-desc">News, weather, markets</span></div>
+                <div class="pillar"><span class="pillar-icon">🤝</span><span class="pillar-name">Partner Ecosystem</span><span class="pillar-desc">Vendors, suppliers, APIs</span></div>
+                <div class="pillar"><span class="pillar-icon">🔮</span><span class="pillar-name">Predictive Engine</span><span class="pillar-desc">Scenarios & forecasts</span></div>
             </div>`,
         buttons: [{ text: 'Begin Tour →', primary: true, action: 'next' }],
         spotlight: null, pillarActivation: null, skipOnMobile: false
     },
     {
         id: 'intel-feed', subtitle: 'Step 1 of 10', title: 'The Intel Feed',
-        content: `<p>The <strong>Intel Feed</strong> shows a real-time stream of events affecting your operations.</p>
+        content: `<p>The <strong>Intel Feed</strong> (left panel) shows a real-time stream of events affecting your operations.</p>
             <p>Two alerts are already waiting:</p>
             <p>🔴 <strong>Winter Storm Alert</strong> — A risk cascade threatening 12 stores<br>
             🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>`,
         buttons: [{ text: 'Continue →', primary: true, action: 'next' }],
-        spotlight: 'intelFeed', pillarActivation: null, skipOnMobile: true,
-        mobileContent: `<p>Nexus monitors <span class="highlight">risk AND opportunity</span> simultaneously.</p>
-            <p>🔴 <strong>Winter Storm</strong> — $4.2M exposure across 12 stores<br>
-            🟢 <strong>Competitor Closure</strong> — $1.8M revenue opportunity</p>`
+        spotlight: 'intelFeed', pillarActivation: null
     },
     {
         id: 'weather-intel', subtitle: 'Step 2 of 10', title: 'Third-Party Intelligence',
-        content: `<p>The weather overlay shows <strong>live NOAA data</strong> integrated into the platform.</p>
+        content: `<p>The weather overlay (on the map) shows <strong>live NOAA data</strong> integrated into the platform.</p>
             <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>`,
         buttons: [{ text: 'Continue →', primary: true, action: 'next' }],
-        spotlight: 'weatherOverlay', pillarActivation: 'thirdparty', skipOnMobile: true,
-        mobileSpotlight: 'mobileWeatherBanner',
-        mobileContent: `<p>The weather alert shows <strong>live NOAA data</strong> — real-time, not cached.</p>
-            <p>Nexus integrates timestamps and confidence scores so "48 hours early" is <span class="highlight">verifiable</span>.</p>`
+        spotlight: 'weatherOverlay', pillarActivation: 'thirdparty'
     },
     {
         id: 'center-panel', subtitle: 'Step 3 of 10', title: 'Map & Analytics Views',
@@ -495,9 +489,7 @@ function getEffectiveStep(step) {
 }
 
 function shouldSkipStep(step) {
-    if (isMobile() && step.skipOnMobile && !step.mobileContent) {
-        return true;
-    }
+    // Never skip steps - all steps should show
     return false;
 }
 
