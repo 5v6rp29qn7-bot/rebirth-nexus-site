@@ -2,451 +2,184 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nexus — Contested Logistics Intelligence</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Nexus - Conversational Predictive Intelligence Platform Demo">
+    
+    <title>Nexus — Guided Intelligence Demo</title>
+    
+    <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Esri ArcGIS -->
     <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #12121a;
-            --bg-tertiary: #1a1a24;
-            --text-primary: #f0f0f5;
-            --text-secondary: #a0a0b0;
-            --text-muted: #606070;
-            --gold: #d4af37;
-            --green: #10b981;
-            --cyan: #22d3ee;
-            --amber: #f59e0b;
-            --red: #ef4444;
-            --border: #2a2a3a;
-        }
-        html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); }
-        
-        .app-container { display: flex; flex-direction: column; height: 100%; }
-        .main-content { display: flex; flex: 1; overflow: hidden; }
-        
-        /* === INTEL FEED === */
-        .intel-feed { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-        .feed-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-        .feed-title { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-        .feed-live { font-size: 10px; background: rgba(239,68,68,0.2); color: var(--red); padding: 4px 10px; border-radius: 10px; display: flex; align-items: center; gap: 5px; }
-        .feed-live::before { content: ""; width: 6px; height: 6px; background: var(--red); border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .feed-items { flex: 1; overflow-y: auto; padding: 12px; }
-        .feed-item { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
-        .feed-item:hover { border-color: var(--gold); }
-        .feed-item.critical { border-left: 4px solid var(--red); }
-        .feed-item.warning { border-left: 4px solid var(--amber); }
-        .feed-item-badge { display: inline-block; font-size: 9px; font-weight: 600; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 8px; }
-        .feed-item-badge.threat { background: rgba(239,68,68,0.2); color: var(--red); }
-        .feed-item-badge.advisory { background: rgba(245,158,11,0.2); color: var(--amber); }
-        .feed-item-time { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; }
-        .feed-item-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-        .feed-item-detail { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-        .feed-item-exposure { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; font-size: 11px; }
-        .feed-item-exposure .label { color: var(--text-muted); }
-        .feed-item-exposure .value { font-weight: 700; font-family: 'SF Mono', monospace; }
-        .feed-item-exposure .value.red { color: var(--red); }
-        
-        /* === CENTER PANEL === */
-        .center-panel { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .center-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--bg-secondary); }
-        .view-toggle { display: flex; gap: 4px; background: var(--bg-tertiary); padding: 4px; border-radius: 8px; }
-        .view-btn { padding: 8px 16px; border-radius: 6px; font-size: 13px; font-weight: 500; border: none; background: transparent; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
-        .view-btn.active { background: var(--gold); color: #000; }
-        .view-btn:hover:not(.active) { color: var(--text-primary); }
-        .view-btn.tour-highlight { animation: btnPulse 1.5s infinite; box-shadow: 0 0 0 3px rgba(212,175,55,0.4); }
-        @keyframes btnPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(212,175,55,0.4); } 50% { box-shadow: 0 0 0 6px rgba(212,175,55,0.2); } }
-        
-        .partner-badges { display: flex; gap: 12px; align-items: center; }
-        .partner-badge { font-size: 11px; color: var(--text-muted); opacity: 0.6; padding: 4px 8px; border-radius: 4px; }
-        
-        .map-container { flex: 1; position: relative; }
-        #mapView { position: absolute; inset: 0; }
-        .map-container.hidden { display: none; }
-        
-        /* Threat Overlay */
-        .threat-overlay { position: absolute; top: 16px; right: 16px; background: rgba(10,10,15,0.95); border: 1px solid var(--border); border-radius: 12px; padding: 14px; z-index: 100; width: 280px; }
-        .threat-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
-        .threat-alert { background: rgba(239,68,68,0.15); border: 1px solid var(--red); border-radius: 8px; padding: 10px; margin-bottom: 10px; }
-        .threat-alert-title { font-weight: 600; font-size: 12px; color: var(--red); margin-bottom: 3px; }
-        .threat-alert-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
-        .threat-data { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-        .threat-item { background: var(--bg-tertiary); padding: 6px 8px; border-radius: 6px; text-align: center; }
-        .threat-item-label { font-size: 9px; color: var(--text-muted); }
-        .threat-item-value { font-size: 13px; font-weight: 600; margin-top: 2px; }
-        .threat-meta { font-size: 10px; color: var(--text-muted); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }
-        
-        .map-legend { position: absolute; bottom: 16px; left: 16px; background: rgba(10,10,15,0.9); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; z-index: 100; }
-        .legend-title { font-size: 10px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; }
-        .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; margin-bottom: 4px; }
-        .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
-        .legend-dot.red { background: var(--red); }
-        .legend-dot.amber { background: var(--amber); }
-        .legend-dot.green { background: var(--green); }
-        .legend-dot.blue { background: var(--cyan); }
-        
-        /* Analytics View */
-        .analytics-view { flex: 1; overflow-y: auto; padding: 20px; display: none; }
-        .analytics-view.active { display: block; }
-        .analytics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-        .analytics-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-        .analytics-card.wide { grid-column: span 2; }
-        .analytics-card.full { grid-column: span 4; }
-        .analytics-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-        .analytics-value { font-size: 24px; font-weight: 700; }
-        .analytics-value.red { color: var(--red); }
-        .analytics-value.green { color: var(--green); }
-        .analytics-value.amber { color: var(--amber); }
-        .analytics-value.gold { color: var(--gold); }
-        .analytics-trend { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
-        
-        .asset-table { width: 100%; border-collapse: collapse; }
-        .asset-table th { text-align: left; font-size: 10px; color: var(--text-muted); text-transform: uppercase; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-        .asset-table td { padding: 10px 12px; font-size: 12px; border-bottom: 1px solid var(--border); }
-        .asset-table tr:hover { background: var(--bg-tertiary); }
-        .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 500; }
-        .status-badge.critical { background: rgba(239,68,68,0.2); color: var(--red); }
-        .status-badge.warning { background: rgba(245,158,11,0.2); color: var(--amber); }
-        .status-badge.ok { background: rgba(16,185,129,0.2); color: var(--green); }
-        
-        /* === CHAT PANEL === */
-        .chat-panel { width: 380px; background: var(--bg-secondary); border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-        .chat-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-        .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--gold), #b8960c); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: #000; }
-        .logo-text { font-weight: 600; font-size: 15px; }
-        .logo-sub { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-        .tour-restart { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; }
-        .tour-restart:hover { border-color: var(--gold); color: var(--gold); }
-        
-        .kpi-strip { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; }
-        .kpi-mini { background: var(--bg-tertiary); padding: 10px 14px; border-radius: 8px; text-align: center; min-width: 75px; }
-        .kpi-mini-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .kpi-mini-value { font-size: 15px; font-weight: 700; margin-top: 3px; font-family: 'SF Mono', monospace; }
-        .kpi-mini-value.red { color: var(--red); }
-        .kpi-mini-value.amber { color: var(--amber); }
-        .kpi-mini-value.green { color: var(--green); }
-        .kpi-mini-value.gold { color: var(--gold); }
-        
-        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .message { display: flex; }
-        .message.user { justify-content: flex-end; }
-        .message.user .bubble { background: var(--gold); color: #000; border-radius: 16px 16px 4px 16px; }
-        .message.assistant .bubble { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
-        .bubble { padding: 12px 16px; max-width: 90%; font-size: 13px; line-height: 1.5; }
-        .bubble p { margin-bottom: 10px; }
-        .bubble p:last-child { margin-bottom: 0; }
-        
-        /* Viz in chat */
-        .viz-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
-        .viz-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
-        .viz-card .label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
-        .viz-card .value { font-size: 16px; font-weight: 700; margin-top: 3px; font-family: 'SF Mono', monospace; }
-        .viz-card .value.red { color: var(--red); }
-        .viz-card .value.amber { color: var(--amber); }
-        .viz-card .value.green { color: var(--green); }
-        .viz-card .value.gold { color: var(--gold); }
-        
-        .viz-list { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
-        .viz-list-title { padding: 10px 14px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--border); }
-        .viz-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
-        .viz-list-item:last-child { border-bottom: none; }
-        .viz-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-        .viz-status.critical { background: var(--red); }
-        .viz-status.high { background: var(--amber); }
-        .viz-status.medium { background: var(--gold); }
-        .viz-status.ok { background: var(--green); }
-        .viz-info { flex: 1; min-width: 0; }
-        .viz-name { font-size: 12px; font-weight: 500; }
-        .viz-detail { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
-        .viz-value { font-size: 12px; font-weight: 600; font-family: 'SF Mono', monospace; flex-shrink: 0; }
-        
-        .viz-timeline { margin: 12px 0; }
-        .timeline-item { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border); margin-left: 6px; padding-left: 16px; position: relative; }
-        .timeline-item:last-child { border-left-color: transparent; }
-        .timeline-marker { position: absolute; left: -6px; top: 14px; width: 10px; height: 10px; border-radius: 50%; }
-        .timeline-marker.red { background: var(--red); }
-        .timeline-marker.amber { background: var(--amber); }
-        .timeline-marker.green { background: var(--green); }
-        .timeline-time { font-size: 11px; color: var(--gold); font-weight: 600; }
-        .timeline-title { font-size: 12px; font-weight: 500; margin-top: 2px; }
-        .timeline-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
-        
-        .response-meta { display: flex; gap: 12px; font-size: 10px; color: var(--text-muted); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
-        .provenance { margin-top: 8px; }
-        .provenance-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .provenance-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-        .provenance-tag { font-size: 9px; padding: 2px 6px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); }
-        
-        .chips-section { padding: 12px 16px; border-top: 1px solid var(--border); }
-        .chips-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
-        .chips-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-        .chip { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
-        .chip:hover { border-color: var(--gold); color: var(--gold); }
-        .chip.tour-highlight { border-color: var(--gold); animation: chipPulse 1.5s infinite; box-shadow: 0 0 0 3px rgba(212,175,55,0.3); }
-        @keyframes chipPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(212,175,55,0.3); } 50% { box-shadow: 0 0 0 6px rgba(212,175,55,0.15); } }
-        .chip.disabled { opacity: 0.4; pointer-events: none; }
-        
-        .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border); display: none; }
-        .chat-input-area.active { display: block; }
-        .input-wrapper { display: flex; gap: 8px; }
-        .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-size: 13px; }
-        .chat-input:focus { outline: none; border-color: var(--gold); }
-        .chat-input::placeholder { color: var(--text-muted); }
-        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
-        .send-btn:hover { background: #e5c040; }
-        
-        /* === TOUR === */
-        /* Tour overlay: keep the *page* dimmed but allow guided clicks on highlighted UI.
-           The overlay itself is click-through; only the tour card is interactive. */
-        .tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease; padding: 20px; }
-        .tour-overlay.active { opacity: 1; pointer-events: none; }
-        /* When spotlight is active, we reduce overlay dim so the highlighted UI remains readable.
-           The spotlight's shadow provides the dimming in that mode. */
-        .tour-overlay.active.spotlight-on { background: rgba(0,0,0,0.10); }
-        
-        .tour-card { background: #151826; border: 1px solid var(--gold); border-radius: 16px; padding: 34px; width: 100%; max-width: 620px; max-height: 90vh; overflow-y: auto; box-shadow: 0 18px 60px rgba(0,0,0,0.55); position: relative; z-index: 10001; pointer-events: auto; }
-        .tour-step-indicator { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
-        .tour-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
-        .tour-dot.active { background: var(--gold); transform: scale(1.3); }
-        .tour-dot.completed { background: var(--green); }
-        
-        .tour-label { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
-        .tour-title { font-size: 24px; font-weight: 750; margin-bottom: 16px; color: var(--text-primary); }
-        .tour-content { font-size: 14px; line-height: 1.7; color: rgba(248,250,252,0.86); }
-        .tour-content p { margin-bottom: 14px; }
-        .tour-content strong { color: var(--text-primary); }
-        .tour-content .highlight { color: var(--gold); font-weight: 500; }
-        
-        .tour-pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 20px 0; }
-        .tour-pillar { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; text-align: center; }
-        .tour-pillar-icon { font-size: 20px; display: block; margin-bottom: 6px; }
-        .tour-pillar-name { font-size: 10px; font-weight: 600; color: var(--text-primary); display: block; }
-        .tour-pillar-desc { font-size: 8px; color: var(--text-muted); display: block; margin-top: 2px; }
-        
-        .tour-instruction { background: rgba(212,175,55,0.1); border: 1px solid var(--gold); border-radius: 8px; padding: 12px 16px; margin-top: 16px; font-size: 13px; color: var(--gold); }
-        
-        .tour-buttons { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
-        .tour-btn { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
-        .tour-btn.primary { background: var(--gold); color: #000; }
-        .tour-btn.primary:hover { background: #e5c040; }
-        .tour-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .tour-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
-        .tour-btn.secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
-        
-        /* Spotlight sits ABOVE the overlay dim but BELOW the tour card.
-           This prevents the tour card from being darkened by spotlight shadows. */
-        .tour-spotlight { position: fixed; z-index: 10000; border: 3px solid var(--gold); border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.65); pointer-events: none; transition: all 0.35s ease-out; display: none; }
-        
-        /* POC Modal */
-        .poc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
-        .poc-modal.active { opacity: 1; pointer-events: auto; }
-        .poc-modal-content { background: var(--bg-secondary); border: 1px solid var(--gold); border-radius: 16px; padding: 28px 32px; width: 100%; max-width: 440px; text-align: center; }
-        .poc-modal-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
-        .poc-modal-subtitle { color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; font-size: 14px; }
-        .poc-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
-        .poc-option { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; text-align: left; cursor: pointer; transition: all 0.2s; }
-        .poc-option:hover { border-color: var(--gold); }
-        .poc-option-title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
-        .poc-option-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
-        .poc-close { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; }
-        .poc-close:hover { border-color: var(--text-muted); color: var(--text-primary); }
-        
-        /* Esri overrides */
-        .esri-ui-corner { display: none !important; }
-        .esri-view-surface--inset-outline:focus::after { outline: none !important; }
-        
-        /* Responsive */
-        @media (max-width: 1200px) { .intel-feed { display: none; } .partner-badges { display: none; } }
-        @media (max-width: 900px) { .chat-panel { width: 320px; } .analytics-grid { grid-template-columns: repeat(2, 1fr); } .analytics-card.wide, .analytics-card.full { grid-column: span 2; } }
-        @media (max-width: 768px) {
-            .main-content { flex-direction: column; }
-            .center-panel { height: 40%; min-height: 200px; }
-            .chat-panel { width: 100%; flex: 1; border-left: none; border-top: 1px solid var(--border); }
-            .threat-overlay { display: none; }
-            .tour-pillars { grid-template-columns: repeat(3, 1fr); }
-        }
-    </style>
+    
+    <!-- Demo Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="app-container">
         <div class="main-content">
-            <!-- LEFT: Intel Feed -->
+            <!-- LEFT: Intel Feed (Desktop Only) -->
             <div class="intel-feed" id="intelFeed">
                 <div class="feed-header">
-                    <div class="feed-title">🔴 Threat Intelligence</div>
-                    <div class="feed-live">LIVE</div>
+                    <div class="feed-title">
+                        <span class="sr-only">Live</span>
+                        🔴 Live Intelligence
+                    </div>
+                    <div class="feed-live" aria-label="Live updates active">LIVE</div>
                 </div>
-                <div class="feed-items" id="feedItems">
-                    <div class="feed-item critical" id="feedThreat">
-                        <div class="feed-item-badge threat">THREAT</div>
-                        <div class="feed-item-time">14:32 UTC • DIA / PACOM J2</div>
-                        <div class="feed-item-title">Port Access Degradation — Subic Bay</div>
-                        <div class="feed-item-detail">Credible intelligence indicates potential port interdiction affecting naval logistics. 3 supply vessels currently en route.</div>
-                        <div class="feed-item-exposure">
-                            <span class="label">Mission Impact</span>
-                            <span class="value red">CRITICAL</span>
-                        </div>
-                    </div>
-                    <div class="feed-item warning" id="feedAdvisory">
-                        <div class="feed-item-badge advisory">ADVISORY</div>
-                        <div class="feed-item-time">12:18 UTC • TRANSCOM</div>
-                        <div class="feed-item-title">Fuel Depot Capacity Constraint</div>
-                        <div class="feed-item-detail">Guam fuel reserves at 62% following increased INDOPACOM tempo. Resupply vessel ETA 96 hours.</div>
-                        <div class="feed-item-exposure">
-                            <span class="label">Days of Supply</span>
-                            <span class="value red">4.2</span>
-                        </div>
-                    </div>
+                <div class="feed-items" id="feedItems" role="feed" aria-label="Intelligence alerts">
+                    <!-- Feed items injected by JS -->
                 </div>
             </div>
             
-            <!-- CENTER: Map/Analytics -->
+            <!-- CENTER: Map + Analytics -->
             <div class="center-panel">
                 <div class="center-header">
-                    <div class="view-toggle">
-                        <button class="view-btn active" id="mapTab">🗺️ Map</button>
-                        <button class="view-btn" id="analyticsTab">📊 Analytics</button>
+                    <div class="view-toggle" id="viewToggle" role="tablist" aria-label="View selection">
+                        <button class="view-btn active" data-view="map" id="mapBtn" role="tab" aria-selected="true" aria-controls="mapContainer">
+                            <span aria-hidden="true">🗺️</span> Map
+                        </button>
+                        <button class="view-btn" data-view="analytics" id="analyticsBtn" role="tab" aria-selected="false" aria-controls="analyticsView">
+                            <span aria-hidden="true">📊</span> Analytics
+                        </button>
                     </div>
                     <div class="partner-badges">
-                        <span class="partner-badge">Powered by Esri</span>
-                        <span class="partner-badge">Rebirth Analytics</span>
-                        <span class="partner-badge">Allianz Trade</span>
+                        <span class="partner-badge" id="badge-esri">
+                            Powered by Esri
+                            <span class="tooltip">Geospatial intelligence & mapping</span>
+                        </span>
+                        <span class="partner-badge" id="badge-rebirth">
+                            Rebirth Analytics
+                            <span class="tooltip">Supplier financial health scoring</span>
+                        </span>
+                        <span class="partner-badge" id="badge-allianz">
+                            Allianz Trade
+                            <span class="tooltip">Credit risk & default probability</span>
+                        </span>
                     </div>
                 </div>
                 
-                <div class="map-container" id="mapContainer">
+                <!-- Data Pillars Strip (Desktop) -->
+                <div class="pillars-strip" id="pillarsStrip" aria-label="Active data pillars">
+                    <!-- Injected by JS -->
+                </div>
+                
+                <!-- MOBILE: Weather Alert Banner (replaces desktop overlay) -->
+                <div class="mobile-weather-banner" id="mobileWeatherBanner" role="alert">
+                    <span class="alert-icon" aria-hidden="true">⚠️</span>
+                    <div class="alert-text">Winter Storm Warning — Chicago Metro</div>
+                    <div class="alert-meta">NOAA • 48hr</div>
+                </div>
+                
+                <div class="map-view-container" id="mapContainer" role="tabpanel" aria-labelledby="mapBtn">
                     <div id="mapView"></div>
                     
-                    <div class="threat-overlay" id="threatOverlay">
-                        <div class="threat-title">⚠️ Threat Assessment</div>
-                        <div class="threat-meta">
-                            <span>DIA Intel • 14:32 UTC</span>
-                            <span>Confidence: 0.87</span>
+                    <!-- DESKTOP: Weather Overlay -->
+                    <div class="weather-overlay" id="weatherOverlay">
+                        <div class="weather-title">
+                            <span aria-hidden="true">🌩️</span> Live Weather Intel
                         </div>
-                        <div class="threat-alert">
-                            <div class="threat-alert-title">Port Interdiction Warning</div>
-                            <div class="threat-alert-text">High probability of access denial at Subic Bay within 48-72 hours.</div>
+                        <div class="weather-meta">
+                            <span class="timestamp">NOAA Advisory: 14:32 UTC</span>
+                            <span class="confidence">Confidence: 0.89</span>
                         </div>
-                        <div class="threat-data">
-                            <div class="threat-item">
-                                <div class="threat-item-label">Vessels</div>
-                                <div class="threat-item-value" style="color: var(--red);">3</div>
+                        <div class="weather-alert" role="alert">
+                            <div class="weather-alert-title">Winter Storm Warning</div>
+                            <div class="weather-alert-text">Severe winter storm approaching Chicago metro. 8-12 inches expected over 48 hours.</div>
+                        </div>
+                        <div class="weather-data">
+                            <div class="weather-item">
+                                <div class="weather-item-label">Chicago</div>
+                                <div class="weather-item-value">28°F</div>
                             </div>
-                            <div class="threat-item">
-                                <div class="threat-item-label">Cargo</div>
-                                <div class="threat-item-value">$42M</div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Wind</div>
+                                <div class="weather-item-value">35 mph</div>
                             </div>
-                            <div class="threat-item">
-                                <div class="threat-item-label">Alt Routes</div>
-                                <div class="threat-item-value" style="color: var(--green);">2</div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Visibility</div>
+                                <div class="weather-item-value">0.5 mi</div>
                             </div>
-                            <div class="threat-item">
-                                <div class="threat-item-label">Window</div>
-                                <div class="threat-item-value" style="color: var(--amber);">48h</div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Roads</div>
+                                <div class="weather-item-value" style="color: var(--accent-red);">Hazardous</div>
                             </div>
+                        </div>
+                        <div class="weather-meta" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
+                            <span>Next refresh: 15 min</span>
                         </div>
                     </div>
                     
-                    <div class="map-legend">
-                        <div class="legend-title">Asset Status</div>
-                        <div class="legend-item"><div class="legend-dot red"></div>At-Risk Node</div>
-                        <div class="legend-item"><div class="legend-dot amber"></div>Degraded</div>
-                        <div class="legend-item"><div class="legend-dot green"></div>Operational</div>
-                        <div class="legend-item"><div class="legend-dot blue"></div>Allied Facility</div>
+                    <div class="map-legend" aria-label="Map legend">
+                        <div class="legend-title">Network Status</div>
+                        <div class="legend-item"><div class="legend-dot red" aria-hidden="true"></div>At-Risk Store</div>
+                        <div class="legend-item"><div class="legend-dot amber" aria-hidden="true"></div>Weather Impact</div>
+                        <div class="legend-item"><div class="legend-dot green" aria-hidden="true"></div>Unaffected Store</div>
+                        <div class="legend-item"><div class="legend-dot blue" aria-hidden="true"></div>Distribution Center</div>
                     </div>
                 </div>
                 
-                <div class="analytics-view" id="analyticsView">
-                    <div class="analytics-grid">
-                        <div class="analytics-card">
-                            <div class="analytics-label">Total Exposure</div>
-                            <div class="analytics-value red">$127M</div>
-                            <div class="analytics-trend">Across Pacific logistics network</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Nodes at Risk</div>
-                            <div class="analytics-value amber">7</div>
-                            <div class="analytics-trend">4 ports, 2 airfields, 1 depot</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Mitigation Ready</div>
-                            <div class="analytics-value green">Yes</div>
-                            <div class="analytics-trend">3 contingency plans staged</div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-label">Decision Window</div>
-                            <div class="analytics-value gold">48h</div>
-                            <div class="analytics-trend">Time-critical</div>
-                        </div>
-                        
-                        <div class="analytics-card full">
-                            <div class="analytics-label" style="margin-bottom: 12px;">Critical Assets</div>
-                            <table class="asset-table">
-                                <thead>
-                                    <tr>
-                                        <th>Asset</th>
-                                        <th>Location</th>
-                                        <th>Function</th>
-                                        <th>Status</th>
-                                        <th>Exposure</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr><td>Subic Bay Port</td><td>Philippines</td><td>Naval Logistics</td><td><span class="status-badge critical">Critical</span></td><td>$42M</td></tr>
-                                    <tr><td>Guam Fuel Depot</td><td>Guam</td><td>Fuel Storage</td><td><span class="status-badge warning">Constrained</span></td><td>$38M</td></tr>
-                                    <tr><td>Yokosuka SRF</td><td>Japan</td><td>Ship Repair</td><td><span class="status-badge ok">Operational</span></td><td>$22M</td></tr>
-                                    <tr><td>Darwin MRF</td><td>Australia</td><td>Maintenance</td><td><span class="status-badge ok">Operational</span></td><td>$15M</td></tr>
-                                    <tr><td>Changi Naval Base</td><td>Singapore</td><td>Allied Support</td><td><span class="status-badge ok">Available</span></td><td>$10M</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                <div class="analytics-view" id="analyticsView" role="tabpanel" aria-labelledby="analyticsBtn">
+                    <!-- Analytics content injected by JS -->
                 </div>
             </div>
             
-            <!-- RIGHT: Chat -->
+            <!-- RIGHT: Chat Panel -->
             <div class="chat-panel" id="chatPanel">
                 <div class="chat-header">
-                    <div class="logo-icon">N</div>
+                    <div class="logo-icon" aria-hidden="true">N</div>
                     <div>
                         <div class="logo-text">Nexus</div>
-                        <div class="logo-sub">Contested Logistics Intel</div>
+                        <div class="logo-sub">Predictive Intelligence</div>
                     </div>
-                    <button class="tour-restart" id="tourRestart">ℹ️ Tour</button>
                 </div>
                 
-                <div class="kpi-strip">
+                <div class="kpi-strip" id="kpiStrip" aria-label="Key metrics">
                     <div class="kpi-mini">
                         <div class="kpi-mini-label">Exposure</div>
-                        <div class="kpi-mini-value red" id="kpiExposure">$127M</div>
+                        <div class="kpi-mini-value red" id="kpi-exposure">$4.2M</div>
                     </div>
                     <div class="kpi-mini">
-                        <div class="kpi-mini-label">Nodes</div>
-                        <div class="kpi-mini-value amber" id="kpiNodes">7</div>
+                        <div class="kpi-mini-label">Stores</div>
+                        <div class="kpi-mini-value amber" id="kpi-stores">12</div>
                     </div>
                     <div class="kpi-mini">
                         <div class="kpi-mini-label">Protected</div>
-                        <div class="kpi-mini-value" id="kpiProtected">$0</div>
+                        <div class="kpi-mini-value green" id="kpi-protected">$0</div>
                     </div>
                     <div class="kpi-mini">
                         <div class="kpi-mini-label">ROI</div>
-                        <div class="kpi-mini-value" id="kpiROI">—</div>
+                        <div class="kpi-mini-value gold" id="kpi-roi">—</div>
                     </div>
                 </div>
                 
-                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversation with Nexus" aria-live="polite">
+                        <!-- Messages injected by JS -->
+                    </div>
+                </div>
                 
                 <div class="chips-section" id="chipsSection">
-                    <div class="chips-label">Suggested Queries</div>
-                    <div class="chips-grid" id="chipsGrid"></div>
+                    <div class="chips-label">Quick Actions</div>
+                    <div class="chips-grid" id="chipsGrid" role="group" aria-label="Suggested queries">
+                        <!-- Chips injected by JS -->
+                    </div>
                 </div>
                 
                 <div class="chat-input-area" id="chatInputArea">
                     <div class="input-wrapper">
-                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask Nexus anything...">
-                        <button class="send-btn" id="sendBtn">Send →</button>
+                        <label for="chatInput" class="sr-only">Ask Nexus a question</label>
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask Nexus anything..." disabled aria-disabled="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <button class="send-btn" id="sendBtn" disabled aria-disabled="true" aria-label="Send message">Send →</button>
                     </div>
                 </div>
             </div>
@@ -454,39 +187,46 @@
     </div>
     
     <!-- Tour Overlay -->
-    <div class="tour-overlay" id="tourOverlay">
-        <div class="tour-card">
-            <div class="tour-step-indicator" id="tourSteps"></div>
-            <div class="tour-label" id="tourLabel"></div>
+    <div class="tour-overlay" id="tourOverlay" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+        <div class="tour-card" id="tourCard">
+            <div class="tour-step-indicator" id="tourStepIndicator" aria-label="Tour progress"></div>
+            <div class="tour-subtitle" id="tourSubtitle"></div>
             <h2 class="tour-title" id="tourTitle"></h2>
             <div class="tour-content" id="tourContent"></div>
             <div class="tour-buttons" id="tourButtons"></div>
         </div>
     </div>
     
-    <!-- Spotlight -->
-    <div class="tour-spotlight" id="tourSpotlight"></div>
+    <!-- Spotlight Element -->
+    <div class="tour-spotlight" id="tourSpotlight" style="display: none;" aria-hidden="true"></div>
     
-    <!-- POC Modal -->
-    <div class="poc-modal" id="pocModal">
+    <!-- POC Request Modal -->
+    <div class="poc-modal" id="pocModal" role="dialog" aria-modal="true" aria-labelledby="pocModalTitle">
         <div class="poc-modal-content">
-            <h2 class="poc-modal-title">Request a Demonstration</h2>
-            <p class="poc-modal-subtitle">See how Nexus can transform contested logistics intelligence for your operations.</p>
+            <h2 class="poc-modal-title" id="pocModalTitle">Request a Pilot</h2>
+            <p class="poc-modal-subtitle">Choose your preferred next step. Our team will reach out within 24 hours.</p>
             <div class="poc-options">
-                <div class="poc-option" onclick="window.location.href='mailto:c@rebirthnexus.ai?subject=WIS Demo Request - Live Demo'">
-                    <div class="poc-option-title">Schedule a Live Demo</div>
-                    <div class="poc-option-desc">30-minute walkthrough with your specific scenarios and data requirements.</div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="30-Day Pilot">
+                    <div class="poc-option-title">30-Day Pilot (2 Data Feeds)</div>
+                    <div class="poc-option-desc">Connect your TMS and one third-party source. See Nexus in action on your actual operations.</div>
                 </div>
-                <div class="poc-option" onclick="window.location.href='mailto:c@rebirthnexus.ai?subject=WIS Demo Request - Pilot Program'">
-                    <div class="poc-option-title">Pilot Program</div>
-                    <div class="poc-option-desc">30-day pilot connecting your operational data for real-world validation.</div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="Run scenario on your network">
+                    <div class="poc-option-title">Run This Scenario on Your Network</div>
+                    <div class="poc-option-desc">We'll model a winter storm, port strike, or supplier disruption using your store/supplier data.</div>
+                </div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="See top 10 nodes at risk">
+                    <div class="poc-option-title">See Your Top 10 Nodes at Risk</div>
+                    <div class="poc-option-desc">Quick risk assessment of your most critical suppliers and locations. Delivered in 1 week.</div>
                 </div>
             </div>
-            <button class="poc-close" onclick="closePocModal()">Maybe Later</button>
+            <button class="poc-close" aria-label="Close modal">Maybe Later</button>
         </div>
     </div>
-    
+
+    <!-- ArcGIS SDK -->
     <script src="https://js.arcgis.com/4.28/"></script>
-    <script src="demo-logic.js"></script>
+    
+    <!-- Demo Logic -->
+    <script src="demo.js"></script>
 </body>
 </html>

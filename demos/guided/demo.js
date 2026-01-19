@@ -1,1047 +1,902 @@
-// ============================================
-// NEXUS GUIDED DEMO - v3 (FIXED)
-// Aligns JS with index.html + styles.css
-// ============================================
+/*
+  Nexus Guided Demo (Option B: linear tour)
+  - IDs synced to index.html
+  - Tour progresses via Next/Back buttons only (no click-through gating)
+  - Narrative upgrades: Aha (standard vs connected), hidden connections, defendable decision, top interventions, reset
+  - No partner names; generic data sources
+*/
 
-// === STATE ===
-let currentStep = 0;
-let tourActive = false;
-let freeChatInitialized = false;
-let mapView = null;
+(() => {
+  'use strict';
 
-// ============================================
-// CONTENT DATA
-// ============================================
+  // -----------------------------
+  // Utilities
+  // -----------------------------
+  const $ = (id) => document.getElementById(id);
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const formatUSD = (n) => {
+    try {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n);
+    } catch {
+      return `$${Math.round(n).toLocaleString('en-US')}`;
+    }
+  };
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
 
-const DATA_PILLARS = [
-  { icon: '📊', name: 'Operational Data' },
-  { icon: '🗺️', name: 'Geospatial' },
-  { icon: '🌐', name: 'Third-Party Intel' },
-  { icon: '🤝', name: 'Partner Ecosystem' },
-  { icon: '🔮', name: 'Predictive Engine' }
-];
+  // -----------------------------
+  // DOM
+  // -----------------------------
+  const dom = {
+    // left
+    feedItems: $('feedItems'),
+    intelFeed: $('intelFeed'),
 
-// Intel feed items
-const INTEL_ITEMS = [
-  {
-    type: 'risk',
-    severityClass: 'critical',
-    time: '2 minutes ago',
-    title: 'Winter Storm Alert — Midwest',
-    detail: 'Severe winter storm tracking toward Chicago metro. 12 stores and 3 distribution centers in projected impact zone.',
-    exposureLabel: 'Exposure',
-    exposure: '$4.2M',
-    exposureClass: 'red'
-  },
-  {
-    type: 'opportunity',
-    severityClass: 'opportunity',
-    time: '4 hours ago',
-    title: 'Competitor Closure — Oakbrook',
-    detail: 'ValueMart announcing closure of Oakbrook location. 47,000 households within 15-min drive of your stores.',
-    exposureLabel: 'Opportunity',
-    exposure: '$1.8M',
-    exposureClass: 'green'
-  }
-];
+    // center
+    mapBtn: $('mapBtn'),
+    analyticsBtn: $('analyticsBtn'),
+    mapContainer: $('mapContainer'),
+    analyticsView: $('analyticsView'),
+    pillarsStrip: $('pillarsStrip'),
+    weatherOverlay: $('weatherOverlay'),
+    mobileWeatherBanner: $('mobileWeatherBanner'),
 
-// Chip labels
-const CHIP_LABELS = {
-  risk: "What's our biggest risk?",
-  cascade: 'Show cascade effects',
-  actions: 'What actions should we take?',
-  execute: 'Execute all phases',
-  competitor: 'Show competitor opportunity'
-};
+    // right
+    chatMessages: $('chatMessages'),
+    chipsGrid: $('chipsGrid'),
+    kpiExposure: $('kpi-exposure'),
+    kpiStores: $('kpi-stores'),
+    kpiProtected: $('kpi-protected'),
+    kpiRoi: $('kpi-roi'),
 
-// Chat responses (HTML kept compatible with existing CSS viz classes)
-const RESPONSES = {
-  initial: {
-    content: `
-      <p>Good morning. I've detected <strong>two situations</strong> that need your attention.</p>
-      <p>🔴 <strong>Winter Storm Alert:</strong> A severe storm is tracking toward your Midwest operations. 12 stores and 3 distribution centers are in the projected impact zone.</p>
-      <div class="viz-roi-cards">
-        <div class="roi-card"><div class="roi-label">Total Exposure</div><div class="roi-value red">$4.2M</div></div>
-        <div class="roi-card"><div class="roi-label">Stores at Risk</div><div class="roi-value amber">12</div></div>
-        <div class="roi-card"><div class="roi-label">DCs Affected</div><div class="roi-value amber">3</div></div>
-        <div class="roi-card"><div class="roi-label">Warning Time</div><div class="roi-value gold">48 hrs</div></div>
-      </div>
-      <p>I've already analyzed your supplier network and prepared mitigation options. What would you like to explore first?</p>
-    `,
-    sources: ['NOAA Weather', 'Store Operations', 'Esri GIS', 'Rebirth Analytics'],
-    chips: ['risk', 'cascade', 'actions'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$0', roi: '—' }
-  },
-  risk: {
-    content: `
-      <p>I've cross-referenced your store network with <strong>Rebirth Analytics</strong> supplier health data and <strong>Allianz Trade</strong> credit risk intelligence.</p>
-      <div class="viz-risk-matrix">
-        <div class="risk-matrix-header">📊 Risk Concentration Analysis</div>
-        <div class="risk-item">
-          <div class="risk-level critical"></div>
-          <div class="risk-info"><div class="risk-name">Chicago Distribution Hub</div><div class="risk-detail">Primary DC for 12 stores • Storm landfall in 36 hrs</div></div>
-          <div class="risk-value" style="color: var(--accent-red)">$1.8M</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level high"></div>
-          <div class="risk-info"><div class="risk-name">Great Lakes Logistics</div><div class="risk-detail">Financial Health: 2/5 • Allianz Default Risk: 12.3%</div></div>
-          <div class="risk-value" style="color: var(--accent-amber)">$890K</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level high"></div>
-          <div class="risk-info"><div class="risk-name">Dajcor Aluminum (Supplier)</div><div class="risk-detail">Credit Score: 86/100 • Health: 3/5 • In storm path</div></div>
-          <div class="risk-value" style="color: var(--accent-amber)">$650K</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level medium"></div>
-          <div class="risk-info"><div class="risk-name">Store-Level Stockouts</div><div class="risk-detail">8 stores at risk of critical SKU depletion</div></div>
-          <div class="risk-value" style="color: var(--accent-gold)">$420K</div>
-        </div>
-      </div>
-      <p><strong>Key Insight:</strong> 43% of exposure is concentrated in Chicago operations.</p>
-    `,
-    sources: ['Rebirth Analytics', 'Allianz Trade', 'Store Operations', 'WMS'],
-    chips: ['cascade', 'actions'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$0', roi: '—' }
-  },
-  cascade: {
-    content: `
-      <p>Here's how the disruption cascades if unmitigated:</p>
-      <div class="viz-timeline">
-        <div class="timeline-item">
-          <div class="timeline-marker red"></div>
-          <div class="timeline-content">
-            <div class="timeline-time">T+0 → T+24h</div>
-            <div class="timeline-title">Storm Hits Chicago DC</div>
-            <div class="timeline-desc">Primary distribution hub goes offline. 40% of regional inventory inaccessible.</div>
-          </div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-marker amber"></div>
-          <div class="timeline-content">
-            <div class="timeline-time">T+24 → T+36h</div>
-            <div class="timeline-title">Supplier Delivery Failures</div>
-            <div class="timeline-desc">Great Lakes Logistics misses commitments. Confidence: High (0.78).</div>
-          </div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-marker amber"></div>
-          <div class="timeline-content">
-            <div class="timeline-time">T+36 → T+48h</div>
-            <div class="timeline-title">Stockouts Begin</div>
-            <div class="timeline-desc">8 stores deplete high-velocity SKUs. Competitor stores capture demand.</div>
-          </div>
-        </div>
-        <div class="timeline-item">
-          <div class="timeline-marker red"></div>
-          <div class="timeline-content">
-            <div class="timeline-time">T+48 → T+72h</div>
-            <div class="timeline-title">Revenue Impact Peaks</div>
-            <div class="timeline-desc">Estimated $2.8M in lost sales. Additional $400K in expedited shipping.</div>
-          </div>
-        </div>
-      </div>
-      <p><strong>Total unmitigated impact:</strong> <span style="color: var(--accent-red); font-weight: 700;">$3.2M+</span></p>
-    `,
-    sources: ['Rebirth Analytics', 'Predictive Engine', 'Allianz Trade'],
-    chips: ['actions'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$0', roi: '—' }
-  },
-  actions: {
-    content: `
-      <p>Here are <strong>prioritized actions</strong> with verified availability:</p>
-      <div class="viz-risk-matrix">
-        <div class="risk-matrix-header">✅ Recommended Mitigation Plan</div>
-        <div class="risk-item">
-          <div class="risk-level low"></div>
-          <div class="risk-info"><div class="risk-name">Reroute through Indianapolis DC</div><div class="risk-detail">Bypass Chicago hub • Carrier capacity confirmed • +8hr transit</div></div>
-          <div class="risk-value" style="color: var(--accent-emerald)">+$1.4M</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level low"></div>
-          <div class="risk-info"><div class="risk-name">Pre-position high-velocity SKUs</div><div class="risk-detail">Move inventory to unaffected stores before storm hits</div></div>
-          <div class="risk-value" style="color: var(--accent-emerald)">+$780K</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level low"></div>
-          <div class="risk-info"><div class="risk-name">Switch to Midwest Fixtures (4/5 health)</div><div class="risk-detail">Replace Great Lakes shipments • Higher resilience score</div></div>
-          <div class="risk-value" style="color: var(--accent-emerald)">Risk ↓</div>
-        </div>
-        <div class="risk-item">
-          <div class="risk-level low"></div>
-          <div class="risk-info"><div class="risk-name">Notify store managers</div><div class="risk-detail">Activate contingency protocols at 12 affected locations</div></div>
-          <div class="risk-value" style="color: var(--accent-emerald)">Ops ready</div>
-        </div>
-      </div>
-      <div class="viz-roi-cards">
-        <div class="roi-card"><div class="roi-label">Mitigation Cost</div><div class="roi-value amber">$52K</div></div>
-        <div class="roi-card"><div class="roi-label">Value Protected</div><div class="roi-value green">$3.1M</div></div>
-        <div class="roi-card"><div class="roi-label">ROI</div><div class="roi-value gold">60:1</div></div>
-        <div class="roi-card"><div class="roi-label">Residual Risk</div><div class="roi-value">$340K</div></div>
-      </div>
-      <p><strong>Bottom line:</strong> Spend $52,000 to protect $3.1 million. <span style="color: var(--accent-gold); font-weight: 700;">60-to-1 return</span>.</p>
-    `,
-    sources: ['Carrier APIs', 'Rebirth Analytics', 'Inventory System'],
-    chips: ['execute', 'competitor'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$3.1M', roi: '60:1' }
-  },
-  execute: {
-    content: `
-      <p>✅ Execution plan staged across <strong>12 stores</strong> and <strong>3 DCs</strong>.</p>
-      <p><strong>Status:</strong> inventory moves queued, carrier reroutes reserved, store managers notified.</p>
-      <p>Want to see the post-mitigation residual risk, or the competitor opportunity analysis?</p>
-    `,
-    sources: ['TMS', 'Carrier APIs', 'Store Ops'],
-    chips: ['cascade', 'competitor'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$3.1M', roi: '60:1' }
-  },
-  competitor: {
-    content: `
-      <p>🟢 <strong>Opportunity detected:</strong> ValueMart's Oakbrook closure creates a demand gap within 15 minutes of 3 of your stores.</p>
-      <div class="viz-roi-cards">
-        <div class="roi-card"><div class="roi-label">Households</div><div class="roi-value">47,000</div></div>
-        <div class="roi-card"><div class="roi-label">Estimated Lift</div><div class="roi-value green">+$1.8M</div></div>
-        <div class="roi-card"><div class="roi-label">Time to Act</div><div class="roi-value amber">14 days</div></div>
-        <div class="roi-card"><div class="roi-label">Confidence</div><div class="roi-value cyan">0.81</div></div>
-      </div>
-      <p>Recommended: localized promos + inventory shift to capture displaced demand.</p>
-    `,
-    sources: ['Competitor News', 'Trade Area Model', 'POS Forecast'],
-    chips: ['actions', 'risk'],
-    kpi: { exposure: '$4.2M', stores: '12', protected: '$3.1M', roi: '60:1' }
-  }
-};
+    // tour
+    tourOverlay: $('tourOverlay'),
+    tourCard: $('tourCard'),
+    tourStepIndicator: $('tourStepIndicator'),
+    tourSubtitle: $('tourSubtitle'),
+    tourTitle: $('tourTitle'),
+    tourContent: $('tourContent'),
+    tourButtons: $('tourButtons'),
+    tourSpotlight: $('tourSpotlight'),
 
-// ============================================
-// TOUR STEPS
-// ============================================
+    // modal
+    pocModal: $('pocModal'),
+  };
 
-const TOUR_STEPS = [
-  {
-    id: 'welcome',
-    label: 'Welcome to Rebirth Nexus',
-    title: 'Predictive Intelligence Platform',
-    content: `
-      <p>You're about to experience <strong>Rebirth Nexus</strong> — the conversational intelligence platform that turns scattered signals into decisions you can defend.</p>
-      <p>In this guided demo, you'll see how Nexus detected a winter storm <span class="highlight">48 hours before impact</span>, calculated $4.2M in exposure, and prepared mitigation options with a <span class="highlight">60:1 ROI</span>.</p>
-      <div class="tour-highlight-box">
-        ${DATA_PILLARS.map(p => `
-          <div class="pillar">
-            <span class="pillar-icon">${p.icon}</span>
-            <span class="pillar-name">${p.name}</span>
-          </div>
-        `).join('')}
-      </div>
-    `,
-    buttons: [{ text: 'Begin Tour →', action: 'next', primary: true }],
-    target: null
-  },
-  {
-    id: 'intel-feed',
-    label: 'Step 1 of 8',
-    title: 'The Intel Feed',
-    content: `
-      <p>The <strong>Intel Feed</strong> shows a real-time stream of events affecting your operations.</p>
-      <p>Two alerts are waiting:</p>
-      <p>🔴 <strong>Winter Storm Alert</strong> — A risk cascade threatening 12 stores<br>
-      🟢 <strong>Competitor Closure</strong> — An opportunity to capture market share</p>
-    `,
-    buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-    target: 'intelFeed'
-  },
-  {
-    id: 'weather',
-    label: 'Step 2 of 8',
-    title: 'Third-Party Intelligence',
-    content: `
-      <p>The weather card shows <strong>live NOAA data</strong> integrated into the platform.</p>
-      <p>Notice the timestamps and confidence scores — this is how Nexus makes "48 hours early" <span class="highlight">defensible</span>.</p>
-    `,
-    buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-    target: 'weatherOverlay'
-  },
-  {
-    id: 'analytics-intro',
-    label: 'Step 3 of 8',
-    title: 'Map & Analytics Views',
-    content: `
-      <p>The center panel shows two views:</p>
-      <p><strong>🗺️ Map View</strong> — Geospatial intelligence showing store locations and risk zones.</p>
-      <p><strong>📊 Analytics View</strong> — Tabular exposure and operational detail.</p>
-      <div class="tour-instruction">Click the highlighted <strong>Analytics</strong> tab</div>
-    `,
-    target: 'analyticsBtn',
-    waitFor: { type: 'tab', value: 'analytics' }
-  },
-  {
-    id: 'analytics-view',
-    label: 'Step 4 of 8',
-    title: 'Operational Exposure',
-    content: `
-      <p>The Analytics view summarizes operational exposure and the highest-risk nodes.</p>
-      <div class="tour-instruction">Click the highlighted <strong>Map</strong> tab to return</div>
-    `,
-    target: 'mapBtn',
-    waitFor: { type: 'tab', value: 'map' }
-  },
-  {
-    id: 'chat',
-    label: 'Step 5 of 8',
-    title: 'Conversational Intelligence',
-    content: `
-      <p>The right panel is where you interact with Nexus using <strong>plain English</strong>.</p>
-      <p>No training required. No complex queries. Just ask questions like you would ask a colleague.</p>
-    `,
-    buttons: [{ text: 'Continue →', action: 'next', primary: true }],
-    target: 'chatPanel'
-  },
-  {
-    id: 'risk',
-    label: 'Step 6 of 8',
-    title: 'Exploring the Risk',
-    content: `
-      <p>Let's dig into what's actually at risk.</p>
-      <div class="tour-instruction">Click the highlighted chip: <strong>"What's our biggest risk?"</strong></div>
-    `,
-    target: 'chip-risk',
-    waitFor: { type: 'chip', value: 'risk' }
-  },
-  {
-    id: 'actions',
-    label: 'Step 7 of 8',
-    title: 'The Mitigation Plan',
-    content: `
-      <p>Nexus doesn't just show problems — it shows <strong>exactly what to do</strong>.</p>
-      <div class="tour-instruction">Click the highlighted chip: <strong>"What actions should we take?"</strong></div>
-    `,
-    target: 'chip-actions',
-    waitFor: { type: 'chip', value: 'actions' }
-  },
-  {
-    id: 'complete',
-    label: 'Tour Complete',
-    title: 'What You Just Saw',
-    content: `
-      <p>Nexus detected a disruption <strong>48 hours before impact</strong>. It quantified <strong>$4.2M in exposure</strong>. It identified a mitigation plan with a <strong>60:1 ROI</strong>.</p>
-      <div class="tour-highlight-box">
-        <div class="pillar"><span class="pillar-icon">💬</span><span class="pillar-name">The One-Liner</span></div>
-        <p style="margin-top: 10px; font-style: italic; color: var(--accent-gold);">"Nexus turns scattered signals into a decision you can defend — before the crisis hits."</p>
-      </div>
-    `,
-    buttons: [
-      { text: 'Explore Freely', action: 'end', primary: false },
-      { text: 'Request a Pilot →', action: 'contact', primary: true }
-    ],
-    target: null
-  }
-];
-
-// ============================================
-// UTIL
-// ============================================
-
-function $(id) {
-  return document.getElementById(id);
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function scrollChatToBottom() {
-  const messages = $('chatMessages');
-  if (!messages) return;
-  messages.scrollTop = messages.scrollHeight;
-}
-
-// ============================================
-// PILLARS STRIP
-// ============================================
-
-function initPillarsStrip() {
-  const strip = $('pillarsStrip');
-  if (!strip) return;
-  strip.innerHTML = DATA_PILLARS.map(p => (
-    `<div class="pillar-indicator active"><span class="icon">${p.icon}</span><span>${p.name}</span></div>`
-  )).join('');
-}
-
-// ============================================
-// INTEL FEED
-// ============================================
-
-function initIntelFeed() {
-  const container = $('feedItems');
-  if (!container) return;
-
-  container.innerHTML = INTEL_ITEMS.map(item => `
-    <div class="feed-item ${item.severityClass}" role="button" tabindex="0" data-intel-type="${item.type}" aria-label="Open intel: ${escapeHtml(item.title)}">
-      <span class="feed-item-badge ${item.type}">${item.type}</span>
-      <div class="feed-item-time">${item.time}</div>
-      <div class="feed-item-title">${item.title}</div>
-      <div class="feed-item-detail">${item.detail}</div>
-      <div class="feed-item-exposure">
-        <span class="label">${item.exposureLabel}</span>
-        <span class="value ${item.exposureClass}">${item.exposure}</span>
-      </div>
-    </div>
-  `).join('');
-
-  // Clicking an intel card should drive the conversation (and feels "real" in demos).
-  // Map to existing handlers so there are no dead ends.
-  function openIntel(type) {
-    // risk -> biggest risk analysis, opportunity -> competitor opportunity
-    const key = type === 'opportunity' ? 'competitor' : 'risk';
-    handleChipClick(key);
+  // -----------------------------
+  // Guard: if critical DOM missing, fail gracefully
+  // -----------------------------
+  const required = [
+    'feedItems','mapBtn','analyticsBtn','mapContainer','analyticsView','chatMessages','chipsGrid',
+    'tourOverlay','tourCard','tourTitle','tourContent','tourButtons','tourSpotlight'
+  ];
+  for (const key of required) {
+    if (!dom[key]) {
+      console.warn(`[demo] Missing DOM node: ${key}`);
+    }
   }
 
-  container.querySelectorAll('.feed-item').forEach(el => {
-    const type = el.getAttribute('data-intel-type') || 'risk';
-    el.addEventListener('click', () => openIntel(type));
-    el.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        openIntel(type);
-      }
-    });
-  });
-}
+  // -----------------------------
+  // Data
+  // -----------------------------
+  const BASELINE_IMPACT = 800_000;   // what a standard dashboard would show
+  const CONNECTED_EXPOSURE = 4_200_000; // what Nexus finds via network connections
+  const STORES_AT_RISK = 12;
 
-// ============================================
-// MAP (ArcGIS)
-// ============================================
+  const INTEL_ITEMS = [
+    {
+      id: 'storm',
+      type: 'risk',
+      time: '2 minutes ago',
+      title: 'Winter Storm Alert — Chicago Metro',
+      detail: 'Severe winter storm tracking toward Chicago. 12 stores and 3 DC touchpoints in projected impact zone.',
+      exposure: formatUSD(CONNECTED_EXPOSURE),
+      exposureClass: 'red'
+    },
+    {
+      id: 'competitor',
+      type: 'opportunity',
+      time: '4 hours ago',
+      title: 'Competitor Closure — Oakbrook',
+      detail: 'A major competitor is closing a nearby location. 47,000 households fall into your 15‑minute drive-time.',
+      exposure: formatUSD(1_800_000),
+      exposureClass: 'green'
+    }
+  ];
 
-function initMap() {
-  if (typeof require !== 'function') {
-    // ArcGIS script not loaded yet
-    return;
+  const PILLARS = [
+    { icon: '🧾', name: 'Operations', desc: 'Inventory, orders, capacity' },
+    { icon: '🗺️', name: 'Geospatial', desc: 'Locations, routes, exposure' },
+    { icon: '🌐', name: 'External Intel', desc: 'Weather, alerts, public signals' },
+    { icon: '🧠', name: 'Connected Risk', desc: 'Network effects & cascades' },
+    { icon: '✅', name: 'Decision Briefs', desc: 'Auditable recommendations' },
+  ];
+
+  // -----------------------------
+  // State
+  // -----------------------------
+  let activeView = 'map';
+  let tourActive = true;
+  let tourStep = 0;
+
+  // used by tour highlighting (no gating)
+  let lastHighlightedChipKey = null;
+
+  // -----------------------------
+  // Rendering helpers
+  // -----------------------------
+  function renderPillars() {
+    if (!dom.pillarsStrip) return;
+    dom.pillarsStrip.innerHTML = PILLARS.map(p => (
+      `<div class="pillar">
+        <div class="pillar-icon" aria-hidden="true">${p.icon}</div>
+        <div class="pillar-text">
+          <div class="pillar-name">${p.name}</div>
+          <div class="pillar-desc">${p.desc}</div>
+        </div>
+      </div>`
+    )).join('');
   }
 
-  require(
-    ['esri/Map', 'esri/views/MapView', 'esri/Graphic', 'esri/layers/GraphicsLayer'],
-    (Map, MapView, Graphic, GraphicsLayer) => {
-      const map = new Map({ basemap: 'dark-gray-vector' });
+  function renderIntelFeed() {
+    if (!dom.feedItems) return;
+    dom.feedItems.innerHTML = INTEL_ITEMS.map(item => {
+      // CSS expects .feed-item.critical/.warning/.opportunity and badge classes risk/opportunity
+      const severityClass = item.type === 'risk' ? 'critical' : 'opportunity';
+      return `
+        <div class="feed-item ${severityClass}" data-intel-id="${item.id}" role="button" tabindex="0" aria-label="${item.title}">
+          <div class="feed-item-header">
+            <div class="feed-item-badge ${item.type}">${item.type === 'risk' ? 'RISK' : 'OPPORTUNITY'}</div>
+            <div class="feed-item-time">${item.time}</div>
+          </div>
+          <div class="feed-item-title">${item.title}</div>
+          <div class="feed-item-detail">${item.detail}</div>
+          <div class="feed-item-impact">
+            <div class="feed-impact-label">Estimated impact</div>
+            <div class="feed-impact-value ${item.exposureClass}">${item.exposure}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
 
-      mapView = new MapView({
-        container: 'mapView',
-        map,
-        center: [-87.8, 41.5],
-        zoom: 6,
-        ui: { components: [] }
+    // click + keyboard
+    dom.feedItems.querySelectorAll('[data-intel-id]')?.forEach(el => {
+      const fire = () => {
+        const id = el.getAttribute('data-intel-id');
+        if (id === 'storm') {
+          runHandler('what_is_happening');
+        } else {
+          runHandler('competitor_opportunity');
+        }
+      };
+      el.addEventListener('click', fire);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          fire();
+        }
       });
-
-      const graphics = new GraphicsLayer();
-      map.add(graphics);
-
-      // Storm zone polygon
-      graphics.add(
-        new Graphic({
-          geometry: {
-            type: 'polygon',
-            rings: [
-              [
-                [-89.5, 43],
-                [-86, 43],
-                [-85.5, 41],
-                [-86.5, 39.5],
-                [-89, 39.5],
-                [-90, 41.5],
-                [-89.5, 43]
-              ]
-            ]
-          },
-          symbol: {
-            type: 'simple-fill',
-            color: [239, 68, 68, 0.2],
-            outline: { color: [239, 68, 68, 0.8], width: 2 }
-          }
-        })
-      );
-
-      // Store markers
-      const stores = [
-        { lat: 41.8781, lon: -87.6298, status: 'critical' },
-        { lat: 41.9742, lon: -87.9073, status: 'critical' },
-        { lat: 41.8819, lon: -87.7232, status: 'critical' },
-        { lat: 42.0451, lon: -87.6877, status: 'warning' },
-        { lat: 41.525, lon: -88.0817, status: 'warning' },
-        { lat: 39.7684, lon: -86.1581, status: 'ok' }
-      ];
-
-      stores.forEach(s => {
-        const color =
-          s.status === 'critical'
-            ? [239, 68, 68]
-            : s.status === 'warning'
-              ? [245, 158, 11]
-              : [16, 185, 129];
-
-        graphics.add(
-          new Graphic({
-            geometry: { type: 'point', longitude: s.lon, latitude: s.lat },
-            symbol: {
-              type: 'simple-marker',
-              size: 14,
-              color,
-              outline: { color: [255, 255, 255], width: 2 }
-            }
-          })
-        );
-      });
-
-      // DC markers
-      graphics.add(
-        new Graphic({
-          geometry: { type: 'point', longitude: -87.9298, latitude: 41.8781 },
-          symbol: {
-            type: 'simple-marker',
-            size: 20,
-            color: [239, 68, 68],
-            style: 'square',
-            outline: { color: [255, 255, 255], width: 3 }
-          }
-        })
-      );
-      graphics.add(
-        new Graphic({
-          geometry: { type: 'point', longitude: -86.1581, latitude: 39.7684 },
-          symbol: {
-            type: 'simple-marker',
-            size: 20,
-            color: [34, 211, 238],
-            style: 'square',
-            outline: { color: [255, 255, 255], width: 3 }
-          }
-        })
-      );
-    }
-  );
-}
-
-// ============================================
-// ANALYTICS VIEW
-// ============================================
-
-function renderAnalyticsView() {
-  const el = $('analyticsView');
-  if (!el) return;
-
-  el.innerHTML = `
-    <div class="analytics-grid">
-      <div class="analytics-card highlight-pulse">
-        <div class="analytics-label">Total Exposure</div>
-        <div class="analytics-value red">$4.2M</div>
-        <div class="analytics-trend">12 stores • 3 DCs • 48 hours lead time</div>
-      </div>
-      <div class="analytics-card">
-        <div class="analytics-label">Value Protected</div>
-        <div class="analytics-value green">$3.1M</div>
-        <div class="analytics-trend">After mitigation plan execution</div>
-      </div>
-      <div class="analytics-card">
-        <div class="analytics-label">Mitigation Cost</div>
-        <div class="analytics-value amber">$52K</div>
-        <div class="analytics-trend">Carrier + inventory moves</div>
-      </div>
-      <div class="analytics-card">
-        <div class="analytics-label">ROI</div>
-        <div class="analytics-value gold">60:1</div>
-        <div class="analytics-trend">Defensible decision economics</div>
-      </div>
-
-      <div class="analytics-card full">
-        <div class="analytics-section-title">🚨 Critical Stores</div>
-        <div class="table-scroll-wrapper">
-          <table class="shipment-table" aria-label="Critical stores table">
-            <thead>
-              <tr>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Exposure</th>
-                <th>Lead Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr class="highlight-row">
-                <td>Chicago — West Loop</td>
-                <td><span class="status-badge critical">Critical</span></td>
-                <td>$520K</td>
-                <td>36 hrs</td>
-              </tr>
-              <tr>
-                <td>Chicago — O'Hare</td>
-                <td><span class="status-badge critical">Critical</span></td>
-                <td>$410K</td>
-                <td>36 hrs</td>
-              </tr>
-              <tr>
-                <td>Evanston</td>
-                <td><span class="status-badge warning">Warning</span></td>
-                <td>$220K</td>
-                <td>44 hrs</td>
-              </tr>
-              <tr>
-                <td>Joliet</td>
-                <td><span class="status-badge warning">Warning</span></td>
-                <td>$190K</td>
-                <td>44 hrs</td>
-              </tr>
-              <tr>
-                <td>Indianapolis</td>
-                <td><span class="status-badge ok">OK</span></td>
-                <td>$0</td>
-                <td>—</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ============================================
-// TABS
-// ============================================
-
-function setTabActive(view) {
-  const mapBtn = $('mapBtn');
-  const analyticsBtn = $('analyticsBtn');
-  const mapContainer = $('mapContainer');
-  const analyticsView = $('analyticsView');
-
-  if (!mapBtn || !analyticsBtn || !mapContainer || !analyticsView) return;
-
-  if (view === 'analytics') {
-    mapBtn.classList.remove('active');
-    analyticsBtn.classList.add('active');
-    mapBtn.setAttribute('aria-selected', 'false');
-    analyticsBtn.setAttribute('aria-selected', 'true');
-    mapContainer.classList.add('hidden');
-    analyticsView.classList.add('active');
-  } else {
-    mapBtn.classList.add('active');
-    analyticsBtn.classList.remove('active');
-    mapBtn.setAttribute('aria-selected', 'true');
-    analyticsBtn.setAttribute('aria-selected', 'false');
-    mapContainer.classList.remove('hidden');
-    analyticsView.classList.remove('active');
-  }
-}
-
-function initTabs() {
-  const mapBtn = $('mapBtn');
-  const analyticsBtn = $('analyticsBtn');
-  if (!mapBtn || !analyticsBtn) return;
-
-  mapBtn.addEventListener('click', () => {
-    if (tourActive && !isInteractionAllowed('tab', 'map')) return;
-    clearTabHighlights();
-    setTabActive('map');
-    checkTourAdvance('tab', 'map');
-  });
-
-  analyticsBtn.addEventListener('click', () => {
-    if (tourActive && !isInteractionAllowed('tab', 'analytics')) return;
-    clearTabHighlights();
-    renderAnalyticsView();
-    setTabActive('analytics');
-    checkTourAdvance('tab', 'analytics');
-  });
-}
-
-function clearTabHighlights() {
-  $('mapBtn')?.classList.remove('highlight');
-  $('analyticsBtn')?.classList.remove('highlight');
-}
-
-// ============================================
-// TOUR
-// ============================================
-
-function clearSpotlight() {
-  const spot = $('tourSpotlight');
-  if (!spot) return;
-  spot.style.display = 'none';
-}
-
-function positionSpotlight(targetEl) {
-  const spot = $('tourSpotlight');
-  if (!spot || !targetEl) return;
-
-  const rect = targetEl.getBoundingClientRect();
-  // If target is not visible (e.g., hidden due to responsive layout), don't show spotlight.
-  if (!rect.width || !rect.height) {
-    spot.style.display = 'none';
-    return;
-  }
-  const padding = 10;
-
-  spot.style.display = 'block';
-  spot.style.top = `${Math.max(0, rect.top - padding)}px`;
-  spot.style.left = `${Math.max(0, rect.left - padding)}px`;
-  spot.style.width = `${rect.width + padding * 2}px`;
-  spot.style.height = `${rect.height + padding * 2}px`;
-}
-
-function highlightTarget(step) {
-  clearSpotlight();
-  clearTabHighlights();
-  document.querySelectorAll('.chip.highlight').forEach(el => el.classList.remove('highlight'));
-
-  if (!step?.target) return;
-
-  // Chip highlight (chips are rendered dynamically)
-  if (step.target.startsWith('chip-')) {
-    const chipEl = $(step.target);
-    if (chipEl) {
-      chipEl.classList.add('highlight');
-      positionSpotlight(chipEl);
-    }
-    return;
-  }
-
-  const targetEl = $(step.target);
-  if (targetEl) {
-    // If the target is a view button, add button pulse highlight
-    if (targetEl.classList.contains('view-btn')) {
-      targetEl.classList.add('highlight');
-    }
-    positionSpotlight(targetEl);
-  }
-}
-
-function showStep(index) {
-  currentStep = index;
-  const step = TOUR_STEPS[index];
-  if (!step) {
-    endTour();
-    return;
-  }
-
-  const overlay = $('tourOverlay');
-  const indicator = $('tourStepIndicator');
-  const subtitle = $('tourSubtitle');
-  const title = $('tourTitle');
-  const content = $('tourContent');
-  const buttons = $('tourButtons');
-
-  if (!overlay || !indicator || !subtitle || !title || !content || !buttons) return;
-
-  overlay.classList.add('active');
-
-  // progress dots
-  indicator.innerHTML = TOUR_STEPS.map((_, i) => {
-    const cls = i < index ? 'tour-step-dot completed' : i === index ? 'tour-step-dot active' : 'tour-step-dot';
-    return `<div class="${cls}"></div>`;
-  }).join('');
-
-  subtitle.textContent = step.label;
-  title.textContent = step.title;
-  content.innerHTML = step.content;
-
-  if (step.buttons && step.buttons.length) {
-    buttons.innerHTML = step.buttons
-      .map(
-        b =>
-          `<button class="tour-btn ${b.primary ? 'primary' : 'secondary'}" data-action="${b.action}">${b.text}</button>`
-      )
-      .join('');
-
-    buttons.querySelectorAll('.tour-btn').forEach(btn => {
-      btn.addEventListener('click', () => handleTourAction(btn.dataset.action));
     });
-  } else {
-    buttons.innerHTML = '';
   }
 
-  // If it's a step that waits for an interaction, activate tour lock
-  if (index > 0) tourActive = true;
-
-  // Highlight
-  requestAnimationFrame(() => highlightTarget(step));
-}
-
-function handleTourAction(action) {
-  if (action === 'next') {
-    tourActive = true;
-    showStep(currentStep + 1);
-  } else if (action === 'end') {
-    endTour();
-  } else if (action === 'contact') {
-    endTour();
-    openPocModal();
-  }
-}
-
-function advanceTour() {
-  setTimeout(() => showStep(currentStep + 1), 250);
-}
-
-function endTour() {
-  tourActive = false;
-  $('tourOverlay')?.classList.remove('active');
-  clearSpotlight();
-  clearTabHighlights();
-  document.querySelectorAll('.chip.highlight').forEach(el => el.classList.remove('highlight'));
-
-  // Enable free chat
-  const input = $('chatInput');
-  const send = $('sendBtn');
-  if (input && send) {
-    input.disabled = false;
-    input.setAttribute('aria-disabled', 'false');
-    send.disabled = false;
-    send.setAttribute('aria-disabled', 'false');
-    initFreeChatInput();
+  function setKPIs({ exposure, stores, protectedValue, roi }) {
+    if (dom.kpiExposure && exposure != null) dom.kpiExposure.textContent = exposure;
+    if (dom.kpiStores && stores != null) dom.kpiStores.textContent = String(stores);
+    if (dom.kpiProtected && protectedValue != null) dom.kpiProtected.textContent = protectedValue;
+    if (dom.kpiRoi && roi != null) dom.kpiRoi.textContent = roi;
   }
 
-  appendAssistantMessage(
-    `<p>You're now in <strong>free exploration mode</strong>. Try clicking any of the chips below, or type your own questions (e.g., <strong>risk</strong>, <strong>cascade</strong>, <strong>actions</strong>).</p>`,
-    ['Demo Environment']
-  );
-}
+  function addMessage(role, html, meta = null) {
+    if (!dom.chatMessages) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = `message ${role === 'user' ? 'user' : 'assistant'}`;
 
-function checkTourAdvance(type, value) {
-  if (!tourActive) return false;
-  const step = TOUR_STEPS[currentStep];
-  if (!step?.waitFor) return false;
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.innerHTML = html;
+    wrapper.appendChild(content);
 
-  if (step.waitFor.type === type && step.waitFor.value === value) {
-    advanceTour();
-    return true;
-  }
-  return false;
-}
-
-function isInteractionAllowed(type, value) {
-  if (!tourActive) return true;
-  const step = TOUR_STEPS[currentStep];
-  if (!step?.waitFor) return true;
-  return step.waitFor.type === type && step.waitFor.value === value;
-}
-
-// ============================================
-// POC MODAL
-// ============================================
-
-function openPocModal() {
-  const modal = $('pocModal');
-  if (!modal) return;
-  modal.classList.add('active');
-}
-
-function initPocModal() {
-  const modal = $('pocModal');
-  if (!modal) return;
-
-  const close = modal.querySelector('.poc-close');
-  close?.addEventListener('click', () => modal.classList.remove('active'));
-
-  // Close on backdrop click
-  modal.addEventListener('click', e => {
-    if (e.target === modal) modal.classList.remove('active');
-  });
-
-  // Keyboard
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') modal.classList.remove('active');
-  });
-}
-
-// ============================================
-// CHAT
-// ============================================
-
-function updateKpis(kpi) {
-  if (!kpi) return;
-  const exposure = $('kpi-exposure');
-  const stores = $('kpi-stores');
-  const protectedEl = $('kpi-protected');
-  const roi = $('kpi-roi');
-
-  if (exposure && kpi.exposure) exposure.textContent = kpi.exposure;
-  if (stores && kpi.stores) stores.textContent = kpi.stores;
-  if (protectedEl && kpi.protected) protectedEl.textContent = kpi.protected;
-  if (roi && kpi.roi) roi.textContent = kpi.roi;
-}
-
-function renderChips(chipKeys) {
-  const container = $('chipsGrid');
-  if (!container) return;
-
-  container.innerHTML = chipKeys
-    .map(key => `<button class="chip" data-chip="${key}" id="chip-${key}">${CHIP_LABELS[key] || key}</button>`)
-    .join('');
-
-  container.querySelectorAll('.chip').forEach(btn => {
-    btn.addEventListener('click', () => handleChipClick(btn.dataset.chip));
-  });
-
-  // If the tour is waiting on a chip, re-apply highlight now that chips exist
-  if (tourActive) {
-    const step = TOUR_STEPS[currentStep];
-    if (step?.target?.startsWith('chip-')) {
-      setTimeout(() => highlightTarget(step), 50);
-    }
-  }
-}
-
-function appendUserMessage(text) {
-  const messages = $('chatMessages');
-  if (!messages) return;
-
-  const div = document.createElement('div');
-  div.className = 'message user';
-  div.innerHTML = `<div class="message-content">${escapeHtml(text)}</div>`;
-  messages.appendChild(div);
-  scrollChatToBottom();
-}
-
-function appendAssistantMessage(html, sources = [], meta = { time: '0.8s', confidence: '94%' }) {
-  const messages = $('chatMessages');
-  if (!messages) return;
-
-  const div = document.createElement('div');
-  div.className = 'message assistant';
-  div.innerHTML = `
-    <div class="message-content">
-      ${html}
-      <div class="response-meta">
-        <span class="response-time">Response: ${meta.time}</span>
-        <span class="response-confidence"><span class="confidence-dot"></span>Confidence: ${meta.confidence}</span>
-      </div>
-      <div class="provenance">
+    if (meta?.sources?.length) {
+      const prov = document.createElement('div');
+      prov.className = 'provenance';
+      prov.innerHTML = `
         <div class="provenance-label">Data Sources</div>
-        <div class="provenance-sources">${sources.map(s => `<span class="provenance-tag">${escapeHtml(s)}</span>`).join('')}</div>
+        <div class="provenance-sources">
+          ${meta.sources.map(s => `<span class="provenance-tag">${s}</span>`).join('')}
+        </div>
+      `;
+      content.appendChild(prov);
+    }
+
+    if (meta?.trustLine) {
+      const trust = document.createElement('div');
+      trust.className = 'response-meta';
+      trust.innerHTML = `
+        <span class="response-time">${meta.time ?? 'Now'}</span>
+        <span class="response-confidence">
+          <span class="confidence-dot" aria-hidden="true"></span>
+          ${meta.trustLine}
+        </span>
+      `;
+      content.appendChild(trust);
+    }
+
+    dom.chatMessages.appendChild(wrapper);
+    dom.chatMessages.scrollTop = dom.chatMessages.scrollHeight;
+  }
+
+  function renderChips(chips) {
+    if (!dom.chipsGrid) return;
+    dom.chipsGrid.innerHTML = '';
+
+    chips.forEach(chip => {
+      const btn = document.createElement('button');
+      btn.className = 'chip';
+      btn.type = 'button';
+      btn.textContent = chip.label;
+      btn.setAttribute('data-chip-key', chip.key);
+      btn.id = `chip-${chip.key}`; // for tour spotlight
+      btn.addEventListener('click', () => {
+        addMessage('user', `<p>${chip.userText ?? chip.label}</p>`);
+        runHandler(chip.key);
+      });
+      dom.chipsGrid.appendChild(btn);
+    });
+
+    // highlight chip if tour step asks for it (non-blocking)
+    if (lastHighlightedChipKey) {
+      const el = $(`chip-${lastHighlightedChipKey}`);
+      if (el) el.classList.add('highlight');
+    }
+  }
+
+  function clearChipHighlight() {
+    dom.chipsGrid?.querySelectorAll('.chip.highlight')?.forEach(el => el.classList.remove('highlight'));
+    lastHighlightedChipKey = null;
+  }
+
+  function setView(view) {
+    activeView = view;
+    if (dom.mapBtn && dom.analyticsBtn && dom.mapContainer && dom.analyticsView) {
+      const isMap = view === 'map';
+      dom.mapBtn.classList.toggle('active', isMap);
+      dom.analyticsBtn.classList.toggle('active', !isMap);
+      dom.mapBtn.setAttribute('aria-selected', String(isMap));
+      dom.analyticsBtn.setAttribute('aria-selected', String(!isMap));
+      dom.mapContainer.style.display = isMap ? 'block' : 'none';
+      dom.analyticsView.style.display = isMap ? 'none' : 'block';
+    }
+  }
+
+  // -----------------------------
+  // Analytics view
+  // -----------------------------
+  function renderAnalytics() {
+    if (!dom.analyticsView) return;
+
+    dom.analyticsView.innerHTML = `
+      <div class="analytics-cards">
+        <div class="analytics-card">
+          <div class="analytics-card-label">Standard Dashboard Exposure</div>
+          <div class="analytics-card-value">${formatUSD(BASELINE_IMPACT)}</div>
+          <div class="analytics-card-sub">Weather overlay + historical averages</div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-label">Connected Exposure (Nexus)</div>
+          <div class="analytics-card-value" style="color: var(--accent-red)">${formatUSD(CONNECTED_EXPOSURE)}</div>
+          <div class="analytics-card-sub">Weather → Carrier → Supplier → Stores</div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-label">Cascade Depth</div>
+          <div class="analytics-card-value">4 levels</div>
+          <div class="analytics-card-sub">Network effects quantified</div>
+        </div>
+        <div class="analytics-card">
+          <div class="analytics-card-label">Best Intervention ROI</div>
+          <div class="analytics-card-value" style="color: var(--accent-gold)">60:1</div>
+          <div class="analytics-card-sub">Verified capacity + costs</div>
+        </div>
       </div>
-    </div>
-  `;
-  messages.appendChild(div);
-  scrollChatToBottom();
-}
 
-function showTyping() {
-  const messages = $('chatMessages');
-  if (!messages) return;
-
-  const div = document.createElement('div');
-  div.className = 'message assistant';
-  div.id = 'typing';
-  div.innerHTML = `
-    <div class="message-content">
-      <div class="typing-indicator" aria-label="Nexus is typing">
-        <span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>
+      <div class="analytics-table-wrap">
+        <div class="analytics-table-title">Critical Nodes & Cascades</div>
+        <table class="analytics-table">
+          <thead>
+            <tr>
+              <th>Node</th>
+              <th>Risk</th>
+              <th>Cascades To</th>
+              <th>Exposure</th>
+              <th>Best Backup</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Chicago DC</td>
+              <td><span class="pill pill-red">Critical</span></td>
+              <td>12 Stores</td>
+              <td>${formatUSD(1_800_000)}</td>
+              <td>Indianapolis DC (Available)</td>
+            </tr>
+            <tr>
+              <td>Regional Carrier A</td>
+              <td><span class="pill pill-amber">High</span></td>
+              <td>Chicago DC → Stores</td>
+              <td>${formatUSD(890_000)}</td>
+              <td>Carrier B (Health 4/5)</td>
+            </tr>
+            <tr>
+              <td>Supplier: Packaging</td>
+              <td><span class="pill pill-amber">High</span></td>
+              <td>DC → 8 Stores</td>
+              <td>${formatUSD(650_000)}</td>
+              <td>Supplier Alternate (In stock)</td>
+            </tr>
+            <tr>
+              <td>Store-level Stockouts</td>
+              <td><span class="pill pill-gold">Medium</span></td>
+              <td>Revenue loss</td>
+              <td>${formatUSD(420_000)}</td>
+              <td>Pre-position SKUs</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-  `;
-  messages.appendChild(div);
-  scrollChatToBottom();
-}
+    `;
+  }
 
-function clearTyping() {
-  $('typing')?.remove();
-}
+  // -----------------------------
+  // Chat handlers (chips)
+  // -----------------------------
+  const CHIPSETS = {
+    start: [
+      { key: 'what_is_happening', label: "What's happening?", userText: "What's happening?" },
+      { key: 'whats_really_at_risk', label: "What's really at risk?", userText: "What's really at risk?" },
+      { key: 'what_am_i_missing', label: "What am I missing?", userText: "What am I missing?" },
+      { key: 'actions', label: 'What actions should we take?', userText: 'What actions should we take?' },
+    ],
+    after_aha: [
+      { key: 'what_am_i_missing', label: 'What am I missing?', userText: 'What am I missing?' },
+      { key: 'actions', label: 'Show mitigation options', userText: 'Show mitigation options' },
+      { key: 'defend_decision', label: 'Can I defend this decision?', userText: 'Can I defend this decision?' },
+      { key: 'top_interventions', label: 'Top 3 interventions', userText: 'Show the top 3 interventions' },
+      { key: 'reset', label: 'Reset scenario', userText: 'Reset scenario' },
+    ],
+    after_actions: [
+      { key: 'defend_decision', label: 'Board-ready brief', userText: 'Give me a board-ready brief' },
+      { key: 'top_interventions', label: 'Top 3 interventions', userText: 'Show the top 3 interventions' },
+      { key: 'request_pilot', label: 'Request a pilot', userText: 'Request a pilot' },
+      { key: 'reset', label: 'Reset scenario', userText: 'Reset scenario' },
+    ]
+  };
 
-function initChat() {
-  const r = RESPONSES.initial;
-  $('chatMessages').innerHTML = '';
-  appendAssistantMessage(r.content, r.sources, { time: '0.8s', confidence: '94%' });
-  renderChips(r.chips);
-  updateKpis(r.kpi);
-}
+  const HANDLERS = {
+    async what_is_happening() {
+      setKPIs({ exposure: formatUSD(CONNECTED_EXPOSURE), stores: STORES_AT_RISK, protectedValue: formatUSD(0), roi: '—' });
+      addMessage('assistant', `
+        <p>Good morning. I’ve detected <strong>two situations</strong> that need attention.</p>
+        <p>🔴 <strong>Winter Storm:</strong> NOAA is projecting severe conditions in the Chicago metro within <strong>48 hours</strong>. Your network has <strong>${STORES_AT_RISK} stores</strong> and <strong>3 DC touchpoints</strong> in the impact corridor.</p>
+        <p>🟢 <strong>Competitor event:</strong> A nearby competitor closure creates a short‑term demand capture opportunity.</p>
+        <div class="viz-roi-cards">
+          <div class="roi-card"><div class="roi-label">Standard view</div><div class="roi-value amber">${formatUSD(BASELINE_IMPACT)}</div></div>
+          <div class="roi-card"><div class="roi-label">Connected exposure</div><div class="roi-value red">${formatUSD(CONNECTED_EXPOSURE)}</div></div>
+          <div class="roi-card"><div class="roi-label">Warning time</div><div class="roi-value gold">48h</div></div>
+          <div class="roi-card"><div class="roi-label">Stores at risk</div><div class="roi-value amber">${STORES_AT_RISK}</div></div>
+        </div>
+        <p>I’ve already mapped the likely cascade and prepared mitigation options. Where should we start?</p>
+      `, {
+        sources: ['NOAA Weather', 'Store Operations', 'Carrier Performance', 'Financial Health Scoring'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.',
+        time: 'Now'
+      });
 
-function handleChipClick(chipKey) {
-  if (tourActive && !isInteractionAllowed('chip', chipKey)) return;
+      renderChips(CHIPSETS.start);
+    },
 
-  const label = CHIP_LABELS[chipKey] || chipKey;
-  appendUserMessage(label);
+    async whats_really_at_risk() {
+      // The “Aha” moment: 5x higher due to connected risks
+      addMessage('assistant', `
+        <p>Here’s the difference between a <strong>standard dashboard</strong> and <strong>connected intelligence</strong>.</p>
+        <div class="viz-risk-matrix">
+          <div class="risk-row">
+            <div class="risk-label">Standard (weather-only)</div>
+            <div class="risk-bar"><div class="risk-fill amber" style="width: ${clamp((BASELINE_IMPACT/CONNECTED_EXPOSURE)*100, 10, 60)}%"></div></div>
+            <div class="risk-value amber">${formatUSD(BASELINE_IMPACT)}</div>
+          </div>
+          <div class="risk-row">
+            <div class="risk-label">Connected (Nexus)</div>
+            <div class="risk-bar"><div class="risk-fill red" style="width: 100%"></div></div>
+            <div class="risk-value red">${formatUSD(CONNECTED_EXPOSURE)}</div>
+          </div>
+        </div>
+        <p><strong>The storm alone</strong> is roughly ${formatUSD(BASELINE_IMPACT)}. But I’ve identified why the real number is <strong>~5× higher</strong>:</p>
+        <ul>
+          <li><strong>Carrier fragility</strong> in the primary lane servicing Chicago DC</li>
+          <li><strong>Supplier exposure</strong> on time‑sensitive SKUs (packaging + fixtures)</li>
+          <li><strong>Store‑level stockout cascade</strong> across 8 high‑velocity locations</li>
+        </ul>
+        <p>If we act at <strong>T‑48h</strong>, we protect most of the downside and avoid war‑room escalation.</p>
+      `, {
+        sources: ['NOAA Weather', 'Carrier Performance', 'Inventory System', 'Trade Credit Intelligence'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
 
-  showTyping();
+      // Encourage viewing analytics
+      renderAnalytics();
+      setView('analytics');
+      if (dom.analyticsBtn) dom.analyticsBtn.focus?.();
 
-  setTimeout(() => {
-    clearTyping();
-    const r = RESPONSES[chipKey];
-    if (!r) {
-      appendAssistantMessage(
-        `<p>This is a guided demo environment. Try: <strong>risk</strong>, <strong>cascade</strong>, or <strong>actions</strong>.</p>`,
-        ['Demo Environment'],
-        { time: '0.4s', confidence: '—' }
-      );
+      renderChips(CHIPSETS.after_aha);
+    },
+
+    async what_am_i_missing() {
+      addMessage('assistant', `
+        <p>You’re missing the <strong>early‑warning signals</strong> that don’t live in any single system.</p>
+        <p>For the primary carrier lane into Chicago DC, I’ve flagged:</p>
+        <ul>
+          <li><strong>Delayed payments</strong> trend (trade credit behavior shift)</li>
+          <li><strong>Insurance coverage reduction</strong> (risk posture change)</li>
+          <li><strong>Key dispatcher resignation</strong> (operational continuity risk)</li>
+        </ul>
+        <p>None of these alone causes a failure. Together, they explain why disruption probability spikes during the storm window.</p>
+      `, {
+        sources: ['Trade Credit Intelligence', 'Public Filings', 'Employment Signals', 'Carrier Performance'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips(CHIPSETS.after_aha);
+    },
+
+    async actions() {
+      // Mitigation plan + ROI
+      const mitigationCost = 52_000;
+      const valueProtected = 3_100_000;
+      const roi = Math.round(valueProtected / mitigationCost);
+      setKPIs({ protectedValue: formatUSD(valueProtected), roi: `${roi}:1` });
+
+      addMessage('assistant', `
+        <p>Here are <strong>prioritized actions</strong> with verified availability.</p>
+        <div class="viz-timeline">
+          <div class="timeline-item">
+            <div class="timeline-marker red"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">T‑48h (Now)</div>
+              <div class="timeline-title">Act before congestion starts</div>
+              <div class="timeline-desc">Standard response: “monitor.” Nexus response: re-route + pre-position while capacity is still available.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker amber"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">T‑36h</div>
+              <div class="timeline-title">Reroute through Indianapolis DC</div>
+              <div class="timeline-desc">Bypass Chicago hub. Capacity confirmed. +8h transit, avoids outage risk.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker amber"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">T‑24h</div>
+              <div class="timeline-title">Pre-position high-velocity SKUs</div>
+              <div class="timeline-desc">Move inventory to unaffected stores to prevent 8 critical stockouts.</div>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <div class="timeline-marker green"></div>
+            <div class="timeline-content">
+              <div class="timeline-time">T‑12h</div>
+              <div class="timeline-title">Switch to backup carrier</div>
+              <div class="timeline-desc">Backup lane health 4/5. Locks service levels through storm window.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="viz-roi-cards">
+          <div class="roi-card"><div class="roi-label">Mitigation cost</div><div class="roi-value amber">${formatUSD(mitigationCost)}</div></div>
+          <div class="roi-card"><div class="roi-label">Value protected</div><div class="roi-value green">${formatUSD(valueProtected)}</div></div>
+          <div class="roi-card"><div class="roi-label">ROI</div><div class="roi-value gold">${roi}:1</div></div>
+          <div class="roi-card"><div class="roi-label">Residual risk</div><div class="roi-value">${formatUSD(340_000)}</div></div>
+        </div>
+
+        <p><strong>Bottom line:</strong> spend ${formatUSD(mitigationCost)} to protect ${formatUSD(valueProtected)}.</p>
+      `, {
+        sources: ['Carrier Availability', 'Inventory System', 'Route Network', 'Cost Model'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips(CHIPSETS.after_actions);
+    },
+
+    async defend_decision() {
+      addMessage('assistant', `
+        <p><strong>Decision Brief (Board-Ready)</strong></p>
+        <p><strong>Situation</strong><br>
+        Verified NOAA storm trajectory indicates high disruption probability for Chicago DC lanes within 48h. Connected analysis identifies likely amplification via carrier fragility + supplier exposure.</p>
+
+        <p><strong>Response</strong><br>
+        1) Re-route critical shipments via Indianapolis DC<br>
+        2) Pre-position top 30 high-velocity SKUs<br>
+        3) Secure backup carrier capacity for storm window</p>
+
+        <p><strong>Expected Outcome</strong><br>
+        Protect ~${formatUSD(3_100_000)} with a ${Math.round(3_100_000/52_000)}:1 ROI. Confidence interval: <strong>70–85%</strong> based on analogous events + current capacity signals.</p>
+
+        <p><em>Auditability:</em> Every input is source-stamped and replayable. You can export this brief as a decision log for governance.</p>
+      `, {
+        sources: ['NOAA Weather', 'Carrier Performance', 'Trade Credit Intelligence', 'Inventory System'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips(CHIPSETS.after_actions);
+    },
+
+    async top_interventions() {
+      addMessage('assistant', `
+        <p><strong>Top 3 Interventions (Ranked)</strong></p>
+        <ol>
+          <li><strong>Reroute via Indianapolis DC</strong> — protects ~${formatUSD(1_400_000)}; feasibility: high; time-to-execute: today.</li>
+          <li><strong>Pre-position high-velocity SKUs</strong> — protects ~${formatUSD(780_000)}; feasibility: high; prevents 8 stockouts.</li>
+          <li><strong>Lock backup carrier capacity</strong> — reduces failure probability; feasibility: medium; stabilizes service levels.</li>
+        </ol>
+        <p>If you want, I can generate an execution checklist by team (Ops / Logistics / Stores) in one click.</p>
+      `, {
+        sources: ['Route Network', 'Inventory System', 'Carrier Availability', 'Cost Model'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips(CHIPSETS.after_actions);
+    },
+
+    async competitor_opportunity() {
+      addMessage('assistant', `
+        <p>I’m seeing a short-term demand capture opportunity.</p>
+        <p>A competitor’s Oakbrook location is closing. Within a 15‑minute drive-time, there are <strong>47,000 households</strong> likely to shift shopping behavior.</p>
+        <p>Recommended action: target 3 nearby stores with inventory rebalancing + localized promos for two weeks.</p>
+      `, {
+        sources: ['Public Signals', 'Drive-time Model', 'Store Operations'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips([
+        { key: 'top_interventions', label: 'Top 3 interventions', userText: 'Top interventions' },
+        { key: 'request_pilot', label: 'Request a pilot', userText: 'Request a pilot' },
+        { key: 'reset', label: 'Reset scenario', userText: 'Reset scenario' },
+      ]);
+    },
+
+    async request_pilot() {
+      if (dom.pocModal) {
+        dom.pocModal.style.display = 'flex';
+        dom.pocModal.setAttribute('aria-hidden', 'false');
+      }
+      addMessage('assistant', `<p>I can run this exact scenario on your network. Choose an option in the pilot modal, and we’ll respond within 24 hours.</p>`, {
+        sources: ['Pilot Workflow'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+    },
+
+    async reset() {
+      // reset UI
+      tourActive = false;
+      clearChipHighlight();
+      setView('map');
+      renderAnalytics();
+      if (dom.chatMessages) dom.chatMessages.innerHTML = '';
+      setKPIs({ exposure: formatUSD(CONNECTED_EXPOSURE), stores: STORES_AT_RISK, protectedValue: formatUSD(0), roi: '—' });
+
+      addMessage('assistant', `
+        <p>Reset complete. Back to the start state.</p>
+        <p>If you want the guided tour again, refresh the page.</p>
+      `, {
+        sources: ['Demo State'],
+        trustLine: 'Every claim is source‑stamped; every recommendation is replayable.'
+      });
+
+      renderChips(CHIPSETS.start);
+    },
+  };
+
+  async function runHandler(key) {
+    clearChipHighlight();
+    const fn = HANDLERS[key];
+    if (!fn) {
+      addMessage('assistant', `<p>I don't have a response wired for that yet.</p>`);
+      return;
+    }
+    await fn();
+  }
+
+  // -----------------------------
+  // Tour (Option B: linear)
+  // -----------------------------
+  const TOUR = [
+    {
+      subtitle: 'See what others miss',
+      title: 'Connected intelligence, delivered in plain English',
+      content: `
+        <p>This is a guided walk-through. You’ll see how a storm that looks like <strong>${formatUSD(BASELINE_IMPACT)}</strong> becomes <strong>${formatUSD(CONNECTED_EXPOSURE)}</strong> once you account for connected risks.</p>
+        <p>At the end, you’ll have a decision brief you can defend.</p>
+      `,
+      target: null,
+      buttons: ['next']
+    },
+    {
+      subtitle: 'Step 1',
+      title: 'Live intelligence feed',
+      content: `<p>On the left, Nexus streams events that can cascade into your operations. Click any card later to drive the conversation.</p>`,
+      target: 'intelFeed',
+      buttons: ['back','next']
+    },
+    {
+      subtitle: 'Step 2',
+      title: 'External intel is timestamped and defensible',
+      content: `<p>The weather overlay includes timestamps and confidence so the “48 hours early” claim is auditable.</p>`,
+      target: 'weatherOverlay',
+      buttons: ['back','next']
+    },
+    {
+      subtitle: 'Step 3',
+      title: 'Map vs Analytics',
+      content: `<p>Switch between <strong>Map</strong> and <strong>Analytics</strong>. The demo will work even if you don’t click during the tour.</p>`,
+      target: 'viewToggle',
+      buttons: ['back','next']
+    },
+    {
+      subtitle: 'Step 4',
+      title: 'Conversation is the interface',
+      content: `<p>On the right, ask questions like a colleague. Use the quick-action chips to move fast during meetings.</p>`,
+      target: 'chatPanel',
+      buttons: ['back','next']
+    },
+    {
+      subtitle: 'Step 5',
+      title: 'The “Aha” moment',
+      content: `<p>When you click <strong>“What’s really at risk?”</strong>, Nexus shows the standard view vs the connected exposure — and why it’s ~5× higher.</p>`,
+      target: 'chipsSection',
+      buttons: ['back','next'],
+      highlightChip: 'whats_really_at_risk'
+    },
+    {
+      subtitle: 'Step 6',
+      title: 'Defendable decisions',
+      content: `<p>The goal isn’t more dashboards — it’s decisions you can defend. You’ll get a board-ready brief with sources.</p>`,
+      target: 'kpiStrip',
+      buttons: ['back','finish']
+    }
+  ];
+
+  function hideSpotlight() {
+    if (!dom.tourSpotlight) return;
+    dom.tourSpotlight.style.display = 'none';
+  }
+
+  function showSpotlightFor(targetId) {
+    if (!dom.tourSpotlight) return;
+    if (!targetId) return hideSpotlight();
+
+    const target = $(targetId);
+    if (!target) return hideSpotlight();
+
+    const rect = target.getBoundingClientRect();
+    // If element is effectively hidden, don't spotlight
+    if (rect.width < 8 || rect.height < 8) return hideSpotlight();
+
+    const pad = 10;
+    const left = rect.left - pad;
+    const top = rect.top - pad;
+    const width = rect.width + pad * 2;
+    const height = rect.height + pad * 2;
+
+    dom.tourSpotlight.style.display = 'block';
+    dom.tourSpotlight.style.left = `${Math.max(8, left)}px`;
+    dom.tourSpotlight.style.top = `${Math.max(8, top)}px`;
+    dom.tourSpotlight.style.width = `${Math.min(window.innerWidth - 16, width)}px`;
+    dom.tourSpotlight.style.height = `${Math.min(window.innerHeight - 16, height)}px`;
+  }
+
+  function renderTour() {
+    if (!dom.tourOverlay || !dom.tourTitle || !dom.tourContent || !dom.tourButtons || !dom.tourSubtitle || !dom.tourStepIndicator) return;
+
+    const step = TOUR[tourStep];
+    dom.tourOverlay.style.display = tourActive ? 'flex' : 'none';
+    if (!tourActive) {
+      hideSpotlight();
       return;
     }
 
-    appendAssistantMessage(r.content, r.sources, { time: '1.2s', confidence: '89%' });
-    renderChips(r.chips);
-    updateKpis(r.kpi);
+    dom.tourSubtitle.textContent = step.subtitle;
+    dom.tourTitle.textContent = step.title;
+    dom.tourContent.innerHTML = step.content;
 
-    checkTourAdvance('chip', chipKey);
-  }, 700);
-}
+    dom.tourStepIndicator.innerHTML = TOUR.map((_, i) => (
+      `<span class="tour-dot ${i === tourStep ? 'active' : ''}" aria-hidden="true"></span>`
+    )).join('');
 
-// ============================================
-// FREE TEXT CHAT (enabled after tour ends)
-// ============================================
+    dom.tourButtons.innerHTML = '';
 
-function initFreeChatInput() {
-  if (freeChatInitialized) return;
-  freeChatInitialized = true;
+    const mkBtn = (label, kind) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `tour-btn ${kind === 'primary' ? 'primary' : ''}`;
+      b.textContent = label;
+      return b;
+    };
 
-  const input = $('chatInput');
-  const send = $('sendBtn');
-  if (!input || !send) return;
+    if (step.buttons.includes('back')) {
+      const back = mkBtn('← Back', 'secondary');
+      back.addEventListener('click', () => {
+        tourStep = Math.max(0, tourStep - 1);
+        renderTour();
+      });
+      dom.tourButtons.appendChild(back);
+    }
 
-  function submit() {
-    const text = (input.value || '').trim();
-    if (!text) return;
-    input.value = '';
+    if (step.buttons.includes('next')) {
+      const next = mkBtn('Next →', 'primary');
+      next.addEventListener('click', () => {
+        tourStep = Math.min(TOUR.length - 1, tourStep + 1);
+        renderTour();
+      });
+      dom.tourButtons.appendChild(next);
+    }
 
-    appendUserMessage(text);
+    if (step.buttons.includes('finish')) {
+      const done = mkBtn('Start Demo →', 'primary');
+      done.addEventListener('click', () => {
+        tourActive = false;
+        dom.tourOverlay.style.display = 'none';
+        hideSpotlight();
+        // kick off the demo state
+        runHandler('what_is_happening');
+      });
+      dom.tourButtons.appendChild(done);
+    }
 
-    const t = text.toLowerCase();
-    const key = t.includes('risk') ? 'risk' : t.includes('cascade') ? 'cascade' : t.includes('action') ? 'actions' : null;
+    showSpotlightFor(step.target);
 
-    showTyping();
-    setTimeout(() => {
-      clearTyping();
-      if (key && RESPONSES[key]) {
-        const r = RESPONSES[key];
-        appendAssistantMessage(r.content, r.sources, { time: '1.0s', confidence: '87%' });
-        renderChips(r.chips);
-        updateKpis(r.kpi);
-      } else {
-        appendAssistantMessage(
-          `<p>This demo supports guided questions. Try asking about <strong>risk</strong>, <strong>cascade</strong>, or <strong>actions</strong>, or use the chips below.</p>`,
-          ['Demo Environment'],
-          { time: '0.5s', confidence: '—' }
-        );
+    // Optional chip highlight (non-blocking)
+    clearChipHighlight();
+    if (step.highlightChip) {
+      lastHighlightedChipKey = step.highlightChip;
+      // If chips not rendered yet, render the start chips to show the highlight.
+      if (!dom.chipsGrid?.children?.length) {
+        renderChips(CHIPSETS.start);
       }
-    }, 600);
+      const el = $(`chip-${step.highlightChip}`);
+      if (el) el.classList.add('highlight');
+    }
   }
 
-  send.addEventListener('click', submit);
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') submit();
-  });
-}
+  function bindTourResize() {
+    window.addEventListener('resize', () => {
+      if (tourActive) renderTour();
+    });
+    window.addEventListener('scroll', () => {
+      if (tourActive) renderTour();
+    }, { passive: true });
+  }
 
-// ============================================
-// INIT
-// ============================================
+  // -----------------------------
+  // Tabs
+  // -----------------------------
+  function bindTabs() {
+    dom.mapBtn?.addEventListener('click', () => setView('map'));
+    dom.analyticsBtn?.addEventListener('click', () => {
+      renderAnalytics();
+      setView('analytics');
+    });
+  }
 
-document.addEventListener('DOMContentLoaded', () => {
-  initPillarsStrip();
-  initIntelFeed();
-  initMap();
-  initChat();
-  initTabs();
-  initPocModal();
+  // -----------------------------
+  // POC modal close
+  // -----------------------------
+  function bindModal() {
+    if (!dom.pocModal) return;
+    const close = dom.pocModal.querySelector('.poc-close');
+    close?.addEventListener('click', () => {
+      dom.pocModal.style.display = 'none';
+      dom.pocModal.setAttribute('aria-hidden', 'true');
+    });
 
-  // Start tour
-  showStep(0);
-});
+    dom.pocModal.addEventListener('click', (e) => {
+      if (e.target === dom.pocModal) {
+        dom.pocModal.style.display = 'none';
+        dom.pocModal.setAttribute('aria-hidden', 'true');
+      }
+    });
+  }
+
+  // -----------------------------
+  // ArcGIS map (best effort)
+  // -----------------------------
+  function initMapBestEffort() {
+    const container = document.getElementById('mapView');
+    if (!container) return;
+
+    const hasArcGIS = typeof window.require === 'function';
+    if (!hasArcGIS) {
+      console.warn('[demo] ArcGIS require() not found; map will remain empty.');
+      return;
+    }
+
+    try {
+      window.require([
+        'esri/Map',
+        'esri/views/MapView',
+        'esri/Graphic',
+        'esri/layers/GraphicsLayer'
+      ], (Map, MapView, Graphic, GraphicsLayer) => {
+        const graphics = new GraphicsLayer();
+        const map = new Map({ basemap: 'dark-gray-vector', layers: [graphics] });
+
+        const view = new MapView({
+          container: 'mapView',
+          map,
+          center: [-87.6298, 41.8781],
+          zoom: 6
+        });
+
+        // Points: Chicago DC + stores
+        const points = [
+          { name: 'Chicago DC', coords: [-87.6398, 41.8781], color: [255, 77, 79, 0.9], size: 12 },
+          { name: 'Store A', coords: [-88.0400, 41.7600], color: [255, 191, 36, 0.9], size: 8 },
+          { name: 'Store B', coords: [-87.8000, 41.9500], color: [255, 191, 36, 0.9], size: 8 },
+          { name: 'Indianapolis DC', coords: [-86.1581, 39.7684], color: [51, 201, 130, 0.9], size: 10 },
+        ];
+
+        points.forEach(p => {
+          graphics.add(new Graphic({
+            geometry: { type: 'point', longitude: p.coords[0], latitude: p.coords[1] },
+            symbol: { type: 'simple-marker', color: p.color, size: p.size, outline: { color: [255,255,255,0.2], width: 1 } },
+            popupTemplate: { title: p.name, content: 'Demo node' }
+          }));
+        });
+
+        // store view for later
+        view.when(() => {
+          // nothing else
+        });
+      });
+    } catch (e) {
+      console.warn('[demo] Map init failed:', e);
+    }
+  }
+
+  // -----------------------------
+  // Init
+  // -----------------------------
+  async function init() {
+    // base UI state
+    setView('map');
+    renderPillars();
+    renderIntelFeed();
+    renderAnalytics();
+    setKPIs({ exposure: formatUSD(CONNECTED_EXPOSURE), stores: STORES_AT_RISK, protectedValue: formatUSD(0), roi: '—' });
+
+    // initial chips (so tour can highlight)
+    renderChips(CHIPSETS.start);
+
+    // bindings
+    bindTabs();
+    bindModal();
+    bindTourResize();
+
+    // start tour
+    tourActive = true;
+    tourStep = 0;
+    renderTour();
+
+    // best-effort map
+    initMapBestEffort();
+
+    // subtle: if user is on mobile, shrink spotlight risk by re-render after a tick
+    await sleep(50);
+    if (tourActive) renderTour();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
