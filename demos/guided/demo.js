@@ -275,37 +275,46 @@ function showStep(index) {
     // Clear previous highlights
     clearHighlights();
     
-    // Handle highlighting
+    // Enable tour lock after welcome
+    if (index > 0) {
+        document.body.classList.add('tour-lock');
+    }
+    
+    // Handle highlighting based on target type
     if (step.target) {
-        const targetEl = document.getElementById(step.target);
-        
-        if (targetEl) {
-            // Show tint
+        // For chip targets, the chip may not exist yet (will be rendered after chat response)
+        if (step.target.startsWith('chip-')) {
             tint.classList.add('active');
-            
-            // Elevate target above tint
-            targetEl.classList.add('tour-elevated');
-            targetEl.classList.add('tour-highlight');
-            
-            // Position the gold box
-            requestAnimationFrame(() => {
-                positionHighlightBox(targetEl);
-                highlightBox.classList.add('active');
-            });
+            // Try to highlight the chip if it exists
+            const chipEl = document.getElementById(step.target);
+            if (chipEl) {
+                highlightChipForTour(step.target);
+            } else {
+                // Hide highlight box - it will be shown when chips are rendered
+                highlightBox.classList.remove('active');
+            }
         } else {
-            // Target not found - hide highlight box
-            highlightBox.classList.remove('active');
-            tint.classList.add('active');
+            // For non-chip targets, highlight immediately
+            const targetEl = document.getElementById(step.target);
+            
+            if (targetEl) {
+                tint.classList.add('active');
+                targetEl.classList.add('tour-elevated');
+                targetEl.classList.add('tour-highlight');
+                
+                requestAnimationFrame(() => {
+                    positionHighlightBox(targetEl);
+                    highlightBox.classList.add('active');
+                });
+            } else {
+                highlightBox.classList.remove('active');
+                tint.classList.add('active');
+            }
         }
     } else {
         // No target - no highlight box, no tint for welcome/complete
         highlightBox.classList.remove('active');
         tint.classList.remove('active');
-    }
-    
-    // Enable tour lock after welcome
-    if (index > 0) {
-        document.body.classList.add('tour-lock');
     }
 }
 
@@ -587,16 +596,38 @@ function renderChips(chipKeys) {
     if (tourActive) {
         const step = TOUR_STEPS[currentStep];
         if (step && step.target && step.target.startsWith('chip-')) {
-            const chipEl = document.getElementById(step.target);
-            if (chipEl) {
-                chipEl.classList.add('tour-elevated');
-                chipEl.classList.add('tour-highlight');
-                requestAnimationFrame(() => {
-                    positionHighlightBox(chipEl);
-                    document.getElementById('tourHighlightBox').classList.add('active');
-                });
-            }
+            // Use setTimeout to ensure DOM has fully rendered
+            setTimeout(() => {
+                highlightChipForTour(step.target);
+            }, 100);
         }
+    }
+}
+
+function highlightChipForTour(chipId) {
+    const chipEl = document.getElementById(chipId);
+    const highlightBox = document.getElementById('tourHighlightBox');
+    
+    if (chipEl) {
+        // Clear any previous highlights first
+        clearHighlights();
+        
+        // Add highlight classes
+        chipEl.classList.add('tour-elevated');
+        chipEl.classList.add('tour-highlight');
+        
+        // Position the highlight box around the chip
+        const rect = chipEl.getBoundingClientRect();
+        const padding = 8;
+        
+        highlightBox.style.top = (rect.top - padding) + 'px';
+        highlightBox.style.left = (rect.left - padding) + 'px';
+        highlightBox.style.width = (rect.width + padding * 2) + 'px';
+        highlightBox.style.height = (rect.height + padding * 2) + 'px';
+        highlightBox.classList.add('active');
+    } else {
+        // Chip doesn't exist yet, hide the highlight box
+        highlightBox.classList.remove('active');
     }
 }
 
