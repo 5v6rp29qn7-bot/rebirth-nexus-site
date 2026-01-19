@@ -2,10 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex, nofollow">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a0f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Nexus - Conversational Predictive Intelligence Platform Demo">
+    
     <title>Nexus — Guided Intelligence Demo</title>
+    
     <link rel="icon" type="image/png" href="/logo.png">
+    <link rel="apple-touch-icon" href="/logo.png">
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,189 +21,212 @@
     <!-- Esri ArcGIS -->
     <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
     
+    <!-- Demo Styles -->
     <link rel="stylesheet" href="styles.css">
-    
-    <!-- Password Protection -->
-    <style>
-        .password-gate {
-            position: fixed;
-            inset: 0;
-            background: #0a0a0f;
-            z-index: 99999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .password-gate.hidden { display: none; }
-        .password-gate h1 { color: #d4af37; font-size: 24px; }
-        .password-gate p { color: #a0a0b0; font-size: 14px; }
-        .password-gate input {
-            background: #1a1a24;
-            border: 1px solid #2a2a3a;
-            color: #f0f0f5;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 16px;
-            width: 250px;
-            text-align: center;
-        }
-        .password-gate input:focus { outline: none; border-color: #d4af37; }
-        .password-gate button {
-            background: #d4af37;
-            color: #000;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .password-gate .error { color: #ef4444; font-size: 12px; display: none; }
-        .password-gate .error.show { display: block; }
-    </style>
 </head>
 <body>
-    <!-- Password Gate -->
-    <div class="password-gate" id="passwordGate">
-        <h1>🔒 Nexus Demo</h1>
-        <p>Enter password to continue</p>
-        <input type="password" id="passwordInput" placeholder="Password" autofocus>
-        <button onclick="checkPassword()">Enter</button>
-        <div class="error" id="passwordError">Incorrect password</div>
-    </div>
-    
-    <script>
-        // Simple password: nexus2025
-        function checkPassword() {
-            const input = document.getElementById('passwordInput').value;
-            if (input === 'nexus2025') {
-                document.getElementById('passwordGate').classList.add('hidden');
-                sessionStorage.setItem('nexusDemo', 'authenticated');
-            } else {
-                document.getElementById('passwordError').classList.add('show');
-            }
-        }
-        // Check on Enter key
-        document.getElementById('passwordInput').addEventListener('keyup', (e) => {
-            if (e.key === 'Enter') checkPassword();
-        });
-        // Check if already authenticated this session
-        if (sessionStorage.getItem('nexusDemo') === 'authenticated') {
-            document.getElementById('passwordGate').classList.add('hidden');
-        }
-    </script>
-    <!-- Main App -->
-    <div class="app">
-        <!-- Left: Intel Feed -->
-        <aside class="intel-feed" id="intelFeed">
-            <div class="feed-header">
-                <span class="feed-title">🔴 Live Intelligence</span>
-                <span class="feed-badge">LIVE</span>
-            </div>
-            <div class="feed-items" id="feedItems"></div>
-        </aside>
-
-        <!-- Center: Map -->
-        <main class="center-panel">
-            <div class="center-header">
-                <div class="view-tabs" id="viewTabs">
-                    <button class="tab active" id="mapTab" data-view="map">🗺️ Map</button>
-                    <button class="tab" id="analyticsTab" data-view="analytics">📊 Analytics</button>
+    <div class="app-container">
+        <div class="main-content">
+            <!-- LEFT: Intel Feed (Desktop Only) -->
+            <div class="intel-feed" id="intelFeed">
+                <div class="feed-header">
+                    <div class="feed-title">
+                        <span class="sr-only">Live</span>
+                        🔴 Live Intelligence
+                    </div>
+                    <div class="feed-live" aria-label="Live updates active">LIVE</div>
                 </div>
-                <div class="partners">
-                    <span>Powered by Esri</span>
-                    <span>Rebirth Analytics</span>
-                    <span>Allianz Trade</span>
+                <div class="feed-items" id="feedItems" role="feed" aria-label="Intelligence alerts">
+                    <!-- Feed items injected by JS -->
                 </div>
             </div>
             
-            <!-- Map View -->
-            <div class="map-container" id="mapContainer">
-                <div id="mapView"></div>
-                <div class="weather-card" id="weatherCard">
-                    <div class="weather-header">🌩️ LIVE WEATHER INTEL</div>
-                    <div class="weather-meta">NOAA Advisory: 14:32 UTC • Confidence: 0.89</div>
-                    <div class="weather-alert">
-                        <strong>Winter Storm Warning</strong><br>
-                        Severe winter storm approaching Chicago metro. 8-12 inches expected over 48 hours.
+            <!-- CENTER: Map + Analytics -->
+            <div class="center-panel">
+                <div class="center-header">
+                    <div class="view-toggle" id="viewToggle" role="tablist" aria-label="View selection">
+                        <button class="view-btn active" data-view="map" id="mapBtn" role="tab" aria-selected="true" aria-controls="mapContainer">
+                            <span aria-hidden="true">🗺️</span> Map
+                        </button>
+                        <button class="view-btn" data-view="analytics" id="analyticsBtn" role="tab" aria-selected="false" aria-controls="analyticsView">
+                            <span aria-hidden="true">📊</span> Analytics
+                        </button>
                     </div>
-                    <div class="weather-stats">
-                        <div class="stat"><span class="label">Chicago</span><span class="value">28°F</span></div>
-                        <div class="stat"><span class="label">Wind</span><span class="value">35 mph</span></div>
-                        <div class="stat"><span class="label">Visibility</span><span class="value">0.5 mi</span></div>
-                        <div class="stat"><span class="label">Roads</span><span class="value red">Hazardous</span></div>
+                    <div class="partner-badges">
+                        <span class="partner-badge" id="badge-esri">
+                            Powered by Esri
+                            <span class="tooltip">Geospatial intelligence & mapping</span>
+                        </span>
+                        <span class="partner-badge" id="badge-rebirth">
+                            Rebirth Analytics
+                            <span class="tooltip">Supplier financial health scoring</span>
+                        </span>
+                        <span class="partner-badge" id="badge-allianz">
+                            Allianz Trade
+                            <span class="tooltip">Credit risk & default probability</span>
+                        </span>
                     </div>
                 </div>
                 
-                <!-- Legend -->
-                <div class="map-legend">
-                    <div class="legend-item"><span class="dot red"></span> At-Risk Store</div>
-                    <div class="legend-item"><span class="dot amber"></span> Weather Impact</div>
-                    <div class="legend-item"><span class="dot green"></span> Unaffected Store</div>
-                    <div class="legend-item"><span class="dot blue square"></span> Distribution Center</div>
+                <!-- Data Pillars Strip (Desktop) -->
+                <div class="pillars-strip" id="pillarsStrip" aria-label="Active data pillars">
+                    <!-- Injected by JS -->
+                </div>
+                
+                <!-- MOBILE: Weather Alert Banner (replaces desktop overlay) -->
+                <div class="mobile-weather-banner" id="mobileWeatherBanner" role="alert">
+                    <span class="alert-icon" aria-hidden="true">⚠️</span>
+                    <div class="alert-text">Winter Storm Warning — Chicago Metro</div>
+                    <div class="alert-meta">NOAA • 48hr</div>
+                </div>
+                
+                <div class="map-view-container" id="mapContainer" role="tabpanel" aria-labelledby="mapBtn">
+                    <div id="mapView"></div>
+                    
+                    <!-- DESKTOP: Weather Overlay -->
+                    <div class="weather-overlay" id="weatherOverlay">
+                        <div class="weather-title">
+                            <span aria-hidden="true">🌩️</span> Live Weather Intel
+                        </div>
+                        <div class="weather-meta">
+                            <span class="timestamp">NOAA Advisory: 14:32 UTC</span>
+                            <span class="confidence">Confidence: 0.89</span>
+                        </div>
+                        <div class="weather-alert" role="alert">
+                            <div class="weather-alert-title">Winter Storm Warning</div>
+                            <div class="weather-alert-text">Severe winter storm approaching Chicago metro. 8-12 inches expected over 48 hours.</div>
+                        </div>
+                        <div class="weather-data">
+                            <div class="weather-item">
+                                <div class="weather-item-label">Chicago</div>
+                                <div class="weather-item-value">28°F</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Wind</div>
+                                <div class="weather-item-value">35 mph</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Visibility</div>
+                                <div class="weather-item-value">0.5 mi</div>
+                            </div>
+                            <div class="weather-item">
+                                <div class="weather-item-label">Roads</div>
+                                <div class="weather-item-value" style="color: var(--accent-red);">Hazardous</div>
+                            </div>
+                        </div>
+                        <div class="weather-meta" style="margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle);">
+                            <span>Next refresh: 15 min</span>
+                        </div>
+                    </div>
+                    
+                    <div class="map-legend" aria-label="Map legend">
+                        <div class="legend-title">Network Status</div>
+                        <div class="legend-item"><div class="legend-dot red" aria-hidden="true"></div>At-Risk Store</div>
+                        <div class="legend-item"><div class="legend-dot amber" aria-hidden="true"></div>Weather Impact</div>
+                        <div class="legend-item"><div class="legend-dot green" aria-hidden="true"></div>Unaffected Store</div>
+                        <div class="legend-item"><div class="legend-dot blue" aria-hidden="true"></div>Distribution Center</div>
+                    </div>
+                </div>
+                
+                <div class="analytics-view" id="analyticsView" role="tabpanel" aria-labelledby="analyticsBtn">
+                    <!-- Analytics content injected by JS -->
                 </div>
             </div>
             
-            <!-- Analytics View -->
-            <div class="analytics-container" id="analyticsContainer">
-                <div class="analytics-grid">
-                    <div class="analytics-card red"><div class="card-label">Total Exposure</div><div class="card-value">$4.2M</div></div>
-                    <div class="analytics-card amber"><div class="card-label">Stores at Risk</div><div class="card-value">12</div></div>
-                    <div class="analytics-card amber"><div class="card-label">Suppliers Affected</div><div class="card-value">8</div></div>
-                    <div class="analytics-card gold"><div class="card-label">Time to Impact</div><div class="card-value">48 hrs</div></div>
+            <!-- RIGHT: Chat Panel -->
+            <div class="chat-panel" id="chatPanel">
+                <div class="chat-header">
+                    <div class="logo-icon" aria-hidden="true">N</div>
+                    <div>
+                        <div class="logo-text">Nexus</div>
+                        <div class="logo-sub">Predictive Intelligence</div>
+                    </div>
                 </div>
-                <div class="analytics-table">
-                    <h3>📦 Critical Stores</h3>
-                    <table>
-                        <thead><tr><th>Store</th><th>Location</th><th>Exposure</th><th>Risk</th></tr></thead>
-                        <tbody>
-                            <tr><td>Chicago Loop</td><td>Chicago, IL</td><td>$420K</td><td class="critical">Critical</td></tr>
-                            <tr><td>Des Plaines</td><td>Des Plaines, IL</td><td>$380K</td><td class="critical">Critical</td></tr>
-                            <tr><td>Oak Park</td><td>Oak Park, IL</td><td>$350K</td><td class="critical">Critical</td></tr>
-                            <tr><td>Evanston</td><td>Evanston, IL</td><td>$290K</td><td class="warning">Warning</td></tr>
-                        </tbody>
-                    </table>
+                
+                <div class="kpi-strip" id="kpiStrip" aria-label="Key metrics">
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Exposure</div>
+                        <div class="kpi-mini-value red" id="kpi-exposure">$4.2M</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Stores</div>
+                        <div class="kpi-mini-value amber" id="kpi-stores">12</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">Protected</div>
+                        <div class="kpi-mini-value green" id="kpi-protected">$0</div>
+                    </div>
+                    <div class="kpi-mini">
+                        <div class="kpi-mini-label">ROI</div>
+                        <div class="kpi-mini-value gold" id="kpi-roi">—</div>
+                    </div>
+                </div>
+                
+                <div class="chat-area">
+                    <div class="chat-messages" id="chatMessages" role="log" aria-label="Conversation with Nexus" aria-live="polite">
+                        <!-- Messages injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="chips-section" id="chipsSection">
+                    <div class="chips-label">Quick Actions</div>
+                    <div class="chips-grid" id="chipsGrid" role="group" aria-label="Suggested queries">
+                        <!-- Chips injected by JS -->
+                    </div>
+                </div>
+                
+                <div class="chat-input-area" id="chatInputArea">
+                    <div class="input-wrapper">
+                        <label for="chatInput" class="sr-only">Ask Nexus a question</label>
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Ask Nexus anything..." disabled aria-disabled="true" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                        <button class="send-btn" id="sendBtn" disabled aria-disabled="true" aria-label="Send message">Send →</button>
+                    </div>
                 </div>
             </div>
-        </main>
-
-        <!-- Right: Chat -->
-        <aside class="chat-panel" id="chatPanel">
-            <div class="chat-header">
-                <div class="nexus-brand"><span class="nexus-icon">N</span> Nexus</div>
-                <div class="kpi-strip">
-                    <div class="kpi"><span class="kpi-label">EXPOSURE</span><span class="kpi-value red">$4.2M</span></div>
-                    <div class="kpi"><span class="kpi-label">STORES</span><span class="kpi-value amber">12</span></div>
-                    <div class="kpi"><span class="kpi-label">PROTECTED</span><span class="kpi-value" id="kpiProtected">$0</span></div>
-                </div>
-            </div>
-            <div class="chat-messages" id="chatMessages"></div>
-            <div class="chat-chips" id="chatChips"></div>
-            <div class="chat-input-area">
-                <input type="text" placeholder="Ask Nexus anything..." id="chatInput" disabled>
-                <button id="sendBtn" disabled>Send →</button>
-            </div>
-        </aside>
+        </div>
     </div>
-
-    <!-- Tour Tint Overlay -->
-    <div class="tour-tint" id="tourTint"></div>
     
-    <!-- Gold Highlight Box -->
-    <div class="tour-highlight-box" id="tourHighlightBox"></div>
-
-    <!-- Tour Card (always centered) -->
-    <div class="tour-card" id="tourCard">
-        <div class="tour-progress" id="tourProgress"></div>
-        <div class="tour-step-label" id="tourStepLabel"></div>
-        <h2 class="tour-title" id="tourTitle"></h2>
-        <div class="tour-content" id="tourContent"></div>
-        <div class="tour-actions" id="tourActions"></div>
+    <!-- Tour Overlay -->
+    <div class="tour-overlay" id="tourOverlay" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+        <div class="tour-card" id="tourCard">
+            <div class="tour-step-indicator" id="tourStepIndicator" aria-label="Tour progress"></div>
+            <div class="tour-subtitle" id="tourSubtitle"></div>
+            <h2 class="tour-title" id="tourTitle"></h2>
+            <div class="tour-content" id="tourContent"></div>
+            <div class="tour-buttons" id="tourButtons"></div>
+        </div>
+    </div>
+    
+    <!-- Spotlight Element -->
+    <div class="tour-spotlight" id="tourSpotlight" style="display: none;" aria-hidden="true"></div>
+    
+    <!-- POC Request Modal -->
+    <div class="poc-modal" id="pocModal" role="dialog" aria-modal="true" aria-labelledby="pocModalTitle">
+        <div class="poc-modal-content">
+            <h2 class="poc-modal-title" id="pocModalTitle">Request a Pilot</h2>
+            <p class="poc-modal-subtitle">Choose your preferred next step. Our team will reach out within 24 hours.</p>
+            <div class="poc-options">
+                <div class="poc-option" tabindex="0" role="button" aria-label="30-Day Pilot">
+                    <div class="poc-option-title">30-Day Pilot (2 Data Feeds)</div>
+                    <div class="poc-option-desc">Connect your TMS and one third-party source. See Nexus in action on your actual operations.</div>
+                </div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="Run scenario on your network">
+                    <div class="poc-option-title">Run This Scenario on Your Network</div>
+                    <div class="poc-option-desc">We'll model a winter storm, port strike, or supplier disruption using your store/supplier data.</div>
+                </div>
+                <div class="poc-option" tabindex="0" role="button" aria-label="See top 10 nodes at risk">
+                    <div class="poc-option-title">See Your Top 10 Nodes at Risk</div>
+                    <div class="poc-option-desc">Quick risk assessment of your most critical suppliers and locations. Delivered in 1 week.</div>
+                </div>
+            </div>
+            <button class="poc-close" aria-label="Close modal">Maybe Later</button>
+        </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- ArcGIS SDK -->
     <script src="https://js.arcgis.com/4.28/"></script>
+    
+    <!-- Demo Logic -->
     <script src="demo.js"></script>
 </body>
 </html>
