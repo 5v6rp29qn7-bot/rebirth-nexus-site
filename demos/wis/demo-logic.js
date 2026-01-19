@@ -31,7 +31,7 @@ const RESPONSES = {
                 <div class="viz-card"><div class="label">Decision Window</div><div class="value gold">${NUMBERS.decisionWindow}</div></div>
             </div>
             <p>I've analyzed the logistics network and prepared contingency options. What would you like to explore first?</p>`,
-        sources: ['DIA (representative)', 'INDOPACOM J2 (representative)', 'TRANSCOM (representative)', 'Esri GIS', 'Rebirth Analytics'],
+        sources: ['DIA Intel', 'PACOM J2', 'TRANSCOM', 'Esri GIS', 'Rebirth Analytics'],
         chips: ['risk', 'cascade', 'actions']
     },
     
@@ -45,7 +45,7 @@ const RESPONSES = {
                 <div class="viz-list-item"><div class="viz-status medium"></div><div class="viz-info"><div class="viz-name">Secondary Nodes (4)</div><div class="viz-detail">Darwin, Changi, Sasebo, Okinawa — cascading risk</div></div><div class="viz-value" style="color: var(--gold)">$25M</div></div>
             </div>
             <p><strong>Key Insight:</strong> 63% of exposure is concentrated in two nodes (Subic + Guam). Both have viable alternatives if activated within 24 hours.</p>`,
-        sources: ['Rebirth Analytics', 'TRANSCOM (representative)', 'Fleet Logistics (synthetic)', 'Allied Port Capacity (synthetic)'],
+        sources: ['Rebirth Analytics', 'TRANSCOM', 'Fleet Logistics', 'Allianz Trade'],
         chips: ['cascade', 'actions']
     },
     
@@ -77,7 +77,7 @@ const RESPONSES = {
                 <div class="viz-card"><div class="label">Residual Risk</div><div class="value green">${NUMBERS.residual}</div></div>
             </div>
             <p><strong>Decision Required:</strong> Approve rerouting authority and expedited resupply. Recommendation: Execute immediately.</p>`,
-        sources: ['Fleet Logistics (synthetic)', 'TRANSCOM (representative)', 'Allied Command (representative)', 'Cost Models (synthetic)', 'Rebirth Analytics'],
+        sources: ['Fleet Logistics', 'TRANSCOM', 'Allied Command', 'Cost Models', 'Rebirth Analytics'],
         chips: ['risk', 'cascade']
     }
 };
@@ -100,7 +100,7 @@ const TOUR_STEPS = [
             <div class="tour-pillars">
                 <div class="tour-pillar"><span class="tour-pillar-icon">📊</span><span class="tour-pillar-name">Operational</span><span class="tour-pillar-desc">Fleet & inventory</span></div>
                 <div class="tour-pillar"><span class="tour-pillar-icon">🗺️</span><span class="tour-pillar-name">Geospatial</span><span class="tour-pillar-desc">Routes & bases</span></div>
-                <div class="tour-pillar"><span class="tour-pillar-icon">🌐</span><span class="tour-pillar-name">Intel Feeds</span><span class="tour-pillar-desc">Threat reports</span></div>
+                <div class="tour-pillar"><span class="tour-pillar-icon">🌐</span><span class="tour-pillar-name">Intel Feeds</span><span class="tour-pillar-desc">SIGINT & OSINT</span></div>
                 <div class="tour-pillar"><span class="tour-pillar-icon">🤝</span><span class="tour-pillar-name">Allied Network</span><span class="tour-pillar-desc">Partners & MOUs</span></div>
                 <div class="tour-pillar"><span class="tour-pillar-icon">🔮</span><span class="tour-pillar-name">Predictive</span><span class="tour-pillar-desc">Cascades</span></div>
             </div>
@@ -113,7 +113,7 @@ const TOUR_STEPS = [
         label: 'Step 1 of 6',
         title: 'Threat Intelligence Feed',
         content: `
-            <p>The <strong>Intel Feed</strong> aggregates threat data from multiple sources — DIA, INDOPACOM J2, TRANSCOM, and allied feeds.</p>
+            <p>The <strong>Intel Feed</strong> aggregates real-time threat data from multiple sources — DIA, PACOM J2, TRANSCOM, and allied feeds.</p>
             <p>🔴 <strong>Port Interdiction Warning</strong> — Credible intelligence on Subic Bay access denial</p>
             <p>🟠 <strong>Fuel Constraint</strong> — Guam depot at 62% capacity</p>
             <p>Nexus correlates these signals to identify <span class="highlight">cascading risks</span> before they compound.</p>
@@ -212,17 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initChat();
     initTabs();
     initTourControls();
-    initFreeTextInput();
     
     // Start tour after short delay
     setTimeout(() => startTour(), 1200);
-});
-
-// Keep spotlight aligned on resize/orientation changes
-window.addEventListener('resize', () => {
-    if (!tourActive) return;
-    const step = TOUR_STEPS[currentStep];
-    if (step) updateSpotlight(step.target);
 });
 
 // === MAP ===
@@ -461,6 +453,7 @@ function startTour() {
     currentStep = 0;
     tourWaitingFor = null;
     document.getElementById('tourOverlay').classList.add('active');
+    document.getElementById('tourCard').classList.add('active');
     renderTourStep();
 }
 
@@ -519,22 +512,18 @@ function highlightChip(chipKey) {
 function clearHighlights() {
     document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
     document.getElementById('tourSpotlight').style.display = 'none';
-    document.getElementById('tourOverlay').classList.remove('spotlight-mode');
 }
 
 function updateSpotlight(targetId) {
     const spotlight = document.getElementById('tourSpotlight');
-    const overlay = document.getElementById('tourOverlay');
     
     if (!targetId) {
         spotlight.style.display = 'none';
-        overlay.classList.remove('spotlight-mode');
         return;
     }
     
     const el = document.getElementById(targetId);
     if (el) {
-        overlay.classList.add('spotlight-mode');
         const rect = el.getBoundingClientRect();
         spotlight.style.display = 'block';
         spotlight.style.top = (rect.top - 6) + 'px';
@@ -543,7 +532,6 @@ function updateSpotlight(targetId) {
         spotlight.style.height = (rect.height + 12) + 'px';
     } else {
         spotlight.style.display = 'none';
-        overlay.classList.remove('spotlight-mode');
     }
 }
 
@@ -572,6 +560,7 @@ function endTour() {
     tourWaitingFor = null;
     clearHighlights();
     document.getElementById('tourOverlay').classList.remove('active');
+    document.getElementById('tourCard').classList.remove('active');
     document.getElementById('chatInputArea').classList.add('active');
 }
 
@@ -591,60 +580,6 @@ function resetDemo() {
 
 function closePocModal() {
     document.getElementById('pocModal').classList.remove('active');
-}
-
-// === FREE TEXT INPUT HANDLING ===
-function initFreeTextInput() {
-    const input = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    
-    const handleSend = () => {
-        const text = input.value.trim();
-        if (!text) return;
-        
-        const messages = document.getElementById('chatMessages');
-        
-        // User message
-        messages.innerHTML += `
-            <div class="message user">
-                <div class="bubble">${escapeHtml(text)}</div>
-            </div>
-        `;
-        input.value = '';
-        
-        // Typing indicator
-        messages.innerHTML += `<div class="message assistant" id="typing"><div class="bubble">Analyzing...</div></div>`;
-        messages.scrollTop = messages.scrollHeight;
-        
-        setTimeout(() => {
-            document.getElementById('typing')?.remove();
-            
-            // Canned fallback response for free text
-            messages.innerHTML += `
-                <div class="message assistant">
-                    <div class="bubble">
-                        <p>This guided demo uses pre-defined scenarios to showcase Nexus capabilities. For custom queries on your specific operational context, <strong>request a live demonstration</strong> where we can connect your data sources.</p>
-                        <p>Try the suggested queries below, or click <strong>ℹ️ Tour</strong> to restart the guided experience.</p>
-                        <div class="response-meta">
-                            <span>Demo Mode</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            messages.scrollTop = messages.scrollHeight;
-        }, 600);
-    };
-    
-    sendBtn.addEventListener('click', handleSend);
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
-    });
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // Expose for onclick handlers
