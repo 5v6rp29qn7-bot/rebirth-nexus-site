@@ -519,18 +519,22 @@ function highlightChip(chipKey) {
 function clearHighlights() {
     document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
     document.getElementById('tourSpotlight').style.display = 'none';
+    document.getElementById('tourOverlay').classList.remove('spotlight-mode');
 }
 
 function updateSpotlight(targetId) {
     const spotlight = document.getElementById('tourSpotlight');
+    const overlay = document.getElementById('tourOverlay');
     
     if (!targetId) {
         spotlight.style.display = 'none';
+        overlay.classList.remove('spotlight-mode');
         return;
     }
     
     const el = document.getElementById(targetId);
     if (el) {
+        overlay.classList.add('spotlight-mode');
         const rect = el.getBoundingClientRect();
         spotlight.style.display = 'block';
         spotlight.style.top = (rect.top - 6) + 'px';
@@ -539,6 +543,7 @@ function updateSpotlight(targetId) {
         spotlight.style.height = (rect.height + 12) + 'px';
     } else {
         spotlight.style.display = 'none';
+        overlay.classList.remove('spotlight-mode');
     }
 }
 
