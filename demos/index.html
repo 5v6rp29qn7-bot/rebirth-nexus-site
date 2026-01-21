@@ -74,6 +74,8 @@
             border-radius: 16px;
             padding: 32px;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
         }
         
         .demo-card:hover {
@@ -111,6 +113,7 @@
             flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 24px;
+            align-items: center;
         }
         
         .feature-tag {
@@ -120,6 +123,16 @@
             border: 1px solid var(--border-subtle);
             border-radius: 20px;
             color: var(--text-secondary);
+        }
+        
+        .divider {
+            color: var(--border-subtle);
+            font-size: 0.6rem;
+            user-select: none;
+        }
+        
+        .card-spacer {
+            flex-grow: 1;
         }
         
         .demo-btn {
@@ -134,6 +147,7 @@
             font-size: 0.95rem;
             text-align: center;
             transition: all 0.2s;
+            margin-top: auto;
         }
         
         .demo-btn:hover {
@@ -208,9 +222,7 @@
         <div class="header">
             <img src="/RebirthNexusLogo.png" alt="Rebirth Nexus" class="logo">
             <h1>Interactive Demos</h1>
-            <p class="subtitle">
-                Experience Nexus in action. Each demo showcases real platform capabilities using sample data.
-            </p>
+            <p class="subtitle">Experience Nexus in action. Each demo showcases real platform capabilities.</p>
         </div>
         
         <div class="access-note">
@@ -229,11 +241,15 @@
                     Live weather data, cascading risk analysis, and autonomous mitigation recommendations.
                 </p>
                 <div class="demo-features">
-                    <span class="feature-tag">Live Weather APIs</span>
+                    <span class="feature-tag">Live Weather</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Esri Maps</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Risk Cascade</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">ROI Calculator</span>
                 </div>
+                <div class="card-spacer"></div>
                 <a href="/demos/logistics/" class="demo-btn">Launch Demo →</a>
             </div>
             
@@ -247,10 +263,14 @@
                 </p>
                 <div class="demo-features">
                     <span class="feature-tag">UAE Market Data</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Site Selection</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Flood Risk</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Expat Demographics</span>
                 </div>
+                <div class="card-spacer"></div>
                 <a href="/demos/banking/" class="demo-btn">Launch Demo →</a>
             </div>
             
@@ -264,16 +284,20 @@
                 </p>
                 <div class="demo-features">
                     <span class="feature-tag">Fleet Tracking</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Predictive Maintenance</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Weather Correlation</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">FRA Compliance</span>
                 </div>
+                <div class="card-spacer"></div>
                 <a href="/demos/rail/" class="demo-btn">Launch Demo →</a>
             </div>
             
             <div class="demo-card">
                 <div class="demo-icon">🎯</div>
-                <h2 class="demo-title">Retail C3 Intelligence</h2>
+                <h2 class="demo-title">Retail Intelligence</h2>
                 <p class="demo-company">Fortune 500 Retailer</p>
                 <p class="demo-description">
                     Experience a Command & Control Center predicting organized retail crime, 
@@ -281,11 +305,57 @@
                 </p>
                 <div class="demo-features">
                     <span class="feature-tag">ORC Prediction</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">LP Optimization</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Shrink Reduction</span>
+                    <span class="divider">•</span>
                     <span class="feature-tag">Crisis Response</span>
                 </div>
+                <div class="card-spacer"></div>
                 <a href="/demos/retail/" class="demo-btn">Launch Demo →</a>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🛡️</div>
+                <h2 class="demo-title">Defense Logistics Intelligence</h2>
+                <p class="demo-company">Contested Environment Operations</p>
+                <p class="demo-description">
+                    Maintain supply chain resilience under adversarial conditions with real-time 
+                    threat assessment, adaptive routing, and mission-critical resource allocation.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">Threat Assessment</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Adaptive Routing</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Supply Resilience</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Contested Operations</span>
+                </div>
+                <div class="card-spacer"></div>
+                <a href="/demos/wis/" class="demo-btn">Launch Demo →</a>
+            </div>
+            
+            <div class="demo-card">
+                <div class="demo-icon">🏠</div>
+                <h2 class="demo-title">Public Housing Intelligence</h2>
+                <p class="demo-company">Housing Authority Operations</p>
+                <p class="demo-description">
+                    Monitor compliance across regulatory indicators, predict audit risks, and 
+                    optimize tenant services through conversational AI for housing authorities.
+                </p>
+                <div class="demo-features">
+                    <span class="feature-tag">Compliance Monitoring</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Audit Prediction</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Tenant Services</span>
+                    <span class="divider">•</span>
+                    <span class="feature-tag">Regulatory Intelligence</span>
+                </div>
+                <div class="card-spacer"></div>
+                <a href="/demos/semap/" class="demo-btn">Launch Demo →</a>
             </div>
         </div>
         
