@@ -31,7 +31,7 @@ const RESPONSES = {
                 <div class="viz-card"><div class="label">Decision Window</div><div class="value gold">${NUMBERS.decisionWindow}</div></div>
             </div>
             <p>I've analyzed the logistics network and prepared contingency options. What would you like to explore first?</p>`,
-        sources: ['DIA (representative)', 'INDOPACOM J2 (representative)', 'TRANSCOM (representative)', 'Esri GIS', 'Rebirth Analytics'],
+        sources: ['DIA Intel', 'INDOPACOM J2 (representative)', 'TRANSCOM', 'Esri GIS', 'Rebirth Analytics'],
         chips: ['risk', 'cascade', 'actions']
     },
     
@@ -45,7 +45,7 @@ const RESPONSES = {
                 <div class="viz-list-item"><div class="viz-status medium"></div><div class="viz-info"><div class="viz-name">Secondary Nodes (4)</div><div class="viz-detail">Darwin, Changi, Sasebo, Okinawa — cascading risk</div></div><div class="viz-value" style="color: var(--gold)">$25M</div></div>
             </div>
             <p><strong>Key Insight:</strong> 63% of exposure is concentrated in two nodes (Subic + Guam). Both have viable alternatives if activated within 24 hours.</p>`,
-        sources: ['Rebirth Analytics', 'TRANSCOM (representative)', 'Fleet Logistics (synthetic)', 'Allied Port Capacity (synthetic)'],
+        sources: ['Rebirth Analytics', 'TRANSCOM', 'Fleet Logistics', 'Allianz Trade'],
         chips: ['cascade', 'actions']
     },
     
@@ -77,7 +77,7 @@ const RESPONSES = {
                 <div class="viz-card"><div class="label">Residual Risk</div><div class="value green">${NUMBERS.residual}</div></div>
             </div>
             <p><strong>Decision Required:</strong> Approve rerouting authority and expedited resupply. Recommendation: Execute immediately.</p>`,
-        sources: ['Fleet Logistics (synthetic)', 'TRANSCOM (representative)', 'Allied Command (representative)', 'Cost Models (synthetic)', 'Rebirth Analytics'],
+        sources: ['Fleet Logistics', 'TRANSCOM', 'Allied Command', 'Cost Models', 'Rebirth Analytics'],
         chips: ['risk', 'cascade']
     }
 };
@@ -90,6 +90,19 @@ const CHIP_LABELS = {
 
 // === TOUR CONFIGURATION ===
 const TOUR_STEPS = [
+
+{
+    id: 'about',
+    label: 'Before You Begin',
+    title: 'What is Rebirth Nexus?',
+    content: `
+        <p><strong>Rebirth Nexus</strong> is a conversational predictive intelligence layer for complex operations.</p>
+        <p>It fuses <span class="highlight">geospatial context</span>, <span class="highlight">operational data</span>, and <span class="highlight">threat reporting</span> into recommendations you can defend — with clear provenance.</p>
+        <p style="margin-top:10px; opacity:.9">This is a <strong>guided demo</strong>. Only the highlighted controls are enabled. Data shown is <strong>synthetic / unclassified</strong>.</p>
+    `,
+    target: null,
+    buttons: [{ text: 'Continue →', action: 'next', primary: true }]
+},
     {
         id: 'welcome',
         label: 'Welcome to Rebirth Nexus',
@@ -113,7 +126,7 @@ const TOUR_STEPS = [
         label: 'Step 1 of 6',
         title: 'Threat Intelligence Feed',
         content: `
-            <p>The <strong>Intel Feed</strong> aggregates threat data from multiple sources — DIA, INDOPACOM J2, TRANSCOM, and allied feeds.</p>
+            <p>The <strong>Intel Feed</strong> aggregates threat reporting from multiple sources — DIA, INDOPACOM J2 (representative), TRANSCOM, and allied feeds.</p>
             <p>🔴 <strong>Port Interdiction Warning</strong> — Credible intelligence on Subic Bay access denial</p>
             <p>🟠 <strong>Fuel Constraint</strong> — Guam depot at 62% capacity</p>
             <p>Nexus correlates these signals to identify <span class="highlight">cascading risks</span> before they compound.</p>
@@ -194,7 +207,6 @@ const TOUR_STEPS = [
         `,
         target: null,
         buttons: [
-            { text: 'Explore Freely', action: 'end', primary: false },
             { text: 'Request Demo →', action: 'contact', primary: true }
         ]
     }
@@ -204,6 +216,7 @@ const TOUR_STEPS = [
 let currentStep = 0;
 let tourActive = false;
 let tourWaitingFor = null;
+let currentBoostedTarget = null;
 let mapView = null;
 
 // === INITIALIZATION ===
@@ -216,13 +229,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Start tour after short delay
     setTimeout(() => startTour(), 1200);
-});
-
-// Keep spotlight aligned on resize/orientation changes
-window.addEventListener('resize', () => {
-    if (!tourActive) return;
-    const step = TOUR_STEPS[currentStep];
-    if (step) updateSpotlight(step.target);
 });
 
 // === MAP ===
@@ -461,7 +467,65 @@ function startTour() {
     currentStep = 0;
     tourWaitingFor = null;
     document.getElementById('tourOverlay').classList.add('active');
+    document.getElementById('tourCard').classList.add('active');
+    document.body.classList.add('tour-lock');
     renderTourStep();
+}
+
+
+function lockExperience() {
+    // Keep the overlay up to prevent background interaction.
+    tourActive = true; // keep tour mode on for locking visuals
+    tourWaitingFor = null;
+    clearAllowed();
+    clearHighlights();
+    document.getElementById('tourOverlay').classList.add('active');
+    document.getElementById('tourOverlay').classList.remove('spotlight-mode');
+    document.getElementById('tourSpotlight').style.display = 'none';
+    document.body.classList.add('tour-lock');
+    // Keep tour card visible (completion screen may be showing)
+    document.getElementById('tourCard').classList.add('active');
+    document.body.classList.add('tour-lock');
+}
+
+function restartTour() {
+    // Restart the guided experience from the beginning.
+    tourActive = true;
+    currentStep = 0;
+    tourWaitingFor = null;
+    document.getElementById('tourOverlay').classList.add('active');
+    document.getElementById('tourCard').classList.add('active');
+    document.body.classList.add('tour-lock');
+    document.body.classList.add('tour-lock');
+    renderTourStep();
+}
+
+let currentAllowedEl = null;
+function clearAllowed() {
+    if (currentAllowedEl) {
+        currentAllowedEl.classList.remove('tour-allow');
+        currentAllowedEl = null;
+    }
+}
+
+function setAllowedById(id) {
+    clearAllowed();
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (el) {
+        el.classList.add('tour-allow');
+        currentAllowedEl = el;
+    } else {
+        // Some elements (like chips) are rendered dynamically; retry once shortly.
+        setTimeout(() => {
+            const el2 = document.getElementById(id);
+            if (el2) {
+                clearAllowed();
+                el2.classList.add('tour-allow');
+                currentAllowedEl = el2;
+            }
+        }, 60);
+    }
 }
 
 function renderTourStep() {
@@ -505,7 +569,17 @@ function renderTourStep() {
         tourWaitingFor = null;
     }
     
-    // Spotlight
+    
+    // Restrict clicks: only allow the required UI element for this step.
+    clearAllowed();
+    if (step.waitFor) {
+        if (step.waitFor.type === 'tab') {
+            setAllowedById(step.waitFor.value === 'analytics' ? 'analyticsTab' : 'mapTab');
+        } else if (step.waitFor.type === 'chip') {
+            setAllowedById(`chip-${step.waitFor.value}`);
+        }
+    }
+// Spotlight
     updateSpotlight(step.target);
 }
 
@@ -518,19 +592,35 @@ function highlightChip(chipKey) {
 
 function clearHighlights() {
     document.querySelectorAll('.tour-highlight').forEach(el => el.classList.remove('tour-highlight'));
+    if (currentBoostedTarget) {
+        currentBoostedTarget.classList.remove('tour-target-boost');
+        currentBoostedTarget = null;
+    }
+    document.getElementById('tourOverlay').classList.remove('spotlight-mode');
     document.getElementById('tourSpotlight').style.display = 'none';
 }
 
 function updateSpotlight(targetId) {
     const spotlight = document.getElementById('tourSpotlight');
+    const overlay = document.getElementById('tourOverlay');
     
     if (!targetId) {
         spotlight.style.display = 'none';
+        overlay.classList.remove('spotlight-mode');
         return;
     }
     
     const el = document.getElementById(targetId);
     if (el) {
+        // When spotlighting a target, reduce the base dim so the target stays readable.
+        overlay.classList.add('spotlight-mode');
+        // Boost the target so the highlighted UI stays legible (especially the map)
+        if (currentBoostedTarget && currentBoostedTarget !== el) {
+            currentBoostedTarget.classList.remove('tour-target-boost');
+        }
+        currentBoostedTarget = el;
+        el.classList.add('tour-target-boost');
+
         const rect = el.getBoundingClientRect();
         spotlight.style.display = 'block';
         spotlight.style.top = (rect.top - 6) + 'px';
@@ -538,7 +628,12 @@ function updateSpotlight(targetId) {
         spotlight.style.width = (rect.width + 12) + 'px';
         spotlight.style.height = (rect.height + 12) + 'px';
     } else {
+        if (currentBoostedTarget) {
+            currentBoostedTarget.classList.remove('tour-target-boost');
+            currentBoostedTarget = null;
+        }
         spotlight.style.display = 'none';
+        overlay.classList.remove('spotlight-mode');
     }
 }
 
@@ -546,9 +641,13 @@ function handleTourButton(action) {
     if (action === 'next') {
         advanceTour();
     } else if (action === 'end') {
-        endTour();
+        // Tour should not release the experience for free exploration.
+        lockExperience();
+    } else if (action === 'restart') {
+        restartTour();
     } else if (action === 'contact') {
-        endTour();
+        // Keep the experience locked; just open the request-demo modal.
+        lockExperience();
         document.getElementById('pocModal').classList.add('active');
     }
 }
@@ -563,11 +662,8 @@ function advanceTour() {
 }
 
 function endTour() {
-    tourActive = false;
-    tourWaitingFor = null;
-    clearHighlights();
-    document.getElementById('tourOverlay').classList.remove('active');
-    document.getElementById('chatInputArea').classList.add('active');
+    // Deprecated: do not allow free exploration after the tour.
+    lockExperience();
 }
 
 function resetDemo() {
