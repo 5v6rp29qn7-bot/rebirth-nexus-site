@@ -34,15 +34,14 @@
         .password-logo {
             width: 56px;
             height: 56px;
-            background: linear-gradient(135deg, var(--gold), #b8960c);
             border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 24px;
-            color: #000;
+            overflow: hidden;
             margin: 0 auto 20px;
+        }
+        .password-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
         .password-title {
             font-size: 20px;
@@ -661,7 +660,7 @@ opacity: 0;
     <!-- Password Gate (runs after demo-logic.js) -->
     <div class="password-gate" id="passwordGate">
         <div class="password-box" id="passwordBox">
-            <div class="password-logo">N</div>
+            <div class="password-logo"><img src="../../logo.png" alt="Nexus"></div>
             <div class="password-title">Nexus Demo Access</div>
             <div class="password-subtitle">Enter access code to continue</div>
             <input type="password" class="password-input" id="passwordInput" placeholder="Access code" autocomplete="off">
