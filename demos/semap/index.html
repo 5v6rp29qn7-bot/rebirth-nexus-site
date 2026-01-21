@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEMAP Compliance Dashboard | Rebirth Nexus AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #0f172a, #1e1b4b); color: #e2e8f0; min-height: 100vh; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); }
+    ::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.5); border-radius: 4px; }
+    
+    /* Password Gate Styles */
+    .password-gate {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #0f172a, #1e1b4b);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .password-gate.hidden { display: none; }
+    .password-box {
+      background: rgba(30, 41, 59, 0.9);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 16px;
+      padding: 48px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+    }
+    .password-box h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: #f0f0f5;
+    }
+    .password-box p {
+      color: #94a3b8;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+    .password-input {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 8px;
+      color: #e2e8f0;
+      font-size: 16px;
+      margin-bottom: 16px;
+      outline: none;
+      font-family: inherit;
+    }
+    .password-input:focus {
+      border-color: rgba(99, 102, 241, 0.6);
+    }
+    .password-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .password-submit:hover {
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+    }
+    .password-error {
+      color: #f87171;
+      font-size: 14px;
+      margin-top: 12px;
+      display: none;
+    }
+    .password-error.show { display: block; }
+    
+    .header { background: rgba(15,23,42,0.95); border-bottom: 1px solid rgba(99,102,241,0.2); padding: 12px 20px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    .logo { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-title { font-size: 18px; font-weight: 700; }
+    .header-sub { font-size: 12px; color: #94a3b8; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .score-display { text-align: right; margin-right: 8px; }
+    .score-number { font-size: 24px; font-weight: 700; }
+    .score-label { font-size: 12px; }
+    
+    .btn { padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; border: none; font-family: inherit; transition: all 0.2s; }
+    .btn-reset { background: rgba(220,38,38,0.2); border: 1px solid rgba(220,38,38,0.3); color: #fca5a5; }
+    .btn-tour { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc; }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 10px 16px; }
+    .btn-primary:hover { box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+    .btn-action { background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); color: #a5b4fc; margin: 4px; }
+    .btn-cta { padding: 14px; background: linear-gradient(135deg, #dc2626, #b91c1c); border: none; border-radius: 10px; color: white; cursor: pointer; font-size: 14px; font-weight: 600; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 8px; }
+    .btn-quick { padding: 14px; background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.3); border-radius: 10px; color: #a5b4fc; cursor: pointer; font-size: 14px; text-align: left; display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 8px; }
+    
+    .main { display: flex; height: calc(100vh - 61px); margin-top: 61px; }
+    
+    .sidebar { width: 360px; border-right: 1px solid rgba(99,102,241,0.2); padding: 16px; overflow-y: auto; background: rgba(15,23,42,0.5); }
+    .sidebar-title { font-size: 13px; font-weight: 600; margin-bottom: 12px; color: #94a3b8; }
+    
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px; }
+    .summary-card { border-radius: 10px; padding: 12px; text-align: center; }
+    .summary-card.critical { background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); }
+    .summary-card.warning { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); }
+    .summary-number { font-size: 26px; font-weight: 700; }
+    .summary-card.critical .summary-number { color: #fca5a5; }
+    .summary-card.warning .summary-number { color: #fcd34d; }
+    .summary-label { font-size: 11px; }
+    .summary-card.critical .summary-label { color: #f87171; }
+    .summary-card.warning .summary-label { color: #fbbf24; }
+    
+    .indicator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .indicator-card { border-radius: 12px; padding: 12px; cursor: pointer; transition: all 0.2s; position: relative; border: 2px solid transparent; }
+    .indicator-card:hover { transform: translateY(-2px); }
+    .indicator-card.selected { border-color: currentColor; }
+    .indicator-card.zero { background: linear-gradient(135deg, rgba(153,27,27,0.22), rgba(153,27,27,0.44)); border-color: rgba(220,38,38,0.3); color: #fecaca; }
+    .indicator-card.zero.selected { border-color: #dc2626; }
+    .indicator-card.partial { background: linear-gradient(135deg, rgba(146,64,14,0.22), rgba(146,64,14,0.44)); border-color: rgba(245,158,11,0.3); color: #fef3c7; }
+    .indicator-card.partial.selected { border-color: #f59e0b; }
+    .indicator-card.compliant { background: linear-gradient(135deg, rgba(22,101,52,0.22), rgba(22,101,52,0.44)); border-color: rgba(34,197,94,0.3); color: #dcfce7; }
+    .indicator-card.compliant.selected { border-color: #22c55e; }
+    .indicator-card.bonus { background: linear-gradient(135deg, rgba(30,64,175,0.22), rgba(30,64,175,0.44)); border-color: rgba(59,130,246,0.3); color: #dbeafe; }
+    .indicator-num { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
+    .indicator-name { font-size: 12px; font-weight: 600; margin-bottom: 8px; line-height: 1.3; min-height: 32px; }
+    .indicator-score { display: flex; justify-content: space-between; align-items: center; }
+    .indicator-points { font-size: 18px; font-weight: 700; }
+    .indicator-max { font-size: 11px; color: #94a3b8; }
+    .indicator-bar { margin-top: 8px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    .indicator-fill { height: 100%; border-radius: 2px; }
+    .indicator-card.zero .indicator-fill { background: #dc2626; }
+    .indicator-card.partial .indicator-fill { background: #f59e0b; }
+    .indicator-card.compliant .indicator-fill { background: #22c55e; }
+    .indicator-card.bonus .indicator-fill { background: #3b82f6; }
+    .indicator-badge { position: absolute; top: 8px; right: 8px; font-size: 9px; padding: 2px 5px; border-radius: 4px; }
+    .badge-critical { background: #dc2626; }
+    .badge-bonus { background: #3b82f6; }
+    
+    .chat-panel { flex: 1; display: flex; flex-direction: column; background: rgba(15,23,42,0.5); }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 24px; }
+    
+    .welcome { text-align: center; padding: 48px 24px; color: #64748b; }
+    .welcome-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #94a3b8; }
+    .welcome-sub { font-size: 18px; margin-bottom: 32px; color: #64748b; }
+    .welcome-chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .chip { padding: 12px 20px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 24px; color: #a5b4fc; cursor: pointer; font-size: 15px; transition: all 0.2s; }
+    .chip:hover { background: rgba(99,102,241,0.25); }
+    
+    .message { display: flex; margin-bottom: 20px; animation: fadeIn 0.4s ease-out; }
+    .message.user { justify-content: flex-end; }
+    .message.ai { justify-content: flex-start; }
+    .message-content { max-width: 90%; }
+    .message-bubble { padding: 20px 24px; border-radius: 20px; white-space: pre-wrap; font-size: 17px; line-height: 1.8; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .message.user .message-bubble { background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 20px 20px 6px 20px; }
+    .message.ai .message-bubble { background: rgba(30,41,59,0.9); border: 1px solid rgba(99,102,241,0.2); border-radius: 20px 20px 20px 6px; }
+    .message-actions { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+    
+    .suggestions { padding: 0 24px 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+    .suggestion { padding: 10px 18px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; color: #a5b4fc; cursor: pointer; font-size: 14px; }
+    
+    .input-area { padding: 20px 24px; border-top: 1px solid rgba(99,102,241,0.2); background: rgba(15,23,42,0.8); display: flex; gap: 12px; }
+    .input-field { flex: 1; padding: 18px 24px; background: rgba(30,41,59,0.8); border: 1px solid rgba(99,102,241,0.3); border-radius: 28px; color: #e2e8f0; font-size: 17px; outline: none; font-family: inherit; }
+    .send-btn { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; color: white; cursor: pointer; font-size: 22px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(99,102,241,0.4); }
+    
+    
+    .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #22c55e, #16a34a); color: white; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 10000; box-shadow: 0 8px 32px rgba(34,197,94,0.4); display: none; }
+    .toast.show { display: block; animation: fadeIn 0.3s ease-out; }
+    
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .modal.hidden { display: none; }
+    .modal-content { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 16px; padding: 32px; max-width: 480px; width: 100%; border: 1px solid rgba(99,102,241,0.3); animation: fadeIn 0.4s ease-out; text-align: center; }
+    .modal-icon { font-size: 48px; margin-bottom: 16px; }
+    .modal-title { font-size: 24px; font-weight: 700; margin-bottom: 12px; }
+    .modal-text { color: #94a3b8; line-height: 1.7; margin-bottom: 24px; font-size: 16px; }
+    .modal-dots { display: flex; justify-content: center; gap: 6px; margin-bottom: 24px; }
+    .modal-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+    .modal-dot.active { background: #6366f1; }
+    .modal-buttons { display: flex; gap: 12px; justify-content: center; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <!-- Password Gate -->
+  <div class="password-gate" id="passwordGate">
+    <div class="password-box">
+      <h2>Public Housing Intelligence</h2>
+      <p>Enter the access password to view this demo</p>
+      <input type="password" class="password-input" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter')checkPassword()">
+      <button class="password-submit" onclick="checkPassword()">Access Demo</button>
+      <p class="password-error" id="passwordError">Incorrect password. Please try again.</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">N</div>
+      <div>
+        <div class="header-title">SEMAP Compliance Dashboard</div>
+        <div class="header-sub">IL035 | FYE June 30, 2025</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="score-display">
+        <div class="score-number" id="scorePercent">71.7%</div>
+        <div class="score-label" id="scoreRating" style="color: #f59e0b;">Standard Performer</div>
+      </div>
+      <button class="btn btn-reset" onclick="resetChat()">Reset</button>
+      <button class="btn btn-tour" onclick="showTour()">Tour</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-title">SEMAP INDICATORS</div>
+      
+      <div class="summary-grid">
+        <div class="summary-card critical">
+          <div class="summary-number" id="criticalCount">3</div>
+          <div class="summary-label">Critical Failures</div>
+        </div>
+        <div class="summary-card warning">
+          <div class="summary-number" id="warningCount">2</div>
+          <div class="summary-label">Needs Improvement</div>
+        </div>
+      </div>
+
+      <div class="indicator-grid" id="indicatorGrid"></div>
+
+      <div style="margin-top: 20px;">
+        <div class="sidebar-title">QUICK ACTIONS</div>
+        <button class="btn-cta" onclick="sendMessage('Generate CAP for Indicator 13')">📋 Generate HUD-Ready CAP</button>
+        <button class="btn-quick" onclick="sendMessage('Show execution plan for Indicator 13')">📊 Staff Execution Plan</button>
+        <button class="btn-quick" onclick="sendMessage('Generate cover letter for Indicator 13')">✉️ HUD Cover Letter</button>
+      </div>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="chat-panel">
+      <div class="chat-messages" id="chatMessages">
+        <div class="welcome" id="welcomeScreen">
+          <div class="welcome-title">SEMAP Compliance AI</div>
+          <div class="welcome-sub">HUD-ready CAPs • Cover Letters • Execution Plans</div>
+          <div class="welcome-chips">
+            <button class="chip" onclick="sendMessage('Generate CAP for Indicator 13')">Generate CAP for Indicator 13</button>
+            <button class="chip" onclick="sendMessage('Show execution plan for Indicator 9')">Show execution plan for Indicator 9</button>
+            <button class="chip" onclick="sendMessage('Generate cover letter for Indicator 10')">Generate cover letter for Indicator 10</button>
+            <button class="chip" onclick="sendMessage('Show current status for Indicator 3')">Show current status for Indicator 3</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="suggestions" id="suggestions"></div>
+
+      <div class="input-area">
+        <input type="text" class="input-field" id="inputField" placeholder="Ask about SEMAP, generate CAPs, or get compliance guidance..." onkeypress="if(event.key==='Enter')sendMessage()">
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Tour Modal -->
+  <div class="modal hidden" id="tourModal">
+    <div class="modal-content">
+      <div class="modal-icon" id="tourIcon">👋</div>
+      <h2 class="modal-title" id="tourTitle">Welcome to SEMAP Dashboard</h2>
+      <p class="modal-text" id="tourText">AI-powered compliance tool for HCV programs. Generate HUD-ready CAPs, cover letters, and execution plans.</p>
+      <div class="modal-dots" id="tourDots"></div>
+      <div class="modal-buttons">
+        <button class="btn btn-tour" onclick="closeTour()">Skip</button>
+        <button class="btn btn-primary" id="tourNextBtn" onclick="nextTourStep()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password check
+    const DEMO_PASSWORD = 'bluehaven';
+    
+    function checkPassword() {
+      const input = document.getElementById('passwordInput');
+      const error = document.getElementById('passwordError');
+      
+      if (input.value.toLowerCase() === DEMO_PASSWORD) {
+        document.getElementById('passwordGate').classList.add('hidden');
+        showTour();
+      } else {
+        error.classList.add('show');
+        input.value = '';
+        input.focus();
+      }
+    }
+    
+    // Check if already authenticated (for session)
+    if (sessionStorage.getItem('semap_authenticated')) {
+      document.getElementById('passwordGate').classList.add('hidden');
+    }
+    
+    // PHA Data
+    const phaData = {
+      name: "Waukegan Housing Authority", shortName: "WHA", phaCode: "IL035",
+      address: "123 Housing Authority Drive, Waukegan, Illinois 60085", phone: "(847) 244-6549",
+      executiveDirector: "[Executive Director Name]",
+      hudFieldOffice: "Chicago Regional Office", hudAddress: "77 West Jackson Boulevard, Chicago, IL 60604",
+      fiscalYearEnd: "June 30, 2025", findingDate: "December 15, 2025", responseDeadline: "January 14, 2026",
+      accUnits: 1070
+    };
+
+    // Scores - CORRECTED: Total = 104 points (71.7%)
+    const scores = {
+      1: { points: 15, max: 15, status: "compliant" }, 2: { points: 20, max: 20, status: "compliant" },
+      3: { points: 15, max: 20, status: "partial" }, 4: { points: 5, max: 5, status: "compliant" },
+      5: { points: 5, max: 5, status: "compliant" }, 6: { points: 8, max: 10, status: "partial" },
+      7: { points: 5, max: 5, status: "compliant" }, 8: { points: 5, max: 5, status: "compliant" },
+      9: { points: 0, max: 10, status: "zero" }, 10: { points: 0, max: 5, status: "zero" },
+      11: { points: 5, max: 5, status: "compliant" }, 12: { points: 8, max: 10, status: "partial" },
+      13: { points: 0, max: 20, status: "zero" }, 14: { points: 10, max: 10, status: "compliant" },
+      15: { points: 3, max: 5, status: "bonus" }
+    };
+
+    // Indicator names
+    const indicatorNames = {
+      1: "Selection from Waiting List", 2: "Rent Reasonableness", 3: "Determination of Adjusted Income",
+      4: "Utility Allowance Schedule", 5: "HQS Quality Control", 6: "HQS Enforcement",
+      7: "Expanding Housing Opportunities", 8: "Payment Standards", 9: "Annual Reexaminations",
+      10: "Correct Tenant Rent Calculations", 11: "Pre-Contract Inspections", 12: "Annual Inspections",
+      13: "Lease-Up", 14: "FSS Enrollment and Escrow", 15: "Deconcentration Bonus"
+    };
+
+    // Critical/Bonus flags - CORRECTED: Added 9 and 10 as critical per 2.html
+    const criticalIndicators = [5, 6, 9, 10, 13];
+    const bonusIndicators = [15];
+
+    let selectedIndicator = null;
+    let tourStep = 0;
+    const tourSteps = [
+      { icon: "👋", title: "Welcome to SEMAP Dashboard", text: "AI-powered compliance tool for HCV programs. Generate HUD-ready CAPs, cover letters, and execution plans." },
+      { icon: "📊", title: "SEMAP Score Overview", text: "Current score: 71.7% (Standard Performer). Click any indicator. Red = zero score requiring CAP." },
+      { icon: "📋", title: "Key Deliverables", text: "Generate three core documents: CAPs, Cover Letters for HUD, and Staff Execution Plans." },
+      { icon: "📥", title: "Export Functions", text: "Export CAP + Cover Letter together, or Execution Plans separately for internal use." },
+      { icon: "🎯", title: "Focus Indicators", text: "Indicators 3, 9, 10, and 13 are fully built out for today's demo." }
+    ];
+
+    // Full indicator data for focus indicators (3, 9, 10, 13)
+    const indicatorData = {
+      3: {
+        name: "Determination of Adjusted Income",
+        semapCitation: "24 CFR 985.3(c)",
+        programCitations: ["24 CFR 5.609", "24 CFR 5.611", "24 CFR 982.516"],
+        regulatoryText: "The PHA verifies and correctly determines annual income and adjusted income for each assisted family, including proper calculation of all income inclusions and exclusions, and accurate application of mandatory deductions.",
+        passingThreshold: "90% of files with correctly determined adjusted income",
+        rootCauses: [
+          { category: "Income Verification Deficiencies", items: ["Third-party verification not obtained when available", "EIV Income Reports not consistently reviewed", "Asset verification incomplete"] },
+          { category: "Deduction Calculation Errors", items: ["Medical expense deductions calculated incorrectly", "Incorrect application of 10% HOTMA threshold", "Childcare deductions without verification"] },
+          { category: "Income Exclusion Errors", items: ["EID not properly tracked", "Student aid exclusions incorrect", "Temporary income errors"] }
+        ],
+        correctiveActions: [
+          { action: "Develop comprehensive income verification hierarchy checklist", timeline: "15 days", responsible: "HCV Manager", verification: "Checklist document" },
+          { action: "Provide training on EIV Income Reports and discrepancy resolution", timeline: "30 days", responsible: "HCV Manager", verification: "Training records" },
+          { action: "Create reference guide for income exclusions (EID, student aid)", timeline: "30 days", responsible: "HCV Manager", verification: "Reference guide" },
+          { action: "Implement EID tracking system with eligibility dates", timeline: "45 days", responsible: "IT Director", verification: "Tracking report" },
+          { action: "Develop medical expense worksheet (10% HOTMA threshold)", timeline: "15 days", responsible: "HCV Manager", verification: "Worksheet" },
+          { action: "Conduct file review of elderly/disabled households", timeline: "60 days", responsible: "QC Specialist", verification: "Review log" },
+          { action: "Establish asset verification requirements per HOTMA ($100,000 threshold)", timeline: "30 days", responsible: "HCV Manager", verification: "Policy memo" }
+        ],
+        executionPlan: {
+          title: "EXECUTION PLAN: INCOME DETERMINATION",
+          tasks: [
+            { task: "Update income worksheets for HOTMA (10% threshold)", owner: "HCV Manager", due: "Week 1", notes: "Replace 3% forms" },
+            { task: "Create EIV review checklist", owner: "Compliance Officer", due: "Week 2", notes: "Mandatory for all" },
+            { task: "Develop EID tracking spreadsheet", owner: "IT Coordinator", due: "Week 3", notes: "Phase-out schedules" },
+            { task: "Train staff on HOTMA deductions", owner: "Training Coordinator", due: "Week 4", notes: "Medical, asset rules" },
+            { task: "Audit elderly/disabled files", owner: "QC Specialist", due: "Week 6-8", notes: "Correct errors" },
+            { task: "Implement dual-review for calculations", owner: "HCV Supervisor", due: "Week 2", notes: "Second signature" },
+            { task: "Create income exclusion quick-reference", owner: "HCV Manager", due: "Week 3", notes: "Desk reference" }
+          ]
+        },
+        kpis: { current: "85%", sixMonth: "95%", twelveMonth: "98%" }
+      },
+      9: {
+        name: "Annual Reexaminations",
+        semapCitation: "24 CFR 985.3(i)",
+        programCitations: ["24 CFR 982.516"],
+        regulatoryText: "The PHA completes a reexamination for each participating family at least every 12 months, including income verification, family composition updates, and rent calculation.",
+        passingThreshold: "95% of reexaminations completed by anniversary date",
+        rootCauses: [
+          { category: "Scheduling Deficiencies", items: ["No automated tracking for due dates", "Notices sent with insufficient lead time (<90 days)", "No escalation process for non-responsive families"] },
+          { category: "Process Failures", items: ["Reexam packets incomplete", "Processing backlog", "No prioritization of approaching due dates"] },
+          { category: "Staff/Capacity Issues", items: ["Caseloads too high", "Staff turnover", "Insufficient cross-training"] }
+        ],
+        correctiveActions: [
+          { action: "Implement automated reexam tracking with 120/90/60/30 day alerts", timeline: "30 days", responsible: "IT Director", verification: "System operational" },
+          { action: "Mail reexam packets 120 days before anniversary", timeline: "15 days", responsible: "HCV Director", verification: "Mailing schedule confirmed" },
+          { action: "Establish escalation protocol for non-responsive families", timeline: "30 days", responsible: "HCV Manager", verification: "Protocol documented" },
+          { action: "Rebalance caseloads for equitable distribution", timeline: "45 days", responsible: "HCV Director", verification: "Caseload report" },
+          { action: "Implement weekly reexam aging report review", timeline: "15 days", responsible: "HCV Supervisor", verification: "Weekly reports" },
+          { action: "Conduct file audit for last 6 months reexaminations", timeline: "60 days", responsible: "QC Specialist", verification: "Audit report" }
+        ],
+        executionPlan: {
+          title: "EXECUTION PLAN: ANNUAL REEXAMINATIONS",
+          tasks: [
+            { task: "Configure 120/90/60/30 day alert system", owner: "IT Director", due: "Week 2", notes: "Automated email and dashboard" },
+            { task: "Update packet mailing schedule to 120 days", owner: "HCV Director", due: "Week 1", notes: "Immediate implementation" },
+            { task: "Create escalation protocol document", owner: "HCV Manager", due: "Week 2", notes: "2nd notice, termination warning" },
+            { task: "Generate weekly reexam aging report", owner: "IT/Data", due: "Week 1", notes: "By specialist, by days until due" },
+            { task: "Rebalance caseloads across specialists", owner: "HCV Director", due: "Week 4", notes: "Equitable distribution" },
+            { task: "Audit last 6 months of reexaminations", owner: "QC Specialist", due: "Weeks 4-8", notes: "Accuracy and timeliness" },
+            { task: "Train staff on new tracking and protocols", owner: "Training Coordinator", due: "Week 3", notes: "All HCV staff" }
+          ]
+        },
+        kpis: { current: "88%", sixMonth: "95%", twelveMonth: "98%" }
+      },
+      10: {
+        name: "Correct Tenant Rent Calculations",
+        semapCitation: "24 CFR 985.3(j)",
+        programCitations: ["24 CFR 5.628", "24 CFR 982.515", "24 CFR 982.516"],
+        regulatoryText: "The PHA correctly calculates the tenant's share of rent (Total Tenant Payment) based on properly determined adjusted income and applicable utility allowances.",
+        passingThreshold: "90% of tenant rent calculations are correct",
+        rootCauses: [
+          { category: "Calculation Errors", items: ["TTP formula applied incorrectly", "Wrong adjusted income used", "Mathematical errors"] },
+          { category: "Utility Allowance Errors", items: ["Wrong UA for bedroom size", "Outdated UA schedule applied", "UA not updated on moves"] },
+          { category: "System/Process Issues", items: ["No dual-review requirement", "Software not updated for HOTMA", "Staff unfamiliar with rules"] }
+        ],
+        correctiveActions: [
+          { action: "Audit all rent calculations using HOTMA methodology", timeline: "60 days", responsible: "Compliance Officer", verification: "Audit report" },
+          { action: "Implement mandatory dual-review for all rent calculations", timeline: "15 days", responsible: "HCV Supervisor", verification: "Signed forms" },
+          { action: "Update software and worksheets for HOTMA compliance", timeline: "30 days", responsible: "IT Director", verification: "System updated" },
+          { action: "Conduct comprehensive TTP and HAP training", timeline: "45 days", responsible: "Training Coordinator", verification: "Certificates" },
+          { action: "Develop rent calculation checklist with error prevention", timeline: "15 days", responsible: "HCV Manager", verification: "Checklist in use" },
+          { action: "Establish monthly QC review (5% sample)", timeline: "30 days", responsible: "QC Specialist", verification: "QC reports" }
+        ],
+        executionPlan: {
+          title: "EXECUTION PLAN: TENANT RENT CALCULATIONS",
+          tasks: [
+            { task: "Update rent worksheets for HOTMA", owner: "HCV Manager", due: "Week 1", notes: "New deduction thresholds" },
+            { task: "Implement dual-review sign-off", owner: "HCV Supervisor", due: "Week 1", notes: "All calcs need 2nd signature" },
+            { task: "Verify software updated for HOTMA", owner: "IT Director", due: "Week 2", notes: "Test calculations" },
+            { task: "Create rent calculation checklist", owner: "HCV Manager", due: "Week 2", notes: "Error prevention tips" },
+            { task: "Conduct staff training on TTP/HAP", owner: "Training Coordinator", due: "Week 4", notes: "Include practice exercises" },
+            { task: "Audit rent calculations from last 6 months", owner: "Compliance Officer", due: "Weeks 4-8", notes: "Document and correct" },
+            { task: "Establish monthly 5% QC sample", owner: "QC Specialist", due: "Week 4", notes: "Ongoing monitoring" }
+          ]
+        },
+        kpis: { current: "91%", sixMonth: "95%", twelveMonth: "98%" }
+      },
+      13: {
+        name: "Lease-Up",
+        semapCitation: "24 CFR 985.3(m)",
+        programCitations: ["24 CFR 982.303"],
+        regulatoryText: "The PHA enters HAP contracts for the number of units reserved under its ACC. Score based on higher of unit utilization rate or budget utilization rate.",
+        passingThreshold: "98%+ = 20 points; 95-97% = 15 points; <95% = 0 points",
+        specialMetrics: { unitMonthsAvailable: 12840, unitMonthsLeased: 8102, unitUtilization: "64.9%", budgetUtilization: "95.3%", successRate: "60%", landlords: 200, attrition: 55, issued: 27 },
+        rootCauses: [
+          { category: "Landlord Participation", items: ["Insufficient landlord participation", "High landlord attrition due to inspections", "Payment standards below market", "No incentive programs"] },
+          { category: "Voucher Issuance", items: ["Low issuance rate (below attrition)", "Waiting list processing delays", "Inadequate pipeline management"] },
+          { category: "Success Rate Issues", items: ["Low voucher success rate", "Limited housing search assistance", "Insufficient briefing preparation", "No 30/60/90 day check-ins"] },
+          { category: "Special Purpose Vouchers", items: ["VASH underutilized", "Mainstream underutilized", "Weak referral partnerships"] }
+        ],
+        correctiveActions: [
+          { action: "Launch landlord signing bonus program ($500/new landlord)", timeline: "30 days", responsible: "HCV Director", verification: "Bonuses paid" },
+          { action: "Establish damage mitigation fund ($50,000)", timeline: "30 days", responsible: "Finance Director", verification: "Fund operational" },
+          { action: "Issue minimum 12-15 vouchers monthly (150+ annually)", timeline: "Ongoing", responsible: "HCV Director", verification: "Weekly tracking" },
+          { action: "Hire dedicated Housing Search Specialist", timeline: "60 days", responsible: "HR Director", verification: "Position filled" },
+          { action: "Extend voucher search to 180 days with milestones", timeline: "15 days", responsible: "Executive Director", verification: "Admin Plan amended" },
+          { action: "Conduct monthly landlord outreach events", timeline: "30 days", responsible: "Landlord Liaison", verification: "Event attendance" },
+          { action: "Streamline inspections (<15% re-inspection rate)", timeline: "60 days", responsible: "Inspections Supervisor", verification: "Metrics" },
+          { action: "Establish weekly VA meetings for VASH", timeline: "15 days", responsible: "VASH Coordinator", verification: "Meeting minutes" },
+          { action: "Partner with disability orgs for Mainstream (3 MOUs)", timeline: "45 days", responsible: "HCV Director", verification: "Executed MOUs" },
+          { action: "Implement weekly utilization huddle", timeline: "15 days", responsible: "HCV Director", verification: "Meeting minutes" }
+        ],
+        executionPlan: {
+          title: "EXECUTION PLAN: LEASE-UP RECOVERY",
+          tasks: [
+            { task: "Finalize landlord bonus program and Board approval", owner: "HCV Director", due: "Week 2", notes: "$500/new landlord" },
+            { task: "Establish damage mitigation fund ($50K)", owner: "Finance Director", due: "Week 3", notes: "Board resolution" },
+            { task: "Post Housing Search Specialist position", owner: "HR Director", due: "Week 1", notes: "Admin fee funded" },
+            { task: "Implement weekly utilization huddle", owner: "HCV Director", due: "Week 1", notes: "Every Monday 9am" },
+            { task: "Create RFTA aging report and dashboard", owner: "IT/Data", due: "Week 2", notes: "Real-time tracking" },
+            { task: "Amend Admin Plan for 180-day voucher term", owner: "Executive Director", due: "Week 3", notes: "Board approval" },
+            { task: "Schedule first landlord outreach event", owner: "Landlord Liaison", due: "Week 4", notes: "Target 10+ attendees" },
+            { task: "Establish weekly VASH/VA coordination", owner: "VASH Coordinator", due: "Week 2", notes: "Referral pipeline" },
+            { task: "Contact 3 disability organizations for MOUs", owner: "HCV Director", due: "Week 4", notes: "Mainstream partners" },
+            { task: "Implement 30/60/90/120 day voucher check-ins", owner: "Housing Specialist", due: "Week 3", notes: "Call log required" }
+          ]
+        },
+        kpis: { current: "64.9%", sixMonth: "84%", twelveMonth: "95%" }
+      }
+    };
+
+    // Calculate actual score
+    function calculateScore() {
+      let total = 0;
+      let max = 0;
+      for (let i = 1; i <= 14; i++) { // Exclude bonus indicator 15
+        total += scores[i].points;
+        max += scores[i].max;
+      }
+      return { total, max, percent: ((total / max) * 100).toFixed(1) };
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      renderIndicators();
+      updateScoreDisplay();
+      // Don't auto-show tour - it will show after password entry
+    });
+
+    function updateScoreDisplay() {
+      const score = calculateScore();
+      document.getElementById('scorePercent').textContent = score.percent + '%';
+      const rating = score.percent >= 90 ? 'High Performer' : score.percent >= 60 ? 'Standard Performer' : 'Troubled';
+      const color = score.percent >= 90 ? '#22c55e' : score.percent >= 60 ? '#f59e0b' : '#dc2626';
+      document.getElementById('scoreRating').textContent = rating;
+      document.getElementById('scoreRating').style.color = color;
+    }
+
+    function renderIndicators() {
+      const grid = document.getElementById('indicatorGrid');
+      grid.innerHTML = '';
+      
+      let criticalCount = 0;
+      let warningCount = 0;
+      
+      for (let i = 1; i <= 15; i++) {
+        const score = scores[i];
+        if (score.status === 'zero') criticalCount++;
+        if (score.status === 'partial') warningCount++;
+        
+        const card = document.createElement('div');
+        card.className = 'indicator-card ' + score.status + (selectedIndicator === i ? ' selected' : '');
+        card.onclick = () => selectIndicator(i);
+        
+        let badge = '';
+        if (criticalIndicators.includes(i)) badge = '<span class="indicator-badge badge-critical">CRITICAL</span>';
+        if (bonusIndicators.includes(i)) badge = '<span class="indicator-badge badge-bonus">BONUS</span>';
+        
+        card.innerHTML = badge +
+          '<div class="indicator-num">Indicator ' + i + '</div>' +
+          '<div class="indicator-name">' + indicatorNames[i] + '</div>' +
+          '<div class="indicator-score">' +
+            '<span class="indicator-points">' + score.points + '</span>' +
+            '<span class="indicator-max">/ ' + score.max + '</span>' +
+          '</div>' +
+          '<div class="indicator-bar"><div class="indicator-fill" style="width:' + ((score.points/score.max)*100) + '%"></div></div>';
+        
+        grid.appendChild(card);
+      }
+      
+      document.getElementById('criticalCount').textContent = criticalCount;
+      document.getElementById('warningCount').textContent = warningCount;
+    }
+
+    function selectIndicator(num) {
+      selectedIndicator = num;
+      renderIndicators();
+      sendMessage('Tell me about Indicator ' + num);
+    }
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Tour
+    function showTour() {
+      tourStep = 0;
+      updateTour();
+      document.getElementById('tourModal').classList.remove('hidden');
+    }
+
+    function closeTour() {
+      document.getElementById('tourModal').classList.add('hidden');
+    }
+
+    function nextTourStep() {
+      tourStep++;
+      if (tourStep >= tourSteps.length) {
+        closeTour();
+      } else {
+        updateTour();
+      }
+    }
+
+    function updateTour() {
+      const step = tourSteps[tourStep];
+      document.getElementById('tourIcon').textContent = step.icon;
+      document.getElementById('tourTitle').textContent = step.title;
+      document.getElementById('tourText').textContent = step.text;
+      document.getElementById('tourNextBtn').textContent = tourStep < tourSteps.length - 1 ? 'Next' : 'Get Started';
+      
+      const dots = document.getElementById('tourDots');
+      dots.innerHTML = '';
+      for (let i = 0; i < tourSteps.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'modal-dot' + (i === tourStep ? ' active' : '');
+        dots.appendChild(dot);
+      }
+    }
+
+    // Chat
+    function resetChat() {
+      document.getElementById('chatMessages').innerHTML = '<div class="welcome" id="welcomeScreen"><div class="welcome-title">SEMAP Compliance AI</div><div class="welcome-sub">HUD-ready CAPs • Cover Letters • Execution Plans</div><div class="welcome-chips"><button class="chip" onclick="sendMessage(\'Generate CAP for Indicator 13\')">Generate CAP for Indicator 13</button><button class="chip" onclick="sendMessage(\'Show execution plan for Indicator 9\')">Show execution plan for Indicator 9</button><button class="chip" onclick="sendMessage(\'Generate cover letter for Indicator 10\')">Generate cover letter for Indicator 10</button><button class="chip" onclick="sendMessage(\'Show current status for Indicator 3\')">Show current status for Indicator 3</button></div></div>';
+      document.getElementById('suggestions').innerHTML = '';
+      selectedIndicator = null;
+      renderIndicators();
+    }
+
+    function sendMessage(text) {
+      const input = document.getElementById('inputField');
+      const msg = text || input.value.trim();
+      if (!msg) return;
+      input.value = '';
+
+      // Hide welcome
+      const welcome = document.getElementById('welcomeScreen');
+      if (welcome) welcome.style.display = 'none';
+
+      // Add user message
+      addMessage('user', msg);
+
+      // Process and respond
+      setTimeout(() => {
+        processMessage(msg);
+      }, 300);
+    }
+
+    function addMessage(type, text, actions) {
+      const container = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message ' + type;
+      
+      let actionsHtml = '';
+      if (actions && actions.length > 0) {
+        actionsHtml = '<div class="message-actions">' + actions.map(a => 
+          '<button class="btn btn-primary" onclick="' + a.onclick + '">' + a.label + '</button>'
+        ).join('') + '</div>';
+      }
+      
+      div.innerHTML = '<div class="message-content"><div class="message-bubble">' + text + '</div>' + actionsHtml + '</div>';
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function setSuggestions(items) {
+      const container = document.getElementById('suggestions');
+      container.innerHTML = items.map(q => 
+        '<button class="suggestion" onclick="sendMessage(\'' + q.replace(/'/g, "\\'") + '\')">' + q + '</button>'
+      ).join('');
+    }
+
+    function processMessage(msg) {
+      const lower = msg.toLowerCase();
+      
+      // Extract indicator number
+      const numMatch = msg.match(/\d+/);
+      const num = numMatch ? parseInt(numMatch[0]) : (selectedIndicator || 13);
+      if (num >= 1 && num <= 15) selectedIndicator = num;
+      renderIndicators();
+
+      let response = '';
+      let actions = [];
+      let suggestions = [];
+
+      // CAP generation
+      if (lower.includes('cap') || lower.includes('corrective action plan')) {
+        response = generateCAP(num);
+        actions = [
+          { label: '📥 Export CAP', onclick: 'exportDoc(' + num + ', "cap")' },
+          { label: '📋 Copy Text', onclick: 'copyText(' + num + ', "cap")' }
+        ];
+        suggestions = ['Generate cover letter for Indicator ' + num, 'Show execution plan for Indicator ' + num];
+      }
+      // Cover letter
+      else if (lower.includes('cover letter') || lower.includes('letter to hud') || lower.includes('hud letter')) {
+        response = generateCoverLetter(num);
+        actions = [
+          { label: '📥 Export Cover Letter', onclick: 'exportDoc(' + num + ', "cover")' },
+          { label: '📋 Copy Text', onclick: 'copyText(' + num + ', "cover")' }
+        ];
+        suggestions = ['Generate CAP for Indicator ' + num, 'Show execution plan for Indicator ' + num];
+      }
+      // Execution plan
+      else if (lower.includes('execution') || lower.includes('staff plan') || lower.includes('tasks') || lower.includes('breakdown')) {
+        response = generateExecutionPlan(num);
+        actions = [
+          { label: '📥 Export Execution Plan', onclick: 'exportDoc(' + num + ', "exec")' },
+          { label: '📋 Copy Text', onclick: 'copyText(' + num + ', "exec")' }
+        ];
+        suggestions = ['Generate CAP for Indicator ' + num, 'Generate cover letter for Indicator ' + num];
+      }
+      // Current status
+      else if (lower.includes('status') || lower.includes('current')) {
+        response = generateStatus(num);
+        suggestions = ['Generate CAP for Indicator ' + num, 'Show execution plan for Indicator ' + num];
+      }
+      // About indicator
+      else if (lower.includes('tell me') || lower.includes('about') || lower.includes('indicator')) {
+        response = generateAbout(num);
+        suggestions = ['Generate CAP for Indicator ' + num, 'Generate cover letter for Indicator ' + num, 'Show execution plan for Indicator ' + num, 'Show current status for Indicator ' + num];
+      }
+      // Default help
+      else {
+        response = generateHelp();
+        suggestions = ['Generate CAP for Indicator 13', 'Show execution plan for Indicator 9', 'Generate cover letter for Indicator 10'];
+      }
+
+      addMessage('ai', response, actions);
+      setSuggestions(suggestions);
+    }
+
+    // Document generators
+    function generateCAP(num) {
+      const ind = indicatorData[num] || { name: indicatorNames[num], semapCitation: "24 CFR 985.3", passingThreshold: "Per HUD requirements", rootCauses: [], correctiveActions: [], kpis: { current: "N/A", sixMonth: "Target", twelveMonth: "Goal" } };
+      const score = scores[num];
+      const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      let rootCauseText = '';
+      if (ind.rootCauses && ind.rootCauses.length > 0) {
+        ind.rootCauses.forEach((cat, i) => {
+          rootCauseText += '\n<strong>' + (i+1) + '. ' + cat.category + '</strong>\n';
+          cat.items.forEach(item => { rootCauseText += '• ' + item + '\n'; });
+        });
+      }
+
+      let actionsText = '';
+      if (ind.correctiveActions && ind.correctiveActions.length > 0) {
+        actionsText = '<table style="width:100%; border-collapse:collapse; margin:10px 0;"><tr style="background:#1e293b;"><th style="border:1px solid #334155; padding:8px; text-align:left;">#</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Corrective Action</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Timeline</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Responsible</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Verification</th></tr>';
+        ind.correctiveActions.forEach((ca, i) => {
+          actionsText += '<tr><td style="border:1px solid #334155; padding:8px;">' + (i+1) + '</td><td style="border:1px solid #334155; padding:8px;">' + ca.action + '</td><td style="border:1px solid #334155; padding:8px;">' + ca.timeline + '</td><td style="border:1px solid #334155; padding:8px;">' + ca.responsible + '</td><td style="border:1px solid #334155; padding:8px;">' + ca.verification + '</td></tr>';
+        });
+        actionsText += '</table>';
+      }
+
+      let metricsSection = '';
+      if (num === 13 && ind.specialMetrics) {
+        const m = ind.specialMetrics;
+        metricsSection = '\n<strong>Baseline Data</strong>\n• Unit Months Available: ' + m.unitMonthsAvailable.toLocaleString() + '\n• Unit Months Leased: ' + m.unitMonthsLeased.toLocaleString() + '\n• Unit Utilization: ' + m.unitUtilization + '\n• Budget Utilization: ' + m.budgetUtilization + '\n• Voucher Success Rate: ' + m.successRate + '\n• Active Landlords: ' + m.landlords + '\n• Annual Attrition: ' + m.attrition + ' units\n• Vouchers Issued (FY): ' + m.issued + '\n';
+      }
+
+      return '<strong>CORRECTIVE ACTION PLAN</strong>\n<strong>' + phaData.name.toUpperCase() + '</strong>\n\nSubmitted to: U.S. Department of Housing and Urban Development\nDate: ' + today + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>I. EXECUTIVE SUMMARY</strong>\n\nPHA Code: ' + phaData.phaCode + '\nFiscal Year End: ' + phaData.fiscalYearEnd + '\nIndicator: ' + num + ' - ' + ind.name + '\nScore Received: ' + score.points + ' of ' + score.max + ' points\nStatus: ' + (score.points === 0 ? 'CRITICAL FAILURE' : 'NEEDS IMPROVEMENT') + '\nPassing Threshold: ' + ind.passingThreshold + '\n\nRegulatory Citation: ' + ind.semapCitation + '\n' + (ind.programCitations ? 'Program Regulations: ' + ind.programCitations.join(', ') : '') + '\n\nRegulatory Requirement:\n"' + (ind.regulatoryText || 'As specified in HUD regulations.') + '"\n' + metricsSection + '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>II. ROOT CAUSE ANALYSIS</strong>\n' + rootCauseText + '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>III. CORRECTIVE ACTIONS</strong>\n' + actionsText + '\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>IV. PERFORMANCE TARGETS</strong>\n\nMetric: ' + (num === 13 ? 'Unit Utilization' : 'Compliance Rate') + '\n• Current: ' + ind.kpis.current + '\n• 6-Month Target: ' + ind.kpis.sixMonth + '\n• 12-Month Target: ' + ind.kpis.twelveMonth + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>V. CERTIFICATION</strong>\n\nI certify this Corrective Action Plan is accurate and ' + phaData.shortName + ' is committed to implementing these actions.\n\n_________________________________________\n' + phaData.executiveDirector + '\nExecutive Director, ' + phaData.name + '\nDate: ' + today + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n<em>Generated by SEMAP Compliance AI | Rebirth Nexus Platform</em>';
+    }
+
+    function generateCoverLetter(num) {
+      const ind = indicatorData[num] || { name: indicatorNames[num], correctiveActions: [] };
+      const score = scores[num];
+      const today = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+      
+      const topActions = (ind.correctiveActions || []).slice(0, 3).map(a => '• ' + a.action + ' (' + a.timeline + ')').join('\n');
+
+      return '<strong>' + phaData.name.toUpperCase() + '</strong>\n' + phaData.address + '\nPhone: ' + phaData.phone + '\n\n' + today + '\n\nDirector, Office of Public Housing\nU.S. Department of Housing and Urban Development\n' + phaData.hudFieldOffice + '\n' + phaData.hudAddress + '\n\n<strong>RE: SEMAP Corrective Action Plan Submission</strong>\nPHA Code: ' + phaData.phaCode + '\nFiscal Year End: ' + phaData.fiscalYearEnd + '\nIndicator: ' + num + ' - ' + ind.name + '\n\nDear Director:\n\nThe ' + phaData.name + ' ("' + phaData.shortName + '") acknowledges the deficiency in our SEMAP certification for Indicator ' + num + ' (' + ind.name + '). We received ' + score.points + ' of ' + score.max + ' points, below the passing threshold.\n\nPursuant to 24 CFR 985.106, ' + phaData.shortName + ' submits the enclosed Corrective Action Plan within the required 30-day period.\n\n<strong>Key Corrective Actions:</strong>\n\n' + topActions + '\n\nOur implementation follows a phased approach: immediate actions within 15 days, short-term improvements within 45 days, and full implementation within 90 days.\n\nThe ' + phaData.shortName + ' Board of Commissioners has been notified. We welcome any technical assistance HUD may offer.\n\nPlease contact me at ' + phaData.phone + ' with questions.\n\nRespectfully submitted,\n\n_________________________________________\n<strong>' + phaData.executiveDirector + '</strong>\nExecutive Director\n' + phaData.name + '\n\n<strong>Enclosures:</strong>\n1. SEMAP Indicator ' + num + ' Corrective Action Plan\n2. Supporting Documentation\n\ncc: Board of Commissioners, HCV Director, File\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n<em>Generated by SEMAP Compliance AI | Rebirth Nexus Platform</em>';
+    }
+
+    function generateExecutionPlan(num) {
+      const ind = indicatorData[num];
+      
+      if (!ind || !ind.executionPlan) {
+        return '<strong>EXECUTION PLAN: ' + indicatorNames[num].toUpperCase() + '</strong>\n<strong>' + phaData.shortName + ' | Indicator ' + num + '</strong>\nFor Internal Use\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nExecution plan tasks for this indicator are being developed.\n\nFor fully detailed execution plans, please select Indicators 3, 9, 10, or 13.\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n<em>Generated by SEMAP Compliance AI | Rebirth Nexus Platform</em>';
+      }
+
+      const ep = ind.executionPlan;
+      
+      let tasksTable = '<table style="width:100%; border-collapse:collapse; margin:10px 0;"><tr style="background:#1e293b;"><th style="border:1px solid #334155; padding:8px; text-align:left;">Task</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Owner</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Due</th><th style="border:1px solid #334155; padding:8px; text-align:left;">Notes</th></tr>';
+      ep.tasks.forEach(t => {
+        tasksTable += '<tr><td style="border:1px solid #334155; padding:8px;">' + t.task + '</td><td style="border:1px solid #334155; padding:8px;">' + t.owner + '</td><td style="border:1px solid #334155; padding:8px;">' + t.due + '</td><td style="border:1px solid #334155; padding:8px;">' + t.notes + '</td></tr>';
+      });
+      tasksTable += '</table>';
+
+      return '<strong>' + ep.title + '</strong>\n<strong>' + phaData.shortName + ' | Indicator ' + num + '</strong>\nFor Internal Use - Not for HUD Submission\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>TASK BREAKDOWN</strong>\n' + tasksTable + '\n<strong>WEEKLY RHYTHM</strong>\n• Monday: Compliance huddle - review metrics (HCV Director)\n• Wednesday: Progress check on open tasks (Responsible Parties)\n• Friday: Week-end status update (HCV Manager)\n\n<strong>ESCALATION TRIGGERS</strong>\n• Task 3+ days overdue → Notify HCV Director\n• Metric trending negative → Emergency session within 48 hours\n• Resource constraint → Executive Director escalation\n\n<strong>SUCCESS CRITERIA</strong>\n• All tasks completed within timeline\n• Metrics trending toward targets\n• Documentation complete for HUD reporting\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n<em>Generated by SEMAP Compliance AI | Rebirth Nexus Platform</em>';
+    }
+
+    function generateStatus(num) {
+      const ind = indicatorData[num] || { name: indicatorNames[num], semapCitation: "24 CFR 985.3", passingThreshold: "Per HUD requirements" };
+      const score = scores[num];
+      
+      let metricsText = '';
+      if (num === 13 && ind.specialMetrics) {
+        const m = ind.specialMetrics;
+        metricsText = '\n<strong>Baseline Metrics:</strong>\n• Unit Utilization: ' + m.unitUtilization + '\n• Budget Utilization: ' + m.budgetUtilization + '\n• Voucher Success Rate: ' + m.successRate + '\n• Active Landlords: ' + m.landlords + '\n';
+      }
+
+      const statusIcon = score.status === 'zero' ? '🔴 CRITICAL FAILURE' : score.status === 'partial' ? '🟡 NEEDS IMPROVEMENT' : '🟢 COMPLIANT';
+
+      return '<strong>CURRENT STATUS: Indicator ' + num + ' - ' + ind.name + '</strong>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nScore: ' + score.points + ' / ' + score.max + ' points\nStatus: ' + statusIcon + '\nPassing Threshold: ' + ind.passingThreshold + '\n\nFinding Date: ' + phaData.findingDate + '\nCAP Deadline: ' + phaData.responseDeadline + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>Regulatory Basis:</strong>\n• SEMAP Citation: ' + ind.semapCitation + '\n' + (ind.programCitations ? '• Program Regulations: ' + ind.programCitations.join(', ') : '') + metricsText + '\n<strong>Why This Matters:</strong>\n' + (score.points === 0 ? '• Zero score triggers mandatory CAP requirement\n• Must be corrected to avoid ACC default\n• Impacts overall SEMAP rating' : '• Below maximum points indicates gaps\n• Improvement needed for High Performer status') + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n<em>Generated by SEMAP Compliance AI | Rebirth Nexus Platform</em>';
+    }
+
+    function generateAbout(num) {
+      const ind = indicatorData[num] || { name: indicatorNames[num], semapCitation: "24 CFR 985.3", passingThreshold: "Per HUD requirements", regulatoryText: "As specified in HUD regulations." };
+      const score = scores[num];
+      const statusIcon = score.status === 'zero' ? '🔴 CRITICAL FAILURE' : score.status === 'partial' ? '🟡 NEEDS IMPROVEMENT' : '🟢 COMPLIANT';
+
+      return '<strong>SEMAP Compliance AI Assistant</strong>\n<strong>Indicator ' + num + ': ' + ind.name + '</strong>\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nScore: ' + score.points + ' / ' + score.max + ' points\nStatus: ' + statusIcon + '\n\nRegulatory Citation: ' + ind.semapCitation + '\n' + (ind.programCitations ? 'Program Regulations: ' + ind.programCitations.join(', ') : '') + '\n\nPassing Threshold: ' + ind.passingThreshold + '\n\nRegulatory Requirement:\n"' + (ind.regulatoryText || 'As specified in HUD regulations.') + '"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>What would you like to do?</strong>';
+    }
+
+    function generateHelp() {
+      const scoreData = calculateScore();
+      const zeroInds = Object.entries(scores).filter(([k,v]) => v.points === 0).map(([k]) => k).join(', ');
+      return '<strong>SEMAP Compliance AI Assistant</strong>\n<em>Powered by Rebirth Nexus</em>\n\nI can help you with:\n\n<strong>📋 HUD-Ready CAPs</strong>\n• "Generate CAP for Indicator 13"\n• "Generate CAP for Indicator 9"\n\n<strong>✉️ Cover Letters</strong>\n• "Generate cover letter for Indicator 13"\n\n<strong>📊 Execution Plans</strong>\n• "Show execution plan for Indicator 13"\n• "Show execution plan for Indicator 3"\n\n<strong>📈 Current Status</strong>\n• "Show current status for Indicator 9"\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n<strong>Current Status (' + phaData.shortName + '):</strong>\n• Base Score: ' + scoreData.total + '/145 (' + scoreData.percent + '%)\n• Rating: ' + (scoreData.percent >= 90 ? 'High Performer' : scoreData.percent >= 60 ? 'Standard Performer' : 'Troubled') + '\n• Zero Indicators: ' + (zeroInds || 'None') + '\n• CAP Deadline: ' + phaData.responseDeadline + '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\nClick an indicator on the left or select an action below:';
+    }
+
+    // Export functions
+    function exportDoc(num, type) {
+      let content = '';
+      let filename = '';
+      
+      if (type === 'cap') {
+        content = generateCAP(num);
+        filename = 'SEMAP_Indicator_' + num + '_CAP';
+      } else if (type === 'cover') {
+        content = generateCoverLetter(num);
+        filename = 'SEMAP_Indicator_' + num + '_CoverLetter';
+      } else if (type === 'exec') {
+        content = generateExecutionPlan(num);
+        filename = 'SEMAP_Indicator_' + num + '_ExecutionPlan';
+      }
+
+      // Clean HTML tags and convert to Word-friendly format
+      const cleanContent = content
+        .replace(/<strong>/g, '<b>').replace(/<\/strong>/g, '</b>')
+        .replace(/<em>/g, '<i>').replace(/<\/em>/g, '</i>')
+        .replace(/\n/g, '<br>');
+
+      const htmlContent = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>' + filename + '</title><style>body{font-family:Calibri,Arial,sans-serif;margin:48px;color:#111;line-height:1.6;font-size:12pt;}table{width:100%;border-collapse:collapse;margin:16px 0;}th,td{border:1px solid #999;padding:8px;text-align:left;}th{background:#f0f0f0;font-weight:bold;}</style></head><body>' + cleanContent + '</body></html>';
+      
+      const blob = new Blob([htmlContent], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename + '.doc';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Downloaded: ' + filename + '.doc');
+    }
+
+    function copyText(num, type) {
+      let content = '';
+      
+      if (type === 'cap') {
+        content = generateCAP(num);
+      } else if (type === 'cover') {
+        content = generateCoverLetter(num);
+      } else if (type === 'exec') {
+        content = generateExecutionPlan(num);
+      }
+
+      // Strip HTML tags for plain text
+      const plainText = content
+        .replace(/<[^>]*>/g, '')
+        .replace(/━+/g, '---');
+      
+      navigator.clipboard.writeText(plainText).then(() => {
+        showToast('Copied to clipboard!');
+      });
+    }
+  </script>
+</body>
+</html>
