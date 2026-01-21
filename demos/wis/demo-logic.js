@@ -96,8 +96,8 @@ const TOUR_STEPS = [
     label: 'Before You Begin',
     title: 'What is Rebirth Nexus?',
     content: `
-        <p><strong>Rebirth Nexus</strong> is a conversational predictive intelligence layer for complex operations.</p>
-        <p>It fuses <span class="highlight">geospatial context</span>, <span class="highlight">operational data</span>, and <span class="highlight">threat reporting</span> into recommendations you can defend — with clear provenance.</p>
+        <p><strong>Rebirth Nexus</strong> is a Conversational Predictive Intelligence platform for <span class="highlight">Contested Logistics</span>.</p>
+        <p>Ask questions in plain English. Receive predictive answers that reveal <span class="highlight">cascading effects</span> across supply chains and critical infrastructure — <strong>before disruptions become mission failures</strong>.</p>
         <p style="margin-top:10px; opacity:.9">This is a <strong>guided demo</strong>. Only the highlighted controls are enabled. Data shown is <strong>synthetic / unclassified</strong>.</p>
     `,
     target: null,
@@ -225,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initChat();
     initTabs();
     initTourControls();
-    initFreeTextInput();
     
     // Start tour after short delay
     setTimeout(() => startTour(), 1200);
@@ -682,60 +681,6 @@ function resetDemo() {
 
 function closePocModal() {
     document.getElementById('pocModal').classList.remove('active');
-}
-
-// === FREE TEXT INPUT HANDLING ===
-function initFreeTextInput() {
-    const input = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    
-    const handleSend = () => {
-        const text = input.value.trim();
-        if (!text) return;
-        
-        const messages = document.getElementById('chatMessages');
-        
-        // User message
-        messages.innerHTML += `
-            <div class="message user">
-                <div class="bubble">${escapeHtml(text)}</div>
-            </div>
-        `;
-        input.value = '';
-        
-        // Typing indicator
-        messages.innerHTML += `<div class="message assistant" id="typing"><div class="bubble">Analyzing...</div></div>`;
-        messages.scrollTop = messages.scrollHeight;
-        
-        setTimeout(() => {
-            document.getElementById('typing')?.remove();
-            
-            // Canned fallback response for free text
-            messages.innerHTML += `
-                <div class="message assistant">
-                    <div class="bubble">
-                        <p>This guided demo uses pre-defined scenarios to showcase Nexus capabilities. For custom queries on your specific operational context, <strong>request a live demonstration</strong> where we can connect your data sources.</p>
-                        <p>Try the suggested queries below, or click <strong>ℹ️ Tour</strong> to restart the guided experience.</p>
-                        <div class="response-meta">
-                            <span>Demo Mode</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            messages.scrollTop = messages.scrollHeight;
-        }, 600);
-    };
-    
-    sendBtn.addEventListener('click', handleSend);
-    input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') handleSend();
-    });
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
 }
 
 // Expose for onclick handlers
