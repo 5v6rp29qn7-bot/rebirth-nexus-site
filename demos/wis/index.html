@@ -24,102 +24,7 @@
         }
         html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); }
         
-        /* === PASSWORD GATE === */
-        .password-gate {
-            position: fixed;
-            inset: 0;
-            background: var(--bg-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-        }
-        .password-box {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 40px;
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
-        }
-        .password-logo {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--gold), #b8960c);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 28px;
-            color: #000;
-            margin: 0 auto 20px;
-        }
-        .password-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .password-subtitle {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-        }
-        .password-input {
-            width: 100%;
-            padding: 14px 16px;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            color: var(--text-primary);
-            font-size: 15px;
-            text-align: center;
-            margin-bottom: 16px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        .password-input:focus {
-            border-color: var(--gold);
-        }
-        .password-input.error {
-            border-color: var(--red);
-            animation: shake 0.4s;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-8px); }
-            75% { transform: translateX(8px); }
-        }
-        .password-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--gold);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .password-btn:hover {
-            background: #e5c048;
-        }
-        .password-error {
-            color: var(--red);
-            font-size: 13px;
-            margin-top: 12px;
-            display: none;
-        }
-        .password-error.show {
-            display: block;
-        }
-        
-        /* === MAIN APP (hidden until authenticated) === */
-        .app-container { display: none; flex-direction: column; height: 100%; }
-        .app-container.authenticated { display: flex; }
-        
+        .app-container { display: flex; flex-direction: column; height: 100%; }
         .main-content { display: flex; flex: 1; overflow: hidden; }
         
         /* === INTEL FEED === */
@@ -216,37 +121,37 @@
         .tour-restart { margin-left: auto; background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; }
         .tour-restart:hover { border-color: var(--gold); color: var(--gold); }
         
-        .kpi-strip { display: flex; border-bottom: 1px solid var(--border); padding: 10px 16px; gap: 16px; }
-        .kpi-mini { flex: 1; text-align: center; }
-        .kpi-mini-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 2px; }
-        .kpi-mini-value { font-size: 15px; font-weight: 700; font-family: 'SF Mono', monospace; }
+        .kpi-strip { display: flex; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .kpi-mini { background: var(--bg-tertiary); padding: 10px 14px; border-radius: 8px; text-align: center; min-width: 75px; }
+        .kpi-mini-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-mini-value { font-size: 15px; font-weight: 700; margin-top: 3px; font-family: 'SF Mono', monospace; }
         .kpi-mini-value.red { color: var(--red); }
         .kpi-mini-value.amber { color: var(--amber); }
         .kpi-mini-value.green { color: var(--green); }
+        .kpi-mini-value.gold { color: var(--gold); }
         
-        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; }
-        .message { margin-bottom: 16px; }
-        .message.assistant { background: var(--bg-tertiary); border-radius: 12px; padding: 14px; }
-        .message.user { background: rgba(212,175,55,0.15); border-radius: 12px; padding: 12px 14px; margin-left: 40px; }
-        .message-content { font-size: 13px; line-height: 1.6; }
-        .message-content p { margin-bottom: 10px; }
-        .message-content p:last-child { margin-bottom: 0; }
-        .message-content strong { color: var(--gold); }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .message { display: flex; }
+        .message.user { justify-content: flex-end; }
+        .message.user .bubble { background: var(--gold); color: #000; border-radius: 16px 16px 4px 16px; }
+        .message.assistant .bubble { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 16px 16px 16px 4px; }
+        .bubble { padding: 12px 16px; max-width: 90%; font-size: 13px; line-height: 1.5; }
+        .bubble p { margin-bottom: 10px; }
+        .bubble p:last-child { margin-bottom: 0; }
         
-        /* Viz Cards in chat */
+        /* Viz in chat */
         .viz-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
-        .viz-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 10px; text-align: center; }
-        .viz-card .label { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
-        .viz-card .value { font-size: 18px; font-weight: 700; font-family: 'SF Mono', monospace; }
+        .viz-card { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; text-align: center; }
+        .viz-card .label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; }
+        .viz-card .value { font-size: 16px; font-weight: 700; margin-top: 3px; font-family: 'SF Mono', monospace; }
         .viz-card .value.red { color: var(--red); }
         .viz-card .value.amber { color: var(--amber); }
         .viz-card .value.green { color: var(--green); }
         .viz-card .value.gold { color: var(--gold); }
         
-        /* Viz List */
-        .viz-list { background: var(--bg-secondary); border-radius: 10px; padding: 12px; margin: 12px 0; }
-        .viz-list-title { font-size: 11px; font-weight: 600; margin-bottom: 10px; color: var(--text-muted); }
-        .viz-list-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+        .viz-list { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .viz-list-title { padding: 10px 14px; font-size: 11px; font-weight: 600; border-bottom: 1px solid var(--border); }
+        .viz-list-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
         .viz-list-item:last-child { border-bottom: none; }
         .viz-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
         .viz-status.critical { background: var(--red); }
@@ -254,83 +159,266 @@
         .viz-status.medium { background: var(--gold); }
         .viz-status.ok { background: var(--green); }
         .viz-info { flex: 1; min-width: 0; }
-        .viz-name { font-size: 12px; font-weight: 600; }
-        .viz-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
-        .viz-value { font-size: 13px; font-weight: 700; font-family: 'SF Mono', monospace; flex-shrink: 0; }
+        .viz-name { font-size: 12px; font-weight: 500; }
+        .viz-detail { font-size: 10px; color: var(--text-secondary); margin-top: 2px; }
+        .viz-value { font-size: 12px; font-weight: 600; font-family: 'SF Mono', monospace; flex-shrink: 0; }
         
-        /* Viz Timeline */
-        .viz-timeline { background: var(--bg-secondary); border-radius: 10px; padding: 12px 12px 12px 24px; margin: 12px 0; }
-        .timeline-item { position: relative; padding-left: 20px; padding-bottom: 14px; border-left: 2px solid var(--border); }
-        .timeline-item:last-child { padding-bottom: 0; border-left-color: transparent; }
-        .timeline-marker { position: absolute; left: -6px; top: 2px; width: 10px; height: 10px; border-radius: 50%; }
+        .viz-timeline { margin: 12px 0; }
+        .timeline-item { display: flex; gap: 12px; padding: 10px 0; border-left: 2px solid var(--border); margin-left: 6px; padding-left: 16px; position: relative; }
+        .timeline-item:last-child { border-left-color: transparent; }
+        .timeline-marker { position: absolute; left: -6px; top: 14px; width: 10px; height: 10px; border-radius: 50%; }
         .timeline-marker.red { background: var(--red); }
         .timeline-marker.amber { background: var(--amber); }
         .timeline-marker.green { background: var(--green); }
-        .timeline-time { font-size: 10px; color: var(--gold); font-weight: 600; margin-bottom: 2px; }
-        .timeline-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
-        .timeline-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+        .timeline-time { font-size: 11px; color: var(--gold); font-weight: 600; }
+        .timeline-title { font-size: 12px; font-weight: 500; margin-top: 2px; }
+        .timeline-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; line-height: 1.4; }
         
-        .sources { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
-        .sources-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
-        .sources-list { display: flex; flex-wrap: wrap; gap: 4px; }
-        .source-tag { font-size: 9px; background: rgba(212,175,55,0.1); color: var(--gold); padding: 3px 6px; border-radius: 4px; }
+        .response-meta { display: flex; gap: 12px; font-size: 10px; color: var(--text-muted); margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border); }
+        .provenance { margin-top: 8px; }
+        .provenance-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+        .provenance-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .provenance-tag { font-size: 9px; padding: 2px 6px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary); }
         
         .chips-section { padding: 12px 16px; border-top: 1px solid var(--border); }
-        .chips-label { font-size: 10px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-        .chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-        .chip { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 16px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .chips-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .chips-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+        .chip { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
         .chip:hover { border-color: var(--gold); color: var(--gold); }
+        .chip.tour-highlight { border-color: var(--gold); animation: chipPulse 1.5s infinite; box-shadow: 0 0 0 3px rgba(212,175,55,0.3); }
+        @keyframes chipPulse { 0%, 100% { box-shadow: 0 0 0 3px rgba(212,175,55,0.3); } 50% { box-shadow: 0 0 0 6px rgba(212,175,55,0.15); } }
+        .chip.disabled { opacity: 0.4; pointer-events: none; }
         
-        .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border); }
+        .chat-input-area { padding: 12px 16px; border-top: 1px solid var(--border); display: none; }
+        .chat-input-area.active { display: block; }
         .input-wrapper { display: flex; gap: 8px; }
-        .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; color: var(--text-primary); font-size: 13px; outline: none; }
-        .chat-input:focus { border-color: var(--gold); }
-        .send-btn { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; }
-        .send-btn:hover { background: #e5c048; }
+        .chat-input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text-primary); font-size: 13px; }
+        .chat-input:focus { outline: none; border-color: var(--gold); }
+        .chat-input::placeholder { color: var(--text-muted); }
+        .send-btn { background: var(--gold); color: #000; border: none; border-radius: 10px; padding: 12px 18px; font-weight: 600; font-size: 13px; cursor: pointer; }
+        .send-btn:hover { background: #e5c040; }
         
-        /* Tour */
-        .tour-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9998; display: none; }
-        .tour-overlay.active { display: block; }
-        .tour-spotlight { position: fixed; box-shadow: 0 0 0 9999px rgba(0,0,0,0.85); border-radius: 12px; z-index: 9999; pointer-events: none; display: none; transition: all 0.4s ease; }
-        .tour-spotlight.active { display: block; }
-        .tour-card { position: fixed; background: var(--bg-secondary); border: 1px solid var(--gold); border-radius: 16px; padding: 24px; z-index: 10000; max-width: 400px; width: 90%; display: none; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-        .tour-card.active { display: block; }
-        .tour-step-indicator { display: flex; gap: 6px; margin-bottom: 16px; }
-        .tour-step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
-        .tour-step-dot.active { background: var(--gold); }
-        .tour-step-dot.complete { background: var(--green); }
-        .tour-label { font-size: 10px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
-        .tour-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
-        .tour-content { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
-        .tour-content p { margin-bottom: 10px; }
+        /* === TOUR === */
+        /*
+           Tour overlay must NOT block clicks on the underlying UI.
+           Gating requires the user to click tabs/chips in the product UI.
+           So the overlay is visually present but click-through; only the
+           tour card itself receives pointer events.
+        */
+        
+        /* Prevent background interaction during tour */
+        body.tour-lock { overflow: hidden; }
+        /* Allow ONLY the required element to be clickable by raising it above the overlay */
+        .tour-allow {
+          position: relative !important;
+          z-index: 10020 !important;
+          pointer-events: auto !important;
+        }
+        /* Tour dim layer. Keep the scene visible; the spotlight provides most of the focus effect. */
+        .tour-overlay {
+          position: fixed;
+          inset: 0;
+opacity: 0;
+          pointer-events: none;
+          transition: opacity 0.25s ease;
+          background: rgba(0,0,0,0.40);
+          z-index: 9999;
+        }
+        .tour-overlay.active { opacity: 1; pointer-events: auto; }
+        /* When spotlight is active, reduce the base dim so the highlighted area stays readable. */
+        /* In spotlight mode, don't dim the highlighted area at all. */
+        .tour-overlay.spotlight-mode { background: rgba(0,0,0,0.00); }
+        
+        .tour-card {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) scale(0.98);
+          width: min(680px, 92vw);
+          max-height: 90vh;
+          overflow-y: auto;
+          padding: 28px 28px 24px;
+          border-radius: 16px;
+          background: rgba(14,18,30,0.96);
+          border: 1px solid rgba(255,204,0,0.35);
+          color: #fff;
+          box-shadow: 0 24px 80px rgba(0,0,0,0.65);
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.25s ease, transform 0.25s ease;
+          isolation: isolate;
+          z-index: 10010;
+        }
+        .tour-card.active {
+          opacity: 1;
+          pointer-events: auto;
+          transform: translate(-50%, -50%) scale(1);
+        }
+
+        .tour-step-indicator { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .tour-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all 0.3s; }
+        .tour-dot.active { background: var(--gold); transform: scale(1.3); }
+        .tour-dot.completed { background: var(--green); }
+        
+        .tour-label { font-size: 11px; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .tour-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+        .tour-content { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+        .tour-content p { margin-bottom: 14px; }
+        .tour-content strong { color: var(--text-primary); }
         .tour-content .highlight { color: var(--gold); font-weight: 500; }
-        .tour-buttons { display: flex; gap: 10px; justify-content: flex-end; }
-        .tour-btn { padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
-        .tour-btn.primary { background: var(--gold); color: #000; border: none; }
-        .tour-btn.primary:hover { background: #e5c048; }
+        
+        .tour-pillars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 20px 0; }
+        .tour-pillar { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 8px; padding: 12px 8px; text-align: center; }
+        .tour-pillar-icon { font-size: 20px; display: block; margin-bottom: 6px; }
+        .tour-pillar-name { font-size: 10px; font-weight: 600; color: var(--text-primary); display: block; }
+        .tour-pillar-desc { font-size: 8px; color: var(--text-muted); display: block; margin-top: 2px; }
+        
+        .tour-instruction { background: rgba(212,175,55,0.1); border: 1px solid var(--gold); border-radius: 8px; padding: 12px 16px; margin-top: 16px; font-size: 13px; color: var(--gold); }
+        
+        .tour-buttons { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+        .tour-btn { padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .tour-btn.primary { background: var(--gold); color: #000; }
+        .tour-btn.primary:hover { background: #e5c040; }
+        .tour-btn.primary:disabled { opacity: 0.5; cursor: not-allowed; }
         .tour-btn.secondary { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
-        .tour-btn.secondary:hover { border-color: var(--gold); color: var(--gold); }
+        .tour-btn.secondary:hover { border-color: var(--text-muted); color: var(--text-primary); }
+        
+        .tour-spotlight {
+          position: fixed;
+          z-index: 10000;
+          border: 2px solid rgba(255,204,0,0.90);
+          border-radius: 12px;
+          box-shadow: 0 0 0 9999px rgba(0,0,0,0.38);
+          pointer-events: none;
+          transition: all 0.35s ease-out;
+          display: none;
+        }
+        .tour-spotlight.active { display: block; }
+
+        /* Make the highlighted target clearer (especially the map) while the
+           rest of the UI remains gently dimmed. */
+        .tour-target-boost {
+            filter: brightness(1.60) saturate(1.25) contrast(1.15);
+            transform: translateZ(0);
+            box-shadow: 0 0 0 2px rgba(212,175,55,0.18);
+            border-radius: 10px;
+        }
         
         /* POC Modal */
-        .poc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10001; display: none; align-items: center; justify-content: center; }
-        .poc-modal.active { display: flex; }
-        .poc-modal-content { background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; text-align: center; }
-        .poc-modal-title { font-size: 22px; font-weight: 600; margin-bottom: 10px; }
-        .poc-modal-subtitle { font-size: 14px; color: var(--text-secondary); margin-bottom: 30px; }
-        .poc-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        .poc-option { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: left; cursor: pointer; transition: all 0.2s; }
+        .poc-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 11000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 20px; }
+        .poc-modal.active { opacity: 1; pointer-events: auto; }
+        .poc-modal-content { background: var(--bg-secondary); border: 1px solid var(--gold); border-radius: 16px; padding: 28px 32px; width: 100%; max-width: 440px; text-align: center; }
+        .poc-modal-title { font-size: 20px; font-weight: 700; margin-bottom: 12px; }
+        .poc-modal-subtitle { color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; font-size: 14px; }
+        .poc-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+        .poc-option { background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; text-align: left; cursor: pointer; transition: all 0.2s; }
         .poc-option:hover { border-color: var(--gold); }
-        .poc-option-title { font-weight: 600; margin-bottom: 4px; }
-        .poc-option-desc { font-size: 12px; color: var(--text-secondary); }
+        .poc-option-title { font-weight: 600; margin-bottom: 4px; font-size: 14px; }
+        .poc-option-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
         .poc-close { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; }
-        .poc-close:hover { border-color: var(--text-primary); color: var(--text-primary); }
-
-        /* Typing indicator */
-        .typing-indicator { display: flex; gap: 4px; padding: 14px; }
-        .typing-dot { width: 8px; height: 8px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.4s infinite; }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-8px); } }
+        .poc-close:hover { border-color: var(--text-muted); color: var(--text-primary); }
+        
+        /* Esri overrides */
+        .esri-ui-corner { display: none !important; }
+        .esri-view-surface--inset-outline:focus::after { outline: none !important; }
+        
+        /* Responsive */
+        @media (max-width: 1200px) { .intel-feed { display: none; } .partner-badges { display: none; } }
+        @media (max-width: 900px) { .chat-panel { width: 320px; } .analytics-grid { grid-template-columns: repeat(2, 1fr); } .analytics-card.wide, .analytics-card.full { grid-column: span 2; } }
+        @media (max-width: 768px) {
+            .main-content { flex-direction: column; }
+            .center-panel { height: 40%; min-height: 200px; }
+            .chat-panel { width: 100%; flex: 1; border-left: none; border-top: 1px solid var(--border); }
+            .threat-overlay { display: none; }
+            .tour-pillars { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* === PASSWORD GATE === */
+        .password-gate {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+        }
+        .password-gate.hidden { display: none; }
+        .password-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        .password-logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--gold), #b8960c);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 28px;
+            color: #000;
+            margin: 0 auto 20px;
+        }
+        .password-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .password-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+        .password-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            text-align: center;
+            margin-bottom: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .password-input:focus { border-color: var(--gold); }
+        .password-input.error {
+            border-color: var(--red);
+            animation: pwShake 0.4s;
+        }
+        @keyframes pwShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        .password-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--gold);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .password-btn:hover { background: #e5c048; }
+        .password-error {
+            color: var(--red);
+            font-size: 13px;
+            margin-top: 12px;
+            display: none;
+        }
+        .password-error.show { display: block; }
     </style>
 </head>
 <body>
@@ -346,46 +434,34 @@
         </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div class="app-container" id="appContainer">
+    <div class="app-container">
         <div class="main-content">
             <!-- LEFT: Intel Feed -->
-            <div class="intel-feed">
+            <div class="intel-feed" id="intelFeed">
                 <div class="feed-header">
-                    <div class="feed-title">📡 Intel Feed</div>
+                    <div class="feed-title">🔴 Threat Intelligence</div>
                     <div class="feed-live">LIVE</div>
                 </div>
-                <div class="feed-items">
-                    <div class="feed-item critical">
-                        <div class="feed-item-badge threat">Threat Alert</div>
-                        <div class="feed-item-time">12 min ago • DIA</div>
-                        <div class="feed-item-title">Subic Bay Access Warning</div>
-                        <div class="feed-item-detail">Maritime interdiction assets detected. Port access denial probable within 48-72h window.</div>
+                <div class="feed-items" id="feedItems">
+                    <div class="feed-item critical" id="feedThreat">
+                        <div class="feed-item-badge threat">THREAT</div>
+                        <div class="feed-item-time">14:32 UTC • DIA / INDOPACOM J2</div>
+                        <div class="feed-item-title">Port Access Degradation — Subic Bay</div>
+                        <div class="feed-item-detail">Credible intelligence indicates potential port interdiction affecting naval logistics. 3 supply vessels currently en route.</div>
                         <div class="feed-item-exposure">
-                            <span class="label">Exposure</span>
-                            <span class="value red">$42M</span>
+                            <span class="label">Mission Impact</span>
+                            <span class="value red">CRITICAL</span>
                         </div>
                     </div>
-                    <div class="feed-item warning">
-                        <div class="feed-item-badge advisory">Advisory</div>
-                        <div class="feed-item-time">2 hrs ago • TRANSCOM</div>
-                        <div class="feed-item-title">Guam Fuel Status</div>
-                        <div class="feed-item-detail">Reserve levels at 62%. Scheduled resupply delayed 48h due to weather routing.</div>
+                    <div class="feed-item warning" id="feedAdvisory">
+                        <div class="feed-item-badge advisory">ADVISORY</div>
+                        <div class="feed-item-time">12:18 UTC • TRANSCOM</div>
+                        <div class="feed-item-title">Fuel Depot Capacity Constraint</div>
+                        <div class="feed-item-detail">Guam fuel reserves at 62% following increased INDOPACOM tempo. Resupply vessel ETA 96 hours.</div>
                         <div class="feed-item-exposure">
-                            <span class="label">Exposure</span>
-                            <span class="value red">$38M</span>
+                            <span class="label">Days of Supply</span>
+                            <span class="value red">4.2</span>
                         </div>
-                    </div>
-                    <div class="feed-item">
-                        <div class="feed-item-badge advisory">Advisory</div>
-                        <div class="feed-item-time">4 hrs ago • Fleet Log</div>
-                        <div class="feed-item-title">Yokosuka Parts Delay</div>
-                        <div class="feed-item-detail">Critical repair components backordered. Two vessels in extended maintenance.</div>
-                    </div>
-                    <div class="feed-item">
-                        <div class="feed-item-time">6 hrs ago • Allianz Trade</div>
-                        <div class="feed-item-title">Shipping Lane Update</div>
-                        <div class="feed-item-detail">Insurance premiums elevated for South China Sea transit. Alternative routing advisory in effect.</div>
                     </div>
                 </div>
             </div>
@@ -394,52 +470,55 @@
             <div class="center-panel">
                 <div class="center-header">
                     <div class="view-toggle">
-                        <button class="view-btn active" data-view="map" id="mapViewBtn">🗺️ Map</button>
-                        <button class="view-btn" data-view="analytics" id="analyticsViewBtn">📊 Analytics</button>
+                        <button class="view-btn active" id="mapTab">🗺️ Map</button>
+                        <button class="view-btn" id="analyticsTab">📊 Analytics</button>
                     </div>
                     <div class="partner-badges">
                         <span class="partner-badge">Powered by Esri</span>
                         <span class="partner-badge">Rebirth Analytics</span>
+                        <span class="partner-badge">Partner Data (synthetic)</span>
                     </div>
                 </div>
                 
                 <div class="map-container" id="mapContainer">
                     <div id="mapView"></div>
-                    <div class="threat-overlay">
-                        <div class="threat-title">⚠️ Active Threat Assessment</div>
+                    
+                    <div class="threat-overlay" id="threatOverlay">
+                        <div class="threat-title">⚠️ Threat Assessment</div>
+                        <div class="threat-meta">
+                            <span>DIA Intel • 14:32 UTC</span>
+                            <span>Confidence: 0.87</span>
+                        </div>
                         <div class="threat-alert">
                             <div class="threat-alert-title">Port Interdiction Warning</div>
-                            <div class="threat-alert-text">Subic Bay access denial probable. 3 vessels with $42M cargo en route.</div>
+                            <div class="threat-alert-text">High probability of access denial at Subic Bay within 48-72 hours.</div>
                         </div>
                         <div class="threat-data">
                             <div class="threat-item">
-                                <div class="threat-item-label">Confidence</div>
-                                <div class="threat-item-value" style="color: var(--red)">HIGH</div>
+                                <div class="threat-item-label">Vessels</div>
+                                <div class="threat-item-value" style="color: var(--red);">3</div>
+                            </div>
+                            <div class="threat-item">
+                                <div class="threat-item-label">Cargo</div>
+                                <div class="threat-item-value">$42M</div>
+                            </div>
+                            <div class="threat-item">
+                                <div class="threat-item-label">Alt Routes</div>
+                                <div class="threat-item-value" style="color: var(--green);">2</div>
                             </div>
                             <div class="threat-item">
                                 <div class="threat-item-label">Window</div>
-                                <div class="threat-item-value" style="color: var(--amber)">48-72h</div>
+                                <div class="threat-item-value" style="color: var(--amber);">48h</div>
                             </div>
-                            <div class="threat-item">
-                                <div class="threat-item-label">Affected</div>
-                                <div class="threat-item-value">7 nodes</div>
-                            </div>
-                            <div class="threat-item">
-                                <div class="threat-item-label">Cascade</div>
-                                <div class="threat-item-value" style="color: var(--red)">Theater</div>
-                            </div>
-                        </div>
-                        <div class="threat-meta">
-                            <span>Sources: DIA, INDOPACOM J2</span>
-                            <span>Updated: 12m ago</span>
                         </div>
                     </div>
+                    
                     <div class="map-legend">
-                        <div class="legend-title">Network Status</div>
-                        <div class="legend-item"><span class="legend-dot red"></span> Critical</div>
-                        <div class="legend-item"><span class="legend-dot amber"></span> Constrained</div>
-                        <div class="legend-item"><span class="legend-dot green"></span> Operational</div>
-                        <div class="legend-item"><span class="legend-dot blue"></span> Allied</div>
+                        <div class="legend-title">Asset Status</div>
+                        <div class="legend-item"><div class="legend-dot red"></div>At-Risk Node</div>
+                        <div class="legend-item"><div class="legend-dot amber"></div>Degraded</div>
+                        <div class="legend-item"><div class="legend-dot green"></div>Operational</div>
+                        <div class="legend-item"><div class="legend-dot blue"></div>Allied Facility</div>
                     </div>
                 </div>
                 
@@ -448,17 +527,17 @@
                         <div class="analytics-card">
                             <div class="analytics-label">Total Exposure</div>
                             <div class="analytics-value red">$127M</div>
-                            <div class="analytics-trend">↑ 34% from baseline</div>
+                            <div class="analytics-trend">Across Pacific logistics network</div>
                         </div>
                         <div class="analytics-card">
                             <div class="analytics-label">Nodes at Risk</div>
                             <div class="analytics-value amber">7</div>
-                            <div class="analytics-trend">of 12 monitored</div>
+                            <div class="analytics-trend">4 ports, 2 airfields, 1 depot</div>
                         </div>
                         <div class="analytics-card">
-                            <div class="analytics-label">Mitigation Cost</div>
-                            <div class="analytics-value green">$3.35M</div>
-                            <div class="analytics-trend">Recommended actions</div>
+                            <div class="analytics-label">Mitigation Ready</div>
+                            <div class="analytics-value green">Yes</div>
+                            <div class="analytics-trend">3 contingency plans staged</div>
                         </div>
                         <div class="analytics-card">
                             <div class="analytics-label">Decision Window</div>
@@ -577,29 +656,29 @@
     <script src="https://js.arcgis.com/4.28/"></script>
     <script src="demo-logic.js"></script>
     
-    <!-- PASSWORD GATE SCRIPT -->
+    <!-- PASSWORD GATE SCRIPT - runs after demo-logic.js -->
     <script>
         (function() {
             const DEMO_PASSWORD = 'ironwolf';
             const STORAGE_KEY = 'nexus_wis_auth';
             
             const gate = document.getElementById('passwordGate');
-            const app = document.getElementById('appContainer');
             const input = document.getElementById('passwordInput');
             const btn = document.getElementById('passwordBtn');
             const error = document.getElementById('passwordError');
             
-            // Check if already authenticated
+            // Check if already authenticated this session
             if (sessionStorage.getItem(STORAGE_KEY) === 'true') {
-                gate.style.display = 'none';
-                app.classList.add('authenticated');
+                gate.classList.add('hidden');
+            } else {
+                // Focus password input
+                setTimeout(() => input.focus(), 100);
             }
             
             function authenticate() {
                 if (input.value === DEMO_PASSWORD) {
                     sessionStorage.setItem(STORAGE_KEY, 'true');
-                    gate.style.display = 'none';
-                    app.classList.add('authenticated');
+                    gate.classList.add('hidden');
                     error.classList.remove('show');
                 } else {
                     input.classList.add('error');
@@ -614,8 +693,6 @@
             input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') authenticate();
             });
-            
-            input.focus();
         })();
     </script>
 </body>
