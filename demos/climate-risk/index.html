@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus — Climate Risk Intelligence</title>
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
+<style>
+:root{--navy:#0B1D3A;--nm:#122744;--nl:#1a3355;--teal:#0D7377;--tb:#14A3A8;--mint:#2DD4BF;--amber:#D97706;--red:#DC2626;--green:#059669;--slate:#8896A6;--sand:#F5F0E8;--white:#FFF;--bg:#080E1A;--card:#0F1B2D;--cb:#1a2d45;--f:'Segoe UI',system-ui,sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--f);background:var(--bg);color:var(--white);overflow:hidden;height:100vh}
+.pw{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:24px}.pw.h{display:none}
+.pw h1{font-size:28px;color:var(--mint);letter-spacing:3px}.pw p{color:var(--slate);font-size:13px;margin-top:-12px}
+.pw input{background:var(--nm);border:1px solid var(--cb);color:var(--white);padding:12px 20px;border-radius:8px;font-size:15px;width:280px;text-align:center;outline:none}.pw input:focus{border-color:var(--teal)}
+.pw button{background:var(--teal);color:var(--white);border:none;padding:10px 32px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600}.pw button:hover{background:var(--tb)}
+.pw .err{color:var(--red);font-size:12px;min-height:16px}
+.hdr{height:48px;background:var(--navy);border-bottom:1px solid var(--cb);display:flex;align-items:center;padding:0 16px;gap:16px}
+.logo{font-size:16px;font-weight:700;color:var(--mint);letter-spacing:2px}.logo span{color:var(--slate);font-weight:400;font-size:12px;margin-left:8px;letter-spacing:0}
+.hdr-sp{flex:1}.ptabs{display:flex;gap:4px}
+.ptab{padding:6px 14px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:var(--nm);color:var(--slate);border:1px solid transparent;transition:.2s;text-transform:uppercase;letter-spacing:1px}
+.ptab.act{background:var(--teal);color:var(--white);border-color:var(--tb)}.ptab:hover:not(.act){background:var(--nl);color:var(--white)}
+.tbtn{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:0;color:var(--mint);border:1px solid var(--mint);transition:.2s}.tbtn:hover{background:var(--mint);color:var(--navy)}
+.dbadge{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--slate);padding:4px 10px;background:var(--nm);border-radius:12px}.dbadge .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.main{display:grid;grid-template-columns:260px 1fr 1fr;height:calc(100vh - 48px)}
+.ip{background:var(--navy);border-right:1px solid var(--cb);display:flex;flex-direction:column;overflow:hidden}
+.ip-h{padding:12px 14px 8px;font-size:11px;font-weight:700;color:var(--tb);letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--cb)}
+.if{flex:1;overflow-y:auto;padding:8px}.if::-webkit-scrollbar{width:4px}.if::-webkit-scrollbar-thumb{background:var(--cb);border-radius:2px}
+.ii{padding:10px 12px;margin-bottom:6px;border-radius:8px;background:var(--card);border-left:3px solid var(--teal);transition:.2s}.ii:hover{background:var(--nm)}
+.ii.alert{border-left-color:var(--red)}.ii.warning{border-left-color:var(--amber)}.ii.info{border-left-color:var(--teal)}
+.itag{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+.itag.governance{background:rgba(13,115,119,.2);color:var(--tb)}.itag.physical{background:rgba(220,38,38,.15);color:#f87171}
+.itag.transition{background:rgba(217,119,6,.15);color:#fbbf24}.itag.liability{background:rgba(139,92,246,.15);color:#a78bfa}
+.itxt{font-size:11px;color:var(--sand);line-height:1.4}.itm{font-size:9px;color:var(--slate);margin-top:4px}
+.cp{display:flex;flex-direction:column;border-right:1px solid var(--cb)}
+.ks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:10px 12px;border-bottom:1px solid var(--cb);background:var(--navy)}
+.kpi{padding:8px 10px;border-radius:8px;background:var(--card);border:1px solid var(--cb)}
+.kl{font-size:9px;color:var(--slate);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+.kv{font-size:18px;font-weight:700}.kv.red{color:#f87171}.kv.amber{color:#fbbf24}.kv.green{color:#34d399}.kv.teal{color:var(--mint)}
+.ksub{font-size:9px;color:var(--slate)}
+.ca{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.cm{flex:1;overflow-y:auto;padding:12px}.cm::-webkit-scrollbar{width:4px}.cm::-webkit-scrollbar-thumb{background:var(--cb);border-radius:2px}
+.msg{margin-bottom:12px;animation:fi .3s ease}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.mb{background:var(--card);border:1px solid var(--cb);border-radius:12px;padding:14px;max-width:95%}
+.mg{font-size:13px;color:var(--sand);line-height:1.5;margin-bottom:10px}
+.mt{width:100%;border-collapse:collapse;margin:8px 0}.mt th{font-size:9px;color:var(--slate);text-align:left;padding:4px 8px;border-bottom:1px solid var(--cb);text-transform:uppercase;letter-spacing:.5px}
+.mt td{font-size:11px;padding:5px 8px;border-bottom:1px solid rgba(26,45,69,.5);font-weight:600}
+.sr{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(26,45,69,.5);font-size:11px}.sr:last-child{border-bottom:none}
+.sl{color:var(--slate)}.sv{font-weight:600}.red{color:#f87171}.amber{color:#fbbf24}.green{color:#34d399}.teal{color:var(--mint)}
+.rc{background:var(--nm);border-radius:8px;padding:10px 12px;margin:8px 0;border-left:3px solid var(--teal)}.rc.high{border-left-color:var(--red)}.rc.med{border-left-color:var(--amber)}.rc.low{border-left-color:var(--green)}
+.rct{font-size:12px;font-weight:700;color:var(--white);margin-bottom:6px}.rcs{font-size:10px;color:var(--slate);margin-top:4px}
+.fd{display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:10px 0}.fs{background:var(--nm);border-radius:8px;padding:8px 12px;font-size:11px;text-align:center;border:1px solid var(--cb)}.fss{font-size:9px;color:var(--slate)}.fa{color:var(--tb);font-size:16px}
+.prov{margin-top:10px;padding-top:8px;border-top:1px solid var(--cb);font-size:9px;color:var(--slate);line-height:1.5}.prov b{color:var(--tb)}
+.irl{display:inline-flex;align-items:center;gap:4px;background:rgba(107,33,168,.15);color:#c084fc;font-size:9px;font-weight:600;padding:2px 8px;border-radius:4px;margin:2px 0}
+.breach{background:rgba(220,38,38,.15);color:#f87171;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700}
+.ok{background:rgba(5,150,105,.15);color:#34d399;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:700}
+.cs{padding:8px 12px;border-top:1px solid var(--cb);background:var(--navy)}.csl{font-size:9px;color:var(--slate);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.cg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 14px;border-radius:20px;font-size:11px;cursor:pointer;background:var(--card);color:var(--mint);border:1px solid var(--cb);transition:.2s;white-space:nowrap}
+.chip:hover{background:var(--teal);color:var(--white);border-color:var(--teal)}
+.chip.hl{animation:cp 1.5s infinite;border-color:var(--mint);box-shadow:0 0 12px rgba(45,212,191,.3)}
+@keyframes cp{0%,100%{box-shadow:0 0 8px rgba(45,212,191,.2)}50%{box-shadow:0 0 18px rgba(45,212,191,.5)}}
+.mp{position:relative}#mapView{width:100%;height:100%}
+.mbg{position:absolute;bottom:12px;right:12px;background:rgba(11,29,58,.9);border:1px solid var(--cb);border-radius:8px;padding:6px 12px;display:flex;align-items:center;gap:6px;font-size:10px;color:var(--slate);z-index:10}.mbg .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.ml{position:absolute;top:12px;right:12px;background:rgba(11,29,58,.92);border:1px solid var(--cb);border-radius:8px;padding:10px 14px;z-index:10;display:none}
+.ml.vis{display:block}.mlt{font-size:10px;font-weight:700;color:var(--tb);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px}
+.mli{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--sand);margin-bottom:3px}
+.ld{width:10px;height:10px;border-radius:50%}.ld.r{background:rgba(220,38,38,.7)}.ld.a{background:rgba(217,119,6,.7)}.ld.t{background:rgba(13,115,119,.7)}.ld.g{background:var(--green);border-radius:2px;transform:rotate(45deg);width:8px;height:8px}
+.to{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center}.to.act{display:flex}
+.tb{background:var(--navy);border:1px solid var(--teal);border-radius:16px;padding:28px 32px;max-width:520px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.tdi{display:flex;gap:6px;margin-bottom:16px}.td{width:8px;height:8px;border-radius:50%;background:var(--cb)}.td.act{background:var(--mint)}.td.dn{background:var(--teal)}
+.tt{font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px}.tdesc{font-size:13px;color:var(--sand);line-height:1.6;margin-bottom:20px}
+.ta{display:flex;justify-content:space-between;align-items:center}
+.tsk{font-size:12px;color:var(--slate);cursor:pointer;background:0;border:0}.tsk:hover{color:var(--white)}
+.tn{background:var(--teal);color:var(--white);border:0;padding:8px 24px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}.tn:hover{background:var(--tb)}
+.tc{font-size:11px;color:var(--slate)}
+.nb{position:fixed;bottom:0;left:0;right:0;background:linear-gradient(to right,var(--navy),var(--nm));border-top:2px solid var(--mint);padding:10px 20px;display:flex;align-items:center;gap:16px;z-index:200;transform:translateY(100%);transition:.3s}.nb.vis{transform:translateY(0)}
+.ns{background:var(--teal);color:var(--white);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.nt{flex:1}.nsy{font-size:13px;color:var(--mint);font-weight:600}.ndo{font-size:11px;color:var(--sand);margin-top:2px}
+.nn{display:flex;gap:8px}.nn button{background:var(--nl);color:var(--white);border:1px solid var(--cb);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:12px}.nn button:hover{background:var(--teal);border-color:var(--teal)}.nn .pri{background:var(--teal);border-color:var(--teal)}
+.typing{display:flex;gap:4px;padding:8px 0}.typing span{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:tyb 1.2s infinite}.typing span:nth-child(2){animation-delay:.2s}.typing span:nth-child(3){animation-delay:.4s}
+@keyframes tyb{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
+.um{text-align:right;margin-bottom:12px}.um div{display:inline-block;background:var(--teal);padding:8px 14px;border-radius:12px;font-size:12px;max-width:80%}
+</style>
+</head>
+<body>
+<div class="pw" id="pw"><h1>NEXUS</h1><p>Climate Risk Intelligence Platform</p><input type="password" id="pwi" placeholder="Enter access code" autofocus><button onclick="checkPw()">Access Platform</button><div class="err" id="pwe"></div></div>
+<div id="app" style="display:none">
+<div class="hdr"><div class="logo">NEXUS <span>Climate Risk Intelligence</span></div><div class="hdr-sp"></div>
+<div class="ptabs"><div class="ptab act" data-p="cro">CRO</div><div class="ptab" data-p="icaap">ICAAP</div><div class="ptab" data-p="board">Board</div></div>
+<button class="tbtn" id="tourBtn">&#9654; Guided Tour</button><div class="dbadge"><span class="dot"></span>Data Sovereign: UAE</div></div>
+<div class="main">
+<div class="ip"><div class="ip-h">Climate Risk Intel Feed</div><div class="if" id="feed"></div></div>
+<div class="cp"><div class="ks" id="kpis"></div><div class="ca"><div class="cm" id="msgs"></div></div><div class="cs"><div class="csl">Explore</div><div class="cg" id="chips"></div></div></div>
+<div class="mp"><div id="mapView"></div><div class="ml" id="ml"><div class="mlt">Risk Exposure</div><div class="mli"><div class="ld r"></div>High risk zone</div><div class="mli"><div class="ld a"></div>Moderate risk</div><div class="mli"><div class="ld t"></div>Low risk</div><div class="mli"><div class="ld g"></div>Branch location</div><div class="mlt" style="margin-top:8px">IRL Mobility (Hex 9)</div><div class="mli"><div class="ld" style="background:rgba(192,132,252,.7)"></div>Very high traffic</div><div class="mli"><div class="ld" style="background:rgba(147,51,234,.5)"></div>High traffic</div><div class="mli"><div class="ld" style="background:rgba(107,33,168,.4)"></div>Medium traffic</div><div class="mli"><div class="ld" style="background:rgba(13,115,119,.4)"></div>Low traffic</div></div><div class="mbg"><span class="dot"></span>Esri ArcGIS &middot; UAE Sovereign</div></div>
+</div></div>
+<div class="to" id="tov"><div class="tb"><div class="tdi" id="tdots"></div><div class="tt" id="ttt"></div><div class="tdesc" id="tds"></div><div class="ta"><button class="tsk" id="tskip">Skip tour</button><span class="tc" id="tctr"></span><button class="tn" id="tnxt">Next &rarr;</button></div></div></div>
+<div class="nb" id="nb"><div class="ns" id="nsi">1</div><div class="nt"><div class="nsy" id="nsay"></div><div class="ndo" id="ndo"></div></div><div class="nn"><button id="nprev">&larr; Back</button><button id="nnext" class="pri">Next &rarr;</button></div></div>
+<script src="https://js.arcgis.com/4.28/"></script>
+<script>
+window.DEMO_DATA = {
+INTEL: [
+  {type:'alert',tag:'governance',label:'GOVERNANCE',text:'CBUAE Circular 8/2025: Climate Risk Regulation now in effect — all licensed banks must comply',time:'2h ago'},
+  {type:'warning',tag:'physical',label:'PHYSICAL RISK',text:'Sea surface temp anomaly +1.8°C in Arabian Gulf — coral bleaching threshold exceeded',time:'4h ago'},
+  {type:'warning',tag:'transition',label:'TRANSITION',text:'UAE carbon credit market launch Q3 2026 — transition risk repricing expected across O&G portfolios',time:'6h ago'},
+  {type:'alert',tag:'physical',label:'PHYSICAL RISK',text:'847 properties in Zone 1-2 flood plains — automated collateral review triggered',time:'8h ago'},
+  {type:'info',tag:'transition',label:'TRANSITION',text:'Aldar announces AED 2B green bond for climate-resilient infrastructure development',time:'12h ago'},
+  {type:'warning',tag:'physical',label:'PHYSICAL RISK',text:'ADNOC heat stress impact on cooling systems — downstream supply chain disruption risk elevated',time:'14h ago'},
+  {type:'alert',tag:'liability',label:'LIABILITY',text:'GCC first ESG-linked shareholder claim filed — potential liability risk precedent for UAE banks',time:'18h ago'},
+  {type:'info',tag:'governance',label:'GOVERNANCE',text:'NGFS scenario update: Middle East physical risk projections revised upward 15-20%',time:'1d ago'},
+],
+KPI: {
+  cro:[
+    {l:'Physical Risk',v:'AED 3.2B',c:'red',s:'Flood / heat / coastal'},
+    {l:'Transition Risk',v:'AED 1.8B',c:'amber',s:'Carbon-sensitive sectors'},
+    {l:'Capital Buffer',v:'14.2%',c:'green',s:'Above 10.5% minimum'},
+    {l:'CBUAE Compliance',v:'68%',c:'teal',s:'Readiness score'},
+  ],
+  icaap:[
+    {l:'Baseline CAR',v:'14.2%',c:'green',s:'Current ratio'},
+    {l:'Post-Stress CAR',v:'11.1%',c:'amber',s:'Severe flood scenario'},
+    {l:'Buffer to Min.',v:'60 bps',c:'red',s:'Above 10.5% minimum'},
+    {l:'Scenarios Done',v:'2 of 4',c:'teal',s:'Acute ✓ Transition ✓'},
+  ],
+  board:[
+    {l:'Overall Readiness',v:'68%',c:'teal',s:'CBUAE compliance'},
+    {l:'Risk Appetite',v:'2 Breaches',c:'red',s:'Concentration + insurance'},
+    {l:'Board Training',v:'92%',c:'green',s:'Climate risk modules'},
+    {l:'Decisions Pending',v:'3',c:'amber',s:'Require board approval'},
+  ]
+},
+MAP_POINTS: [
+  {lat:25.12,lng:55.24,zone:'Al Quoz',risk:'high',aed:420,n:847},
+  {lat:25.00,lng:55.02,zone:'Jebel Ali',risk:'high',aed:380,n:523},
+  {lat:25.08,lng:55.14,zone:'Dubai Marina',risk:'high',aed:290,n:312},
+  {lat:25.42,lng:55.47,zone:'Ajman Coastal',risk:'high',aed:150,n:198},
+  {lat:25.19,lng:55.26,zone:'Business Bay',risk:'med',aed:180,n:234},
+  {lat:24.49,lng:54.37,zone:'Abu Dhabi CBD',risk:'med',aed:220,n:312},
+  {lat:24.50,lng:54.40,zone:'Al Reem Island',risk:'med',aed:160,n:189},
+  {lat:25.34,lng:55.39,zone:'Sharjah Central',risk:'med',aed:140,n:201},
+  {lat:24.50,lng:54.60,zone:'Yas Island',risk:'low',aed:90,n:120},
+  {lat:25.78,lng:55.95,zone:'RAK Free Zone',risk:'low',aed:45,n:67},
+],
+BRANCHES: [
+  {lat:25.20,lng:55.27,n:'Dubai Main'},{lat:25.10,lng:55.18,n:'JLT'},{lat:24.49,lng:54.38,n:'Abu Dhabi HQ'},{lat:25.26,lng:55.30,n:'Deira'},{lat:25.34,lng:55.40,n:'Sharjah'},
+],
+TOUR: [
+  {t:'Climate Risk Command Center',d:'Welcome to Nexus — a conversational intelligence platform built for CBUAE climate-related financial risk compliance. The platform unifies Esri geospatial hazard data, location intelligence, and your bank\'s portfolio data into a single interface. Everything hosted on UAE sovereign cloud through Moro.'},
+  {t:'Live Climate Intel Feed',d:'The left panel surfaces real-time climate risk signals — regulatory updates, physical risk alerts, transition risk events, and liability developments. Each signal is classified by CBUAE risk type and investigated through the conversational interface.'},
+  {t:'Spatial Risk Intelligence',d:'The right panel maps your portfolio against Esri hazard layers. Every collateral asset, branch, and ATM is geocoded. When you ask a question, the map responds — overlaying flood zones, heat stress, coastal risk, or economic activity data in real time.'},
+  {t:'Three Perspectives, One Platform',d:'Toggle between CRO (portfolio risk), ICAAP (capital adequacy under stress), and Board (governance compliance). Each persona gets tailored dashboards, KPIs, and regulatory references. Same data, different lens.'},
+  {t:'Ask a Question, Get an Answer',d:'Click any chip or type naturally. Every response includes quantified data in AED, explicit data provenance, and the specific CBUAE regulation article reference. The examiner sees exactly where the number came from.'},
+],
+NARRATION: [
+  {n:1,say:'"This is the climate risk command center. Three panels — intel feed left, conversational AI center, Esri geospatial right."',act:'Point to each panel as you describe it.'},
+  {n:2,say:'"Let me show you what the CRO sees. Where is our flood exposure?"',act:'Click the highlighted chip: "Where is our flood exposure?"',chip:'Where is our flood exposure?'},
+  {n:3,say:'"Notice the IRL mobility data enriching each zone — we know HOW MUCH economic activity is at stake."',act:'Scroll through response. Point out IRL badges for Al Quoz and Jebel Ali.'},
+  {n:4,say:'"Let me drill into Al Quoz — our highest concentration zone."',act:'Click "Zoom into Al Quoz" chip.',chip:'Zoom into Al Quoz'},
+  {n:5,say:'"Here\'s the transmission pathway — exactly what CBUAE examiners look for."',act:'Click "Show transmission pathway".',chip:'Show transmission pathway'},
+  {n:6,say:'"Now let\'s stress test. What happens to capital under a severe flood?"',act:'Click "Run stress scenario".',chip:'Run stress scenario'},
+  {n:7,say:'"Let me switch to the Board view — what the chairman sees."',act:'Click the Board persona tab.',persona:'board'},
+  {n:8,say:'"Two risk appetite breaches flagged. Three decisions pending board approval."',act:'Let greeting load. Point out breach indicators.'},
+  {n:9,say:'"Here\'s the compliance roadmap — 68% today, 95%+ in 90 days."',act:'Click "Compliance roadmap".',chip:'Compliance roadmap'},
+  {n:10,say:'"Every response cites the CBUAE article, data source, and method. Complete audit trail."',act:'Point to provenance block at bottom of any response.'},
+],
+};
+
+</script>
+<script>
+window.RESPONSES = {
+cro: {
+greeting: `<div class="mg">Good morning. Here is your climate risk portfolio overview as of today.</div>
+<div class="rc high"><div class="rct">Physical Risk Exposure: AED 3.2B</div>
+<div class="sr"><span class="sl">Flood zones</span><span class="sv red">AED 1.24B</span></div>
+<div class="sr"><span class="sl">Heat stress zones</span><span class="sv amber">AED 890M</span></div>
+<div class="sr"><span class="sl">Coastal inundation</span><span class="sv amber">AED 1.07B</span></div></div>
+<div class="rc med"><div class="rct">Transition Risk: AED 1.8B in Carbon-Sensitive Sectors</div>
+<div class="sr"><span class="sl">Oil & gas</span><span class="sv amber">AED 940M</span></div>
+<div class="sr"><span class="sl">Cement & steel</span><span class="sv amber">AED 520M</span></div>
+<div class="sr"><span class="sl">Aviation</span><span class="sv">AED 340M</span></div></div>
+<div class="prov"><b>Source:</b> Esri Hazard Layers + Portfolio Data · <b>Method:</b> Geospatial overlay · <b>CBUAE Ref:</b> Articles 4.2, 4.7</div>`,
+greeting_chips: ['Where is our flood exposure?','Show transition risk by sector','Run stress scenario','Customer-level deep dive'],
+
+'Where is our flood exposure?': {
+html: `<div class="mg">Flood exposure totals <b>AED 1.24B</b> across 1,880 collateral assets in four concentration zones.</div>
+<div class="rc high"><div class="rct">Al Quoz Industrial — AED 420M</div>
+<div class="sr"><span class="sl">Properties</span><span class="sv">847</span></div>
+<div class="sr"><span class="sl">Flood zone</span><span class="sv red">Zone 1 (high)</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv red">18%</span></div>
+<div class="irl">📍 IRL: 42,000 daily visitors · AED 850M economic activity</div>
+<div class="rcs">Foot traffic declined 8% QoQ — early credit warning independent of borrower financials</div></div>
+<div class="rc high"><div class="rct">Jebel Ali Port Zone — AED 380M</div>
+<div class="sr"><span class="sl">Properties</span><span class="sv">523</span></div>
+<div class="sr"><span class="sl">Flood zone</span><span class="sv red">Zone 1 (high)</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv red">22%</span></div>
+<div class="irl">📍 IRL: 28,500 daily workers · AED 1.2B daily trade throughput</div></div>
+<div class="rc med"><div class="rct">Dubai Marina — AED 290M</div>
+<div class="sr"><span class="sl">Properties</span><span class="sv">312</span></div>
+<div class="sr"><span class="sl">Flood zone</span><span class="sv amber">Zone 2 (moderate)</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv amber">31%</span></div>
+<div class="irl">📍 IRL: 65,000 daily visitors · Premium lifestyle index 8.4/10</div></div>
+<div class="rc med"><div class="rct">Ajman Coastal — AED 150M</div>
+<div class="sr"><span class="sl">Properties</span><span class="sv">198</span></div>
+<div class="sr"><span class="sl">Flood zone</span><span class="sv amber">Zone 2</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv red">15%</span></div></div>
+<div class="rc" style="border-left-color:var(--amber)"><div class="rct">⚠️ Concentration Alert</div>
+<div class="sr"><span class="sl">Al Quoz + Jebel Ali concentration</span><span class="sv red">67% of flood exposure</span></div>
+<div class="sr"><span class="sl">Threshold limit (Art 4.7.6)</span><span class="sv">40%</span></div>
+<div class="sr"><span class="sl">Insurance gap (portfolio-wide)</span><span class="sv red">Only 23% covered</span></div></div>
+<div class="prov"><b>Source:</b> Esri Flood Hazard + IRL Population/Mobility (Hex 9) + Portfolio · <b>Method:</b> Geocoded overlay with mobility enrichment · <b>CBUAE Ref:</b> Articles 4.5, 4.7.5, 4.7.6</div>`,
+chips: ['Zoom into Al Quoz','Show transmission pathway','Collateral haircut analysis','Mitigation options'],
+map: 'flood'
+},
+
+'Zoom into Al Quoz': {
+html: `<div class="mg">Drilling into <b>Al Quoz Industrial</b> — 847 collateral assets, AED 420M total exposure.</div>
+<div class="rc high"><div class="rct">Zone Profile</div>
+<div class="sr"><span class="sl">Total borrowers</span><span class="sv">12</span></div>
+<div class="sr"><span class="sl">Average LTV</span><span class="sv amber">72%</span></div>
+<div class="sr"><span class="sl">Highest single exposure</span><span class="sv red">AED 85M (Gulf Industrial Corp)</span></div>
+<div class="sr"><span class="sl">Watchlist borrowers</span><span class="sv red">3 of 12</span></div></div>
+<div class="irl">📍 IRL Location Intelligence — Al Quoz Zone</div>
+<div class="rc"><div class="rct">Human & Economic Exposure</div>
+<div class="sr"><span class="sl">Daily foot traffic</span><span class="sv">42,000 visitors</span></div>
+<div class="sr"><span class="sl">Economic activity (annual)</span><span class="sv">AED 850M</span></div>
+<div class="sr"><span class="sl">Businesses in zone</span><span class="sv">1,240</span></div>
+<div class="sr"><span class="sl">Residential population (Hex 9)</span><span class="sv">28,400</span></div>
+<div class="sr"><span class="sl">Property price trend</span><span class="sv red">-3.2% YoY</span></div>
+<div class="sr"><span class="sl">Foot traffic QoQ</span><span class="sv red">-8%</span></div>
+<div class="sr"><span class="sl">Lifestyle index</span><span class="sv">5.8/10 (mass market)</span></div>
+<div class="sr"><span class="sl">Expenditure data</span><span class="sv amber">-4% QoQ (Mastercard)</span></div></div>
+<div class="rc high"><div class="rct">Gulf Industrial Corp — AED 85M</div>
+<div class="sr"><span class="sl">Physical risk</span><span class="sv red">High</span></div>
+<div class="sr"><span class="sl">Transition risk</span><span class="sv amber">Moderate</span></div>
+<div class="sr"><span class="sl">Mitigation plan</span><span class="sv red">None submitted</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv red">No flood cover</span></div>
+<div class="irl">📍 Facility foot traffic -14% QoQ · Property values -3.2% YoY</div></div>
+<div class="rc med"><div class="rct">Emirates Construction LLC — AED 62M</div>
+<div class="sr"><span class="sl">Physical risk</span><span class="sv amber">Moderate</span></div>
+<div class="sr"><span class="sl">Transition risk</span><span class="sv amber">Moderate</span></div>
+<div class="sr"><span class="sl">Mitigation plan</span><span class="sv green">Submitted — transition strategy</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv amber">Partial (60%)</span></div>
+<div class="irl">📍 Facility foot traffic stable · Property values +1.1% YoY</div></div>
+<div class="prov"><b>Source:</b> Esri Flood + IRL Population/Mobility/Property/Business/Expenditure (Hex 9) + Credit System · <b>Method:</b> Geocoded borrower overlay with IRL enrichment · <b>CBUAE Ref:</b> Articles 4.5, 4.7.5</div>`,
+chips: ['Show transmission pathway','Run stress scenario','Mitigation options','Back to overview'],
+map: 'alquoz'
+},
+
+'Show transmission pathway': {
+html: `<div class="mg">Explicit transmission chain from climate hazard to credit risk — exactly what CBUAE examiners assess.</div>
+<div class="fd"><div class="fs">🌊<br><b>Flood Event</b><br><span class="fss">1-in-100 severity</span></div><div class="fa">→</div><div class="fs">🏭<br><b>Ops Disruption</b><br><span class="fss">14-45 day closure</span></div><div class="fa">→</div><div class="fs">💰<br><b>Cash Flow ↓</b><br><span class="fss">Revenue -12% to -28%</span></div><div class="fa">→</div><div class="fs">📉<br><b>Credit Risk ↑</b><br><span class="fss">Rating migration</span></div></div>
+<div class="rc"><div class="rct">Quantified Transmission Channels</div>
+<div class="sr"><span class="sl">Revenue loss (direct)</span><span class="sv red">-12% to -28%</span></div>
+<div class="sr"><span class="sl">Repair & remediation</span><span class="sv amber">AED 15-40M</span></div>
+<div class="sr"><span class="sl">Supply chain disruption</span><span class="sv amber">14-45 day delays</span></div>
+<div class="sr"><span class="sl">Collateral impairment</span><span class="sv red">-8% to -22%</span></div>
+<div class="sr"><span class="sl">Insurance recovery</span><span class="sv red">Only 23% of portfolio</span></div></div>
+<div class="irl">📍 IRL: foot traffic decline validates disruption before financial statements reflect it</div>
+<div class="rc"><div class="rct">Key Insight</div>
+<div class="mg" style="font-size:12px">This is not a separate ESG metric — it is a <b>direct translation into existing credit risk categories</b>. Same framework, climate as input variable.</div></div>
+<div class="prov"><b>Source:</b> Esri Hazard + IRL Mobility Trends + Credit Models · <b>Method:</b> Cascading risk transmission · <b>CBUAE Ref:</b> Article 4.7.5 (Transmission Channels)</div>`,
+chips: ['Run stress scenario','Mitigation options','Back to overview'],
+map: 'flood'
+},
+
+'Run stress scenario': {
+html: `<div class="mg">Running <b>severe flood stress scenario</b> (1-in-100 year) against full portfolio.</div>
+<div class="rc high"><div class="rct">Capital Impact — Severe Flood</div>
+<div class="sr"><span class="sl">Baseline CAR</span><span class="sv green">14.2%</span></div>
+<div class="sr"><span class="sl">Post-stress CAR</span><span class="sv red">11.1%</span></div>
+<div class="sr"><span class="sl">Impact</span><span class="sv red">-310 bps</span></div>
+<div class="sr"><span class="sl">Minimum requirement</span><span class="sv">10.5%</span></div>
+<div class="sr"><span class="sl">Buffer remaining</span><span class="sv red">60 bps</span></div></div>
+<div class="rc"><div class="rct">Breakdown by Risk Type</div>
+<div class="sr"><span class="sl">Credit provisions</span><span class="sv red">-180 bps</span></div>
+<div class="sr"><span class="sl">Collateral revaluation</span><span class="sv red">-80 bps</span></div>
+<div class="sr"><span class="sl">Market risk</span><span class="sv amber">-30 bps</span></div>
+<div class="sr"><span class="sl">Operational risk</span><span class="sv amber">-20 bps</span></div></div>
+<div class="rc"><div class="rct">Watch Threshold Breaches</div>
+<div class="sr"><span class="sl">New watchlist entries</span><span class="sv red">6 borrowers</span></div>
+<div class="sr"><span class="sl">Provision increase</span><span class="sv red">AED 890M</span></div>
+<div class="sr"><span class="sl">Highest impact</span><span class="sv">Gulf Industrial Corp (AED 85M → watchlist)</span></div></div>
+<div class="rcs" style="color:var(--amber)">⚠️ Scenario-based sensitivities, not loss forecasts. Assumptions documented per Article 4.8.</div>
+<div class="prov"><b>Source:</b> Esri Hazard + IRL Economic Data + ICAAP Model · <b>Method:</b> Stress test with cascading transmission · <b>CBUAE Ref:</b> Articles 4.6, 4.8, 5.1-5.3</div>`,
+chips: ['Show capital sensitivity','Mitigation options','Switch to Board view','Back to overview'],
+map: 'stress'
+},
+
+'Show transition risk by sector': {
+html: `<div class="mg">Transition risk exposure: <b>AED 1.8B</b> across carbon-sensitive sectors.</div>
+<div class="rc med"><div class="rct">Oil & Gas — AED 940M</div>
+<div class="sr"><span class="sl">Borrowers</span><span class="sv">18</span></div>
+<div class="sr"><span class="sl">ADNOC-linked</span><span class="sv amber">AED 420M</span></div>
+<div class="sr"><span class="sl">Transition plans</span><span class="sv amber">7 of 18</span></div>
+<div class="irl">📍 IRL: Industrial zone traffic stable — no early warning</div></div>
+<div class="rc med"><div class="rct">Cement & Steel — AED 520M</div>
+<div class="sr"><span class="sl">Borrowers</span><span class="sv">9</span></div>
+<div class="sr"><span class="sl">Carbon intensity</span><span class="sv red">High</span></div>
+<div class="sr"><span class="sl">Transition plans</span><span class="sv red">2 of 9</span></div></div>
+<div class="rc"><div class="rct">Aviation — AED 340M</div>
+<div class="sr"><span class="sl">Borrowers</span><span class="sv">5</span></div>
+<div class="sr"><span class="sl">SAF readiness</span><span class="sv amber">Moderate</span></div>
+<div class="irl">📍 IRL: Airport zone traffic +12% YoY — growth corridor</div></div>
+<div class="prov"><b>Source:</b> Portfolio + NGFS Scenarios + IRL Business Universe · <b>Method:</b> Sector classification · <b>CBUAE Ref:</b> Articles 4.4, 4.7, 4.8</div>`,
+chips: ['Run stress scenario','Customer-level deep dive','Back to overview'],
+map: 'transition'
+},
+
+'Customer-level deep dive': {
+html: `<div class="mg">Individual borrower climate risk profiles — highest combined exposure.</div>
+<div class="rc high"><div class="rct">Gulf Industrial Corp</div>
+<div class="sr"><span class="sl">Exposure</span><span class="sv red">AED 85M</span></div>
+<div class="sr"><span class="sl">Physical</span><span class="sv red">High — Al Quoz flood zone</span></div>
+<div class="sr"><span class="sl">Transition</span><span class="sv amber">Moderate — manufacturing</span></div>
+<div class="sr"><span class="sl">Mitigation</span><span class="sv red">None submitted</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv red">No flood cover</span></div>
+<div class="sr"><span class="sl">Action</span><span class="sv red">Escalate to watchlist</span></div>
+<div class="irl">📍 IRL: Facility traffic -14% QoQ · Property -3.2% YoY</div></div>
+<div class="rc med"><div class="rct">Emirates Construction LLC</div>
+<div class="sr"><span class="sl">Exposure</span><span class="sv amber">AED 62M</span></div>
+<div class="sr"><span class="sl">Physical</span><span class="sv amber">Moderate — partial flood</span></div>
+<div class="sr"><span class="sl">Transition</span><span class="sv amber">Moderate — cement chain</span></div>
+<div class="sr"><span class="sl">Mitigation</span><span class="sv green">Submitted — transition strategy</span></div>
+<div class="sr"><span class="sl">Insurance</span><span class="sv amber">Partial (60%)</span></div>
+<div class="irl">📍 IRL: Traffic stable · Property +1.1% YoY</div></div>
+<div class="prov"><b>Source:</b> Credit System + Esri + IRL Mobility/Property/Business · <b>Method:</b> Borrower-level aggregation · <b>CBUAE Ref:</b> Articles 4.5, 4.7.5</div>`,
+chips: ['Zoom into Al Quoz','Show transmission pathway','Run stress scenario','Back to overview'],
+map: 'overview'
+},
+
+'Mitigation options': {
+html: `<div class="mg">Recommended mitigation across three horizons.</div>
+<div class="rc" style="border-left-color:var(--red)"><div class="rct">Immediate (0-3 months)</div>
+<div class="sr"><span class="sl">Require flood insurance Al Quoz/Jebel Ali</span><span class="sv">77% gap</span></div>
+<div class="sr"><span class="sl">Increase Zone 1 collateral haircuts</span><span class="sv">+15-25%</span></div>
+<div class="sr"><span class="sl">Add climate covenants Gulf Industrial</span><span class="sv">AED 85M at risk</span></div></div>
+<div class="rc" style="border-left-color:var(--amber)"><div class="rct">Medium-term (3-12 months)</div>
+<div class="sr"><span class="sl">Rebalance geographic concentration</span><span class="sv">67% → <40%</span></div>
+<div class="sr"><span class="sl">Require O&G transition plans</span><span class="sv">11 of 18 missing</span></div>
+<div class="sr"><span class="sl">Green lending targets</span><span class="sv">8% → 15%</span></div></div>
+<div class="rc" style="border-left-color:var(--green)"><div class="rct">Strategic (12+ months)</div>
+<div class="sr"><span class="sl">Climate-adjusted pricing models</span><span class="sv">Risk-based spread</span></div>
+<div class="sr"><span class="sl">Climate risk appetite formalization</span><span class="sv">Board-approved</span></div>
+<div class="sr"><span class="sl">IRL data into credit scoring</span><span class="sv">Leading indicator</span></div></div>
+<div class="prov"><b>Source:</b> Risk Analytics + Esri + IRL Trends · <b>Method:</b> Risk-prioritized plan · <b>CBUAE Ref:</b> Articles 4.3, 4.4, 4.5</div>`,
+chips: ['Back to overview'],
+map: 'flood'
+},
+
+'Collateral haircut analysis': {
+html: `<div class="mg">Climate-adjusted collateral haircuts by zone.</div>
+<div class="rc"><div class="rct">Haircut Recommendations</div>
+<div class="sr"><span class="sl">Al Quoz (Zone 1)</span><span class="sv red">+20-25%</span></div>
+<div class="sr"><span class="sl">Jebel Ali (Zone 1)</span><span class="sv red">+18-22%</span></div>
+<div class="sr"><span class="sl">Dubai Marina (Zone 2)</span><span class="sv amber">+12-15%</span></div>
+<div class="sr"><span class="sl">Ajman (Zone 2)</span><span class="sv amber">+10-15%</span></div>
+<div class="sr"><span class="sl">Business Bay</span><span class="sv">+5-8%</span></div></div>
+<div class="rc"><div class="rct">Portfolio Impact</div>
+<div class="sr"><span class="sl">Current avg LTV</span><span class="sv">68%</span></div>
+<div class="sr"><span class="sl">Climate-adjusted LTV</span><span class="sv red">78%</span></div>
+<div class="sr"><span class="sl">Additional provisions</span><span class="sv red">AED 340M</span></div></div>
+<div class="prov"><b>Source:</b> Esri Zones + IRL Property Prices + Collateral Registry · <b>Method:</b> Zone-based modeling · <b>CBUAE Ref:</b> Article 4.5</div>`,
+chips: ['Show transmission pathway','Run stress scenario','Back to overview'],
+map: 'flood'
+},
+
+'Show capital sensitivity': {
+html: `<div class="mg">Capital adequacy under all modeled scenarios.</div>
+<div class="rc"><div class="rct">CAR Sensitivity Table</div>
+<table class="mt"><tr><th>Scenario</th><th>CAR</th><th>Impact</th><th>Buffer</th></tr>
+<tr><td>Baseline</td><td class="green">14.2%</td><td>—</td><td>370 bps</td></tr>
+<tr><td>Moderate physical</td><td class="amber">12.8%</td><td>-140</td><td>230 bps</td></tr>
+<tr><td>Severe flood</td><td class="red">11.1%</td><td>-310</td><td class="red">60 bps</td></tr>
+<tr><td>Orderly transition</td><td class="green">13.1%</td><td>-110</td><td>260 bps</td></tr>
+<tr><td>Disorderly transition</td><td class="amber">11.8%</td><td>-240</td><td>130 bps</td></tr>
+<tr><td><b>Combined severe</b></td><td class="red">10.7%</td><td class="red">-350</td><td class="red">20 bps</td></tr>
+<tr><td>Minimum</td><td>10.5%</td><td>—</td><td>—</td></tr></table></div>
+<div class="rcs" style="color:var(--red)">⚠️ Combined severe: only 20 bps above minimum — board escalation required.</div>
+<div class="prov"><b>Source:</b> ICAAP + NGFS · <b>Method:</b> Multi-scenario sensitivity · <b>CBUAE Ref:</b> Articles 4.6, 4.8</div>`,
+chips: ['Mitigation options','Back to overview'],
+map: 'stress'
+},
+},
+
+icaap: {
+greeting: `<div class="mg">ICAAP climate risk view. Capital adequacy posture under climate scenarios.</div>
+<div class="rc"><div class="rct">Capital Adequacy Under Climate Stress</div>
+<table class="mt"><tr><th>Scenario</th><th>CAR</th><th>Impact</th></tr>
+<tr><td>Baseline</td><td class="green">14.2%</td><td>—</td></tr>
+<tr><td>Moderate physical</td><td class="amber">12.8%</td><td>-140 bps</td></tr>
+<tr><td>Severe flood</td><td class="red">11.1%</td><td>-310 bps</td></tr>
+<tr><td>Minimum</td><td>10.5%</td><td>—</td></tr></table></div>
+<div class="rc"><div class="rct">Scenario Status</div>
+<div class="sr"><span class="sl">Acute physical</span><span class="sv" style="color:var(--green)">✓ Complete</span></div>
+<div class="sr"><span class="sl">Chronic physical</span><span class="sv" style="color:var(--amber)">◐ In progress</span></div>
+<div class="sr"><span class="sl">Transition</span><span class="sv" style="color:var(--green)">✓ Complete</span></div>
+<div class="sr"><span class="sl">Combined</span><span class="sv" style="color:var(--slate)">○ Not started</span></div></div>
+<div class="prov"><b>Source:</b> ICAAP Model + Esri Scenarios · <b>Method:</b> Stress testing · <b>CBUAE Ref:</b> Articles 4.6, 4.11, 5.1-5.3</div>`,
+greeting_chips: ['Run severe flood scenario','Show capital sensitivity','Liquidity stress impact','Documentation status'],
+
+'Run severe flood scenario': {
+html: `<div class="mg">Executing <b>severe flood</b> (1-in-100) with full capital detail.</div>
+<div class="rc high"><div class="rct">Capital Impact</div>
+<div class="sr"><span class="sl">Baseline</span><span class="sv green">14.2%</span></div>
+<div class="sr"><span class="sl">Post-stress</span><span class="sv red">11.1%</span></div>
+<div class="sr"><span class="sl">Total impact</span><span class="sv red">-310 bps</span></div></div>
+<div class="rc"><div class="rct">Breakdown</div>
+<div class="sr"><span class="sl">Credit provisions</span><span class="sv red">-180 bps</span></div>
+<div class="sr"><span class="sl">Collateral revaluation</span><span class="sv red">-80 bps</span></div>
+<div class="sr"><span class="sl">Market risk</span><span class="sv amber">-30 bps</span></div>
+<div class="sr"><span class="sl">Operational risk</span><span class="sv amber">-20 bps</span></div></div>
+<div class="rc"><div class="rct">Assumptions (Documented)</div>
+<div class="sr"><span class="sl">Flood return period</span><span class="sv">1-in-100 years</span></div>
+<div class="sr"><span class="sl">Disruption duration</span><span class="sv">30-45 days</span></div>
+<div class="sr"><span class="sl">Revaluation method</span><span class="sv">Zone haircut + IRL property trends</span></div>
+<div class="sr"><span class="sl">Recovery rate</span><span class="sv">Insurance at 23%</span></div></div>
+<div class="prov"><b>Source:</b> ICAAP + Esri Flood + IRL Property/Economic · <b>Method:</b> Scenario stress with documented assumptions · <b>CBUAE Ref:</b> Articles 4.6, 4.8, 5.1-5.3</div>`,
+chips: ['Show capital sensitivity','Liquidity stress impact','Back to overview'],
+map: 'stress'
+},
+
+'Show capital sensitivity': {
+html: `<div class="mg">Full CAR sensitivity across all scenarios.</div>
+<div class="rc"><div class="rct">CAR Sensitivity</div>
+<table class="mt"><tr><th>Scenario</th><th>CAR</th><th>Impact</th><th>Buffer</th></tr>
+<tr><td>Baseline</td><td class="green">14.2%</td><td>—</td><td>370 bps</td></tr>
+<tr><td>Moderate physical</td><td class="amber">12.8%</td><td>-140</td><td>230 bps</td></tr>
+<tr><td>Severe physical</td><td class="red">11.1%</td><td>-310</td><td class="red">60 bps</td></tr>
+<tr><td>Orderly transition</td><td class="green">13.1%</td><td>-110</td><td>260 bps</td></tr>
+<tr><td>Disorderly transition</td><td class="amber">11.8%</td><td>-240</td><td>130 bps</td></tr>
+<tr><td><b>Combined severe</b></td><td class="red">10.7%</td><td class="red">-350</td><td class="red">20 bps</td></tr></table></div>
+<div class="prov"><b>Source:</b> ICAAP + NGFS · <b>Method:</b> Multi-scenario · <b>CBUAE Ref:</b> Articles 4.6, 4.8</div>`,
+chips: ['Run severe flood scenario','Liquidity stress impact','Back to overview'],
+map: 'stress'
+},
+
+'Liquidity stress impact': {
+html: `<div class="mg">Liquidity under severe climate stress.</div>
+<div class="rc"><div class="rct">Liquidity Stress Indicators</div>
+<div class="sr"><span class="sl">Deposit withdrawal</span><span class="sv red">+4-8%</span></div>
+<div class="sr"><span class="sl">Credit drawdowns</span><span class="sv red">+AED 200-400M</span></div>
+<div class="sr"><span class="sl">Collateral haircuts</span><span class="sv amber">+5-15%</span></div>
+<div class="sr"><span class="sl">LCR decline (30d)</span><span class="sv red">-8 to -14 pp</span></div></div>
+<div class="rc"><div class="rct">ILAAP Integration</div>
+<div class="sr"><span class="sl">Buffer adequacy</span><span class="sv amber">Marginal under combined</span></div>
+<div class="sr"><span class="sl">NSFR impact</span><span class="sv amber">-3 to -6 pp</span></div>
+<div class="sr"><span class="sl">Contingency plan</span><span class="sv" style="color:var(--amber)">◐ Under review</span></div></div>
+<div class="prov"><b>Source:</b> ILAAP + Climate Scenarios · <b>Method:</b> Liquidity overlay · <b>CBUAE Ref:</b> Articles 4.6, 4.11</div>`,
+chips: ['Show capital sensitivity','Documentation status','Back to overview'],
+map: 'overview'
+},
+
+'Documentation status': {
+html: `<div class="mg">Article-by-article compliance. Overall: <b>68%</b>.</div>
+<div class="rc"><div class="rct">CBUAE Documentation Status</div>
+<table class="mt"><tr><th>Article</th><th>Requirement</th><th>Status</th></tr>
+<tr><td>4.3</td><td>Governance & strategy</td><td style="color:var(--green)">✓</td></tr>
+<tr><td>4.4</td><td>Risk management</td><td style="color:var(--green)">✓</td></tr>
+<tr><td>4.5</td><td>Credit risk</td><td style="color:var(--amber)">◐</td></tr>
+<tr><td>4.6</td><td>Capital (ICAAP)</td><td style="color:var(--amber)">◐</td></tr>
+<tr><td>4.7.5</td><td>Transmission</td><td style="color:var(--green)">✓</td></tr>
+<tr><td>4.7.6</td><td>Concentration</td><td style="color:var(--green)">✓</td></tr>
+<tr><td>4.8</td><td>Scenario analysis</td><td style="color:var(--amber)">◐</td></tr>
+<tr><td>4.9</td><td>Disclosure</td><td style="color:var(--slate)">○</td></tr></table></div>
+<div class="rc"><div class="rct">Trajectory</div>
+<div class="sr"><span class="sl">Current</span><span class="sv teal">68%</span></div>
+<div class="sr"><span class="sl">Day 30</span><span class="sv amber">82%</span></div>
+<div class="sr"><span class="sl">Day 60</span><span class="sv green">91%</span></div>
+<div class="sr"><span class="sl">Day 90</span><span class="sv green">95%+</span></div></div>
+<div class="prov"><b>Source:</b> Compliance tracking · <b>Method:</b> Article assessment · <b>CBUAE Ref:</b> All articles</div>`,
+chips: ['Run severe flood scenario','Show capital sensitivity','Back to overview'],
+map: 'overview'
+},
+},
+
+board: {
+greeting: `<div class="mg">Good morning. Board-level climate risk governance summary.</div>
+<div class="rc"><div class="rct">Governance Readiness</div>
+<div class="sr"><span class="sl">Risk appetite statement</span><span class="sv" style="color:var(--green)">✓ Approved</span></div>
+<div class="sr"><span class="sl">Board climate training</span><span class="sv green">92%</span></div>
+<div class="sr"><span class="sl">Scenario analysis</span><span class="sv" style="color:var(--amber)">◐ On track</span></div>
+<div class="sr"><span class="sl">Green product governance</span><span class="sv" style="color:var(--amber)">◐ Under review</span></div>
+<div class="sr"><span class="sl">Overall readiness</span><span class="sv teal">68%</span></div></div>
+<div class="rc" style="border-left-color:var(--amber)"><div class="rct">⚠️ Decisions Requiring Board Approval</div>
+<div class="sr"><span class="sl">1.</span><span class="sv">Approve updated climate risk appetite thresholds</span></div>
+<div class="sr"><span class="sl">2.</span><span class="sv">Review and endorse scenario analysis results</span></div>
+<div class="sr"><span class="sl">3.</span><span class="sv">Authorize capital buffer for climate stress</span></div></div>
+<div class="prov"><b>Source:</b> Governance Framework + Compliance · <b>Method:</b> Board dashboard · <b>CBUAE Ref:</b> Article 4.3</div>`,
+greeting_chips: ['Show risk appetite status','Scenario results summary','Capital impact overview','Compliance roadmap'],
+
+'Show risk appetite status': {
+html: `<div class="mg">Risk appetite thresholds vs. current position.</div>
+<div class="rc high"><div class="rct">Risk Appetite Dashboard</div>
+<table class="mt"><tr><th>Metric</th><th>Current</th><th>Limit</th><th>Status</th></tr>
+<tr><td>Single-zone concentration</td><td class="red">67%</td><td>40%</td><td><span class="breach">BREACH</span></td></tr>
+<tr><td>Transition sector</td><td>18%</td><td>20%</td><td><span class="ok">OK</span></td></tr>
+<tr><td>Uninsured flood</td><td class="red">77%</td><td>50%</td><td><span class="breach">BREACH</span></td></tr>
+<tr><td>Green lending</td><td class="amber">8%</td><td>15%</td><td><span class="breach">BELOW</span></td></tr></table></div>
+<div class="rcs" style="color:var(--red)">Two thresholds breached. Board must remediate or formally accept with documented justification.</div>
+<div class="prov"><b>Source:</b> Risk Appetite Framework + Portfolio + Esri · <b>Method:</b> Threshold monitoring · <b>CBUAE Ref:</b> Article 4.3</div>`,
+chips: ['Scenario results summary','Compliance roadmap','Back to overview'],
+map: 'overview'
+},
+
+'Scenario results summary': {
+html: `<div class="mg">Scenario results for board review.</div>
+<div class="rc high"><div class="rct">Severe Physical (1-in-100 Flood)</div>
+<div class="sr"><span class="sl">Impact</span><span class="sv red">-310 bps</span></div>
+<div class="sr"><span class="sl">Post-stress CAR</span><span class="sv red">11.1%</span></div>
+<div class="sr"><span class="sl">Buffer</span><span class="sv red">60 bps</span></div></div>
+<div class="rc med"><div class="rct">Disorderly Transition</div>
+<div class="sr"><span class="sl">Impact</span><span class="sv amber">-240 bps</span></div>
+<div class="sr"><span class="sl">Post-stress CAR</span><span class="sv amber">11.8%</span></div>
+<div class="sr"><span class="sl">Buffer</span><span class="sv amber">130 bps</span></div></div>
+<div class="rc high"><div class="rct">Combined Severe ⚠️</div>
+<div class="sr"><span class="sl">Impact</span><span class="sv red">-350 bps</span></div>
+<div class="sr"><span class="sl">Post-stress CAR</span><span class="sv red">10.7%</span></div>
+<div class="sr"><span class="sl">Buffer</span><span class="sv red">Only 20 bps</span></div></div>
+<div class="rcs" style="color:var(--red)">Combined severe approaches minimum. Board capital allocation decision required.</div>
+<div class="prov"><b>Source:</b> ICAAP + NGFS · <b>Method:</b> Multi-scenario stress · <b>CBUAE Ref:</b> Articles 4.6, 4.8</div>`,
+chips: ['Capital impact overview','Compliance roadmap','Back to overview'],
+map: 'stress'
+},
+
+'Capital impact overview': {
+html: `<div class="mg">Board-level capital summary with actions.</div>
+<div class="rc"><div class="rct">Capital Position</div>
+<div class="sr"><span class="sl">Current CAR</span><span class="sv green">14.2%</span></div>
+<div class="sr"><span class="sl">Worst-case</span><span class="sv red">10.7% (combined)</span></div>
+<div class="sr"><span class="sl">Minimum</span><span class="sv">10.5%</span></div>
+<div class="sr"><span class="sl">Target buffer</span><span class="sv teal">12.0%</span></div></div>
+<div class="rc"><div class="rct">Board Actions Required</div>
+<div class="sr"><span class="sl">1. Climate capital buffer</span><span class="sv amber">AED 500M</span></div>
+<div class="sr"><span class="sl">2. Flood insurance mandate</span><span class="sv">77% gap</span></div>
+<div class="sr"><span class="sl">3. Concentration limits</span><span class="sv">67% → 40% in 12mo</span></div></div>
+<div class="prov"><b>Source:</b> ICAAP + Board Framework · <b>Method:</b> Capital planning · <b>CBUAE Ref:</b> Articles 4.3, 4.6</div>`,
+chips: ['Compliance roadmap','Show risk appetite status','Back to overview'],
+map: 'overview'
+},
+
+'Compliance roadmap': {
+html: `<div class="mg">90-day roadmap to examiner readiness.</div>
+<div class="rc" style="border-left-color:var(--red)"><div class="rct">Phase 1: Foundation (0-30 days)</div>
+<div class="sr"><span class="sl">Physical risk mapping</span><span class="sv" style="color:var(--green)">✓</span></div>
+<div class="sr"><span class="sl">Transmission documentation</span><span class="sv" style="color:var(--green)">✓</span></div>
+<div class="sr"><span class="sl">Governance framework to board</span><span class="sv" style="color:var(--amber)">◐</span></div>
+<div class="sr"><span class="sl">Board training</span><span class="sv green">92%</span></div></div>
+<div class="rc" style="border-left-color:var(--amber)"><div class="rct">Phase 2: Scenarios (31-60 days)</div>
+<div class="sr"><span class="sl">Chronic physical scenarios</span><span class="sv" style="color:var(--amber)">◐</span></div>
+<div class="sr"><span class="sl">Combined severe scenario</span><span class="sv" style="color:var(--slate)">○</span></div>
+<div class="sr"><span class="sl">Credit risk policy integration</span><span class="sv" style="color:var(--amber)">◐</span></div>
+<div class="sr"><span class="sl">IRL mobility data integration</span><span class="sv" style="color:var(--slate)">○</span></div></div>
+<div class="rc" style="border-left-color:var(--green)"><div class="rct">Phase 3: Governance (61-90 days)</div>
+<div class="sr"><span class="sl">Disclosure documentation</span><span class="sv" style="color:var(--slate)">○</span></div>
+<div class="sr"><span class="sl">Examiner-ready reports</span><span class="sv" style="color:var(--slate)">○</span></div>
+<div class="sr"><span class="sl">Platform handover to risk team</span><span class="sv" style="color:var(--slate)">○</span></div></div>
+<div class="rc"><div class="rct">Readiness Trajectory</div>
+<div class="sr"><span class="sl">Current</span><span class="sv teal">68%</span></div>
+<div class="sr"><span class="sl">Day 30</span><span class="sv amber">82%</span></div>
+<div class="sr"><span class="sl">Day 60</span><span class="sv green">91%</span></div>
+<div class="sr"><span class="sl">Day 90</span><span class="sv green">95%+ (examiner-ready)</span></div></div>
+<div class="prov"><b>Source:</b> Project management + Compliance · <b>Method:</b> Phased plan · <b>CBUAE Ref:</b> All articles</div>`,
+chips: ['Show risk appetite status','Scenario results summary','Back to overview'],
+map: 'overview'
+},
+}
+};
+
+</script>
+<script>
+const D=window.DEMO_DATA,R=window.RESPONSES;
+let persona='cro',mv,gl,ts=0,ns=0,guided=false;
+
+document.getElementById('pwi').onkeydown=e=>{if(e.key==='Enter')checkPw()};
+function checkPw(){
+  if(document.getElementById('pwi').value.toLowerCase()==='sandstorm'){
+    document.getElementById('pw').classList.add('h');
+    document.getElementById('app').style.display='';init();
+  }else{document.getElementById('pwe').textContent='Incorrect';document.getElementById('pwi').value=''}
+}
+function init(){renderFeed();renderKPIs();showGreeting();initMap();setTimeout(()=>startTour(),800)}
+function renderFeed(){document.getElementById('feed').innerHTML=D.INTEL.map(i=>`<div class="ii ${i.type}"><div class="itag ${i.tag}">${i.label}</div><div class="itxt">${i.text}</div><div class="itm">${i.time}</div></div>`).join('')}
+function renderKPIs(){document.getElementById('kpis').innerHTML=D.KPI[persona].map(k=>`<div class="kpi"><div class="kl">${k.l}</div><div class="kv ${k.c}">${k.v}</div><div class="ksub">${k.s}</div></div>`).join('')}
+function showGreeting(){const r=R[persona];document.getElementById('msgs').innerHTML=`<div class="msg"><div class="mb">${r.greeting}</div></div>`;setChips(r.greeting_chips);document.getElementById('msgs').scrollTop=0;doMap('overview')}
+function showResp(t){
+  if(t==='Back to overview'){showGreeting();return}
+  if(t==='Switch to Board view'){switchP('board');return}
+  if(t==='Show capital sensitivity table')t='Show capital sensitivity';
+  const r=R[persona][t];if(!r){showGreeting();return}
+  const m=document.getElementById('msgs');
+  m.innerHTML+=`<div class="um"><div>${t}</div></div>`;
+  m.innerHTML+=`<div class="msg" id="typ"><div class="typing"><span></span><span></span><span></span></div></div>`;
+  m.scrollTop=m.scrollHeight;
+  setTimeout(()=>{const e=document.getElementById('typ');if(e)e.remove();m.innerHTML+=`<div class="msg"><div class="mb">${r.html}</div></div>`;setChips(r.chips);m.scrollTop=m.scrollHeight;if(r.map)doMap(r.map)},600)
+}
+function setChips(arr){document.getElementById('chips').innerHTML=arr.map(c=>`<div class="chip" onclick="showResp(this.textContent)">${c}</div>`).join('');hlChip()}
+function hlChip(){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('hl'));if(guided&&D.NARRATION[ns]&&D.NARRATION[ns].chip){const t=D.NARRATION[ns].chip;document.querySelectorAll('.chip').forEach(c=>{if(c.textContent===t)c.classList.add('hl')})}}
+function switchP(p){persona=p;document.querySelectorAll('.ptab').forEach(t=>t.classList.toggle('act',t.dataset.p===p));renderKPIs();showGreeting()}
+document.querySelectorAll('.ptab').forEach(t=>{t.onclick=()=>switchP(t.dataset.p)});
+
+// MAP
+function initMap(){
+  require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer"],function(M,V,G,L){
+    const m=new M({basemap:"dark-gray-vector"});
+    mv=new V({container:"mapView",map:m,center:[54.5,24.5],zoom:7,ui:{components:[]}});
+    gl=new L;m.add(gl);window._G=G;
+    mv.when(()=>doMap('overview'));
+  });
+}
+// IRL Hex grid data - synthetic H3-style hexagons representing mobility/population density
+// Each hex: center lat/lng, intensity 0-1 (foot traffic relative), population bucket
+const HEX_DATA = {
+  // Al Quoz area - high density industrial/commercial
+  alquoz: [
+    {la:25.125,lo:55.235,i:.92,pop:4200,biz:180,label:'Al Quoz 1'},
+    {la:25.122,lo:55.245,i:.87,pop:3800,biz:210,label:'Al Quoz Ind'},
+    {la:25.118,lo:55.238,i:.78,pop:3200,biz:145,label:'Al Quoz 3'},
+    {la:25.128,lo:55.230,i:.71,pop:2900,biz:120,label:'Al Quoz 4'},
+    {la:25.115,lo:55.248,i:.83,pop:3600,biz:190,label:'Al Quoz South'},
+    {la:25.130,lo:55.242,i:.65,pop:2400,biz:95,label:'Al Quoz North'},
+    {la:25.120,lo:55.228,i:.58,pop:2100,biz:78,label:'Al Quoz West'},
+    {la:25.126,lo:55.252,i:.74,pop:3100,biz:155,label:'Al Quoz East'},
+    {la:25.112,lo:55.240,i:.69,pop:2700,biz:110,label:'Al Quoz 9'},
+    {la:25.132,lo:55.236,i:.52,pop:1800,biz:65,label:'Al Quoz 10'},
+    {la:25.118,lo:55.255,i:.61,pop:2300,biz:88,label:'Al Quoz 11'},
+    {la:25.108,lo:55.235,i:.45,pop:1500,biz:52,label:'Al Quoz 12'},
+  ],
+  // Dubai-wide hex grid for flood view - sparser, larger area
+  dubai: [
+    // Al Quoz cluster
+    {la:25.122,lo:55.240,i:.90,pop:4200,label:'Al Quoz'},
+    {la:25.115,lo:55.248,i:.82,pop:3600,label:'Al Quoz S'},
+    {la:25.130,lo:55.235,i:.70,pop:2900,label:'Al Quoz N'},
+    // Jebel Ali cluster
+    {la:25.005,lo:55.015,i:.75,pop:2850,label:'Jebel Ali Port'},
+    {la:24.998,lo:55.025,i:.68,pop:2400,label:'Jebel Ali Ind'},
+    {la:25.010,lo:55.008,i:.60,pop:1900,label:'Jebel Ali W'},
+    // Dubai Marina cluster
+    {la:25.080,lo:55.135,i:.95,pop:6500,label:'Marina Walk'},
+    {la:25.085,lo:55.142,i:.88,pop:5200,label:'JBR'},
+    {la:25.075,lo:55.128,i:.72,pop:3100,label:'Marina S'},
+    // Business Bay
+    {la:25.188,lo:55.265,i:.85,pop:4800,label:'Business Bay'},
+    {la:25.195,lo:55.272,i:.78,pop:3900,label:'Bay N'},
+    // Ajman
+    {la:25.420,lo:55.465,i:.48,pop:1600,label:'Ajman Coast'},
+    {la:25.425,lo:55.475,i:.42,pop:1300,label:'Ajman N'},
+  ]
+};
+
+// Generate hexagon polygon rings from center point
+function hexRing(lat,lng,size){
+  const rings=[];const s=size||0.003; // ~300m at UAE latitude
+  for(let i=0;i<6;i++){
+    const angle=(60*i-30)*Math.PI/180;
+    rings.push([lng+s*Math.cos(angle),lat+s*Math.sin(angle)]);
+  }
+  rings.push(rings[0]); // close ring
+  return rings;
+}
+
+// Color gradient: low traffic = teal, medium = purple, high = magenta/pink
+function hexColor(intensity){
+  if(intensity>.8) return [192,132,252,.45]; // bright purple - very high
+  if(intensity>.65) return [147,51,234,.35]; // purple - high
+  if(intensity>.5) return [107,33,168,.28]; // dark purple - medium-high
+  if(intensity>.35) return [13,115,119,.25]; // teal - medium
+  return [13,115,119,.15]; // dim teal - low
+}
+function hexOutline(intensity){
+  if(intensity>.8) return [192,132,252,.7];
+  if(intensity>.65) return [147,51,234,.5];
+  if(intensity>.5) return [107,33,168,.4];
+  return [13,115,119,.3];
+}
+
+function addHexGrid(zone, hexSize){
+  const G=window._G; const data=HEX_DATA[zone]; if(!data)return;
+  const sz=hexSize||0.003;
+  data.forEach(h=>{
+    const ring=hexRing(h.la,h.lo,sz);
+    gl.add(new G({
+      geometry:{type:'polygon',rings:[ring]},
+      symbol:{type:'simple-fill',color:hexColor(h.i),outline:{color:hexOutline(h.i),width:1.2}},
+      popupTemplate:{title:`📍 IRL: ${h.label}`,content:`Foot traffic: ${Math.round(h.pop*10).toLocaleString()}/day<br>Intensity: ${Math.round(h.i*100)}%${h.biz?'<br>Businesses: '+h.biz:''}`}
+    }));
+  });
+}
+
+function doMap(a){
+  if(!mv||!window._G)return;const G=window._G;gl.removeAll();
+  document.getElementById('ml').classList.remove('vis');
+  const rc={high:[220,38,38,.6],med:[217,119,6,.5],low:[13,115,119,.4]};
+  const rs={high:14,med:10,low:7};
+  function pts(){D.MAP_POINTS.forEach(p=>{gl.add(new G({geometry:{type:'point',longitude:p.lng,latitude:p.lat},symbol:{type:'simple-marker',color:rc[p.risk],size:rs[p.risk],outline:{color:[255,255,255,.3],width:1}},popupTemplate:{title:p.zone,content:`AED ${p.aed}M · ${p.n} properties`}}))})}
+  function br(){D.BRANCHES.forEach(p=>{gl.add(new G({geometry:{type:'point',longitude:p.lng,latitude:p.lat},symbol:{type:'simple-marker',style:'diamond',color:[5,150,105,.8],size:8,outline:{color:[255,255,255,.5],width:1}}}))})}
+  function fz(){
+    [{la:25.12,lo:55.24,r:60},{la:25.00,lo:55.02,r:70},{la:25.08,lo:55.14,r:50},{la:25.42,lo:55.47,r:45}].forEach(z=>{
+      gl.add(new G({geometry:{type:'point',longitude:z.lo,latitude:z.la},symbol:{type:'simple-marker',style:'circle',color:[220,38,38,.12],size:z.r,outline:{color:[220,38,38,.5],width:2,style:'dash'}}}));
+    });
+  }
+  switch(a){
+    case 'overview':pts();br();mv.goTo({center:[54.5,24.5],zoom:7},{duration:800});break;
+    case 'flood':pts();br();fz();addHexGrid('dubai',0.005);mv.goTo({center:[55.25,25.15],zoom:10},{duration:800});document.getElementById('ml').classList.add('vis');break;
+    case 'alquoz':pts();fz();addHexGrid('alquoz',0.003);gl.add(new G({geometry:{type:'point',longitude:55.24,latitude:25.12},symbol:{type:'simple-marker',color:[220,38,38,.08],size:80,outline:{color:[45,212,191,.8],width:3}}}));mv.goTo({center:[55.24,25.12],zoom:14},{duration:800});document.getElementById('ml').classList.add('vis');break;
+    case 'transition':pts();br();[{la:25.00,lo:55.02},{la:24.36,lo:54.55},{la:25.34,lo:55.42},{la:25.78,lo:55.95}].forEach(c=>{gl.add(new G({geometry:{type:'point',longitude:c.lo,latitude:c.la},symbol:{type:'simple-marker',color:[217,119,6,.15],size:40,outline:{color:[217,119,6,.6],width:2}}}))});mv.goTo({center:[55.0,25.0],zoom:9},{duration:800});break;
+    case 'stress':pts();fz();addHexGrid('dubai',0.005);[{la:25.12,lo:55.24},{la:25.00,lo:55.02},{la:25.08,lo:55.14}].forEach(z=>{gl.add(new G({geometry:{type:'point',longitude:z.lo,latitude:z.la},symbol:{type:'simple-marker',color:[220,38,38,.06],size:60,outline:{color:[220,38,38,.7],width:2,style:'dash'}}}))});mv.goTo({center:[55.22,25.15],zoom:10},{duration:800});document.getElementById('ml').classList.add('vis');break;
+  }
+}
+
+// TOUR
+function startTour(){ts=0;document.getElementById('tov').classList.add('act');renderTour()}
+function renderTour(){
+  const s=D.TOUR[ts];
+  document.getElementById('ttt').textContent=s.t;
+  document.getElementById('tds').textContent=s.d;
+  document.getElementById('tctr').textContent=`${ts+1} of ${D.TOUR.length}`;
+  document.getElementById('tnxt').textContent=ts===D.TOUR.length-1?'Start Demo →':'Next →';
+  document.getElementById('tdots').innerHTML=D.TOUR.map((_,i)=>`<div class="td ${i===ts?'act':''} ${i<ts?'dn':''}"></div>`).join('');
+}
+document.getElementById('tnxt').onclick=()=>{ts++;if(ts>=D.TOUR.length){document.getElementById('tov').classList.remove('act');startNar()}else renderTour()};
+document.getElementById('tskip').onclick=()=>{document.getElementById('tov').classList.remove('act');startNar()};
+document.getElementById('tourBtn').onclick=startTour;
+
+// NARRATION
+function startNar(){guided=true;ns=0;document.getElementById('nb').classList.add('vis');renderNar();hlChip()}
+function renderNar(){
+  const s=D.NARRATION[ns];
+  document.getElementById('nsi').textContent=s.n;
+  document.getElementById('nsay').textContent=s.say;
+  document.getElementById('ndo').textContent='👆 '+s.act;
+  document.getElementById('nprev').style.visibility=ns===0?'hidden':'visible';
+  document.getElementById('nnext').textContent=ns===D.NARRATION.length-1?'End Tour':'Next →';
+  hlChip();
+}
+document.getElementById('nnext').onclick=()=>{
+  const s=D.NARRATION[ns];
+  if(s.persona)switchP(s.persona);
+  if(s.chip)showResp(s.chip);
+  ns++;
+  if(ns>=D.NARRATION.length){guided=false;document.getElementById('nb').classList.remove('vis')}
+  else setTimeout(()=>renderNar(),700);
+};
+document.getElementById('nprev').onclick=()=>{if(ns>0){ns--;renderNar()}};
+
+// Keyboard
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('tov').classList.contains('act')){
+    if(e.key==='ArrowRight'||e.key===' '){document.getElementById('tnxt').click();e.preventDefault()}
+    if(e.key==='Escape')document.getElementById('tskip').click();
+  }else if(guided){
+    if(e.key==='ArrowRight')document.getElementById('nnext').click();
+    if(e.key==='ArrowLeft')document.getElementById('nprev').click();
+  }
+});
+
+</script>
+</body>
+</html>
