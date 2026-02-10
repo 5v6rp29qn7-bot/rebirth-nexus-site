@@ -3,396 +3,209 @@
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Rebirth NexusGrid — Power & Water Network Intelligence</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rebirth Nexus — TAQA Distribution Intelligence</title>
 <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 <style>
 :root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-tertiary: #1a1a24;
-  --bg-card: #1e1e2a;
-  --bg-card-hover: #262636;
-  --border: #2a2a3a;
-  --border-accent: #3a3a50;
-  --text-primary: #f0f0f5;
-  --text-secondary: #a0a0b0;
-  --text-muted: #606072;
-  --accent-gold: #d4af37;
-  --accent-gold-dim: rgba(212,175,55,0.12);
-  --accent-emerald: #10b981;
-  --accent-emerald-dim: rgba(16,185,129,0.12);
-  --accent-cyan: #22d3ee;
-  --accent-cyan-dim: rgba(34,211,238,0.10);
+  --bg-primary: #0a0e17;
+  --bg-secondary: #111827;
+  --bg-tertiary: #1a2234;
+  --bg-card: #141c2e;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-active: rgba(251,191,36,0.3);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-amber: #fbbf24;
   --accent-red: #ef4444;
-  --accent-red-dim: rgba(239,68,68,0.10);
-  --accent-amber: #f59e0b;
-  --accent-amber-dim: rgba(245,158,11,0.10);
-  --accent-purple: #a855f7;
-  --accent-purple-dim: rgba(168,85,247,0.10);
-  --gradient-brand: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #ef4444 100%);
-  --gradient-subtle: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(245,158,11,0.05) 100%);
-  --shadow: 0 4px 24px rgba(0,0,0,0.5);
-  --radius: 10px;
-  --radius-sm: 6px;
+  --accent-emerald: #10b981;
+  --accent-cyan: #22d3ee;
+  --accent-blue: #3b82f6;
+  --font-display: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: var(--font-display); background: var(--bg-primary); color: var(--text-primary); }
 
 /* ===== LAYOUT ===== */
-.app { display: flex; flex-direction: column; height: 100vh; }
+.app { display: flex; height: 100vh; }
 
-/* TOP BAR */
-.top-bar {
-  height: 48px; min-height: 48px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 16px; z-index: 100;
-}
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand-icon { width: 28px; height: 28px; background: transparent; border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.brand-icon img { width: 100%; height: 100%; object-fit: contain; }
-.brand-name { font-size: 14px; font-weight: 600; background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.brand-sub { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
-.brand-tag { font-size: 9px; color: var(--accent-gold); background: var(--accent-gold-dim); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
-
-.top-right { display: flex; align-items: center; gap: 14px; }
-.kpi-ticker { display: flex; align-items: center; gap: 10px; }
-.kpi-pill { display: flex; align-items: center; gap: 6px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; font-size: 10px; }
-.kpi-pill-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
-.kpi-pill-val { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-weight: 700; font-size: 11px; }
-.kpi-pill-val.r { color: var(--accent-red); }
-.kpi-pill-val.a { color: var(--accent-amber); }
-.kpi-pill-val.g { color: var(--accent-emerald); }
-.kpi-pill-delta { font-size: 9px; font-family: monospace; }
-.kpi-pill-delta.up { color: var(--accent-red); }
-.kpi-pill-delta.dn { color: var(--accent-emerald); }
-
-.live-dot-wrap { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
-.live-dot { width: 5px; height: 5px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
-.demo-mode-indicator { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; background: var(--accent-amber-dim); padding: 3px 8px; border-radius: 4px; }
-.demo-dot { width: 5px; height: 5px; background: var(--accent-amber); border-radius: 50%; }
-@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.3)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(239,68,68,0)} }
-.tour-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .2s; }
-.tour-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
-
-/* MAIN */
-.main { flex: 1; display: flex; overflow: hidden; }
 
 /* ===== INTEL SIDEBAR ===== */
-.sidebar {
-  width: 260px; min-width: 260px;
-  background: var(--bg-secondary);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.sidebar-header {
-  padding: 12px 14px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-}
+.sidebar { width: 260px; min-width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; overflow: hidden; }
+.sidebar-header { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
 .sidebar-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
 .sidebar-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--accent-red); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.sidebar-live .live-dot { width: 4px; height: 4px; }
-
-/* Feed */
-.feed { flex: 1; overflow-y: auto; padding: 8px 10px; }
-.feed::-webkit-scrollbar { width: 2px; } .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 1px; }
-.feed-item {
-  background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 9px 11px; margin-bottom: 6px; cursor: pointer; transition: all .2s;
-  border-left: 3px solid var(--accent-cyan);
-}
+.sidebar-live .live-dot { width: 4px; height: 4px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s infinite; }
+.feed { flex: 1; overflow-y: auto; padding: 8px; }
+.feed-item { padding: 10px; margin-bottom: 6px; border-radius: 6px; border-left: 3px solid transparent; cursor: pointer; transition: all 0.2s; background: rgba(255,255,255,0.02); }
 .feed-item:hover { background: var(--bg-card); transform: translateX(2px); }
 .feed-item.crit { border-left-color: var(--accent-red); }
 .feed-item.warn { border-left-color: var(--accent-amber); }
 .feed-item.info { border-left-color: var(--accent-cyan); }
-.feed-time { font-size: 9px; color: var(--text-muted); font-family: monospace; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
-.feed-sev { font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
-.feed-sev.critical { background: var(--accent-red-dim); color: var(--accent-red); }
-.feed-sev.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
-.feed-sev.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.feed-time { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-size: 10px; color: var(--text-muted); }
+.feed-sev { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 1px 5px; border-radius: 3px; }
+.feed-sev.critical { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+.feed-sev.warning { background: rgba(251,191,36,0.15); color: var(--accent-amber); }
+.feed-sev.info { background: rgba(34,211,238,0.15); color: var(--accent-cyan); }
 .feed-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
-.feed-text strong { color: var(--text-primary); font-weight: 600; }
-.feed-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
-.ftag { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
-.ftag.thermal { background: var(--accent-red-dim); color: var(--accent-red); }
-.ftag.grid { background: var(--accent-amber-dim); color: var(--accent-amber); }
-.ftag.water { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-.ftag.power { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-.ftag.supply { background: var(--accent-purple-dim); color: var(--accent-purple); }
-.ftag.weather { background: var(--accent-gold-dim); color: var(--accent-gold); }
+.feed-text strong { color: var(--text-primary); }
+.feed-tags { display: flex; gap: 4px; margin-top: 6px; }
+.ftag { font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 500; }
+.ftag.thermal { background: rgba(239,68,68,0.1); color: var(--accent-red); }
+.ftag.grid { background: rgba(251,191,36,0.1); color: var(--accent-amber); }
+.ftag.water { background: rgba(34,211,238,0.1); color: var(--accent-cyan); }
+.ftag.power { background: rgba(16,185,129,0.1); color: var(--accent-emerald); }
+.ftag.supply { background: rgba(139,92,246,0.1); color: #a78bfa; }
+.ftag.weather { background: rgba(251,191,36,0.1); color: var(--accent-amber); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+@media (max-width: 1100px) { .sidebar { display: none; } }
 
 /* ===== MAP PANEL ===== */
-.map-panel {
-  flex: 1; position: relative; min-width: 0;
-  border-right: 1px solid var(--border);
-}
-#mapView { width: 100%; height: 100%; }
-.map-legend {
-  position: absolute; bottom: 12px; left: 12px;
-  background: rgba(10,10,15,0.92); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 10px 12px;
-  font-size: 10px; z-index: 10; backdrop-filter: blur(8px);
-}
-.map-legend-title { font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; }
-.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: var(--text-muted); }
-.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.legend-line { width: 16px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+.map-panel { flex: 1; position: relative; min-width: 0; overflow: hidden; }
+#viewDiv { width: 100%; height: 100%; }
+
+.map-overlay-top { position: absolute; top: 16px; left: 16px; z-index: 10; display: flex; gap: 10px; align-items: center; }
+.brand { display: flex; align-items: center; gap: 10px; background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border-subtle); }
+.brand-icon { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent-amber), #f59e0b); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 16px; color: #000; }
+.brand-text { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+.brand-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+
+.map-legend { position: absolute; bottom: 16px; left: 16px; z-index: 10; background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 14px 18px; border-radius: 10px; border: 1px solid var(--border-subtle); min-width: 200px; }
+.legend-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px; }
+.legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 11px; color: var(--text-secondary); }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.legend-dot.critical { background: var(--accent-red); box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+.legend-dot.high { background: #f97316; }
+.legend-dot.moderate { background: var(--accent-amber); }
+.legend-dot.normal { background: var(--accent-emerald); }
+.legend-line { width: 18px; height: 2px; flex-shrink: 0; }
+.legend-line.transmission { background: var(--accent-cyan); }
+.legend-line.distribution { background: var(--accent-blue); }
+
+/* ===== ANALYTICS SIDEBAR ===== */
+.analytics-sidebar { position: absolute; top: 16px; right: 436px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
+.stat-card { background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-subtle); min-width: 180px; }
+.stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+.stat-value { font-size: 22px; font-weight: 700; margin-top: 2px; }
+.stat-value.red { color: var(--accent-red); }
+.stat-value.amber { color: var(--accent-amber); }
+.stat-value.green { color: var(--accent-emerald); }
+.stat-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
 /* ===== CHAT PANEL ===== */
-.chat-panel {
-  width: 380px; min-width: 380px;
-  display: flex; flex-direction: column;
-  background: var(--bg-primary);
-  overflow: hidden;
-}
-.chat-header {
-  padding: 10px 16px; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-  background: var(--bg-secondary);
-}
-.chat-avatar { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
-.chat-avatar img { width: 100%; height: 100%; object-fit: contain; }
-.chat-header-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.chat-panel { width: 420px; min-width: 420px; display: flex; flex-direction: column; background: var(--bg-secondary); border-left: 1px solid var(--border-subtle); height: 100vh; }
 
-/* Messages */
-.chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; scroll-behavior: smooth; }
-.chat-messages::-webkit-scrollbar { width: 3px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.chat-header { padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 12px; }
+.header-icon { width: 36px; height: 36px; background: linear-gradient(135deg, var(--accent-amber), #f59e0b); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: #000; }
+.header-text { flex: 1; }
+.header-title { font-size: 14px; font-weight: 600; }
+.header-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.5px; }
 
-.message { margin-bottom: 16px; animation: fadeIn .35s ease; }
-@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.msg-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
-.msg-av { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
-.msg-av.ai { overflow: hidden; }
-.msg-av.ai img { width: 100%; height: 100%; object-fit: contain; }
-.msg-av.user { background: var(--bg-card); border: 1px solid var(--border); }
-.msg-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
-.msg-time { font-size: 9px; color: var(--text-muted); font-family: monospace; }
-.msg-body { margin-left: 29px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
-.msg-body strong { color: #fff; font-weight: 600; }
-.msg-body em { color: var(--text-secondary); }
-.msg-body p { margin-bottom: 8px; }
-.msg-body ul, .msg-body ol { margin: 6px 0 6px 20px; }
-.msg-body li { margin-bottom: 3px; font-size: 12px; color: var(--text-secondary); }
+.alert-bar { display: flex; align-items: center; gap: 8px; padding: 8px 18px; background: rgba(239,68,68,0.08); border-bottom: 1px solid rgba(239,68,68,0.15); }
+.alert-pulse { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-red); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+.alert-text { font-size: 11px; font-weight: 500; color: var(--accent-red); flex: 1; }
+.alert-time { font-size: 10px; color: var(--text-muted); }
 
-/* Viz components inside messages */
-.viz-alert { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-alert-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); }
-.viz-alert-header.critical, .viz-alert-header:not(.warning):not(.info):not(.success) { background: var(--accent-red-dim); color: var(--accent-red); }
-.viz-alert-header.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
-.viz-alert-header.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-.viz-alert-header.success { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-.viz-alert-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.4); }
-.viz-alert-row:last-child { border-bottom: none; }
-.viz-alert-row span:first-child { color: var(--text-secondary); }
-.viz-alert-row span:last-child { color: var(--text-primary); font-family: monospace; font-weight: 500; }
+.kpi-row { display: flex; gap: 6px; padding: 10px 18px; border-bottom: 1px solid var(--border-subtle); overflow-x: auto; }
+.kpi { background: var(--bg-tertiary); padding: 8px 10px; border-radius: 8px; text-align: center; flex: 1; min-width: 70px; }
+.kpi-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.kpi-val { font-size: 13px; font-weight: 700; margin-top: 2px; }
+.kpi-val.red { color: var(--accent-red); }
+.kpi-val.green { color: var(--accent-emerald); }
+.kpi-val.amber { color: var(--accent-amber); }
 
-.viz-roi { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-roi-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-.viz-roi-total { text-align: center; font-size: 24px; font-weight: 700; font-family: monospace; color: var(--accent-emerald); padding: 12px; }
-.viz-roi-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-top: 1px solid rgba(42,42,58,0.4); }
-.viz-roi-label { color: var(--text-secondary); } .viz-roi-value { color: var(--text-primary); font-family: monospace; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 18px; scroll-behavior: smooth; }
+.message { margin-bottom: 14px; }
+.message.user { text-align: right; }
+.msg-bubble { display: inline-block; max-width: 92%; padding: 10px 14px; border-radius: 12px; font-size: 12.5px; line-height: 1.55; text-align: left; }
+.message.assistant .msg-bubble { background: var(--bg-tertiary); border: 1px solid var(--border-subtle); }
+.message.user .msg-bubble { background: var(--accent-amber); color: #000; font-weight: 500; }
 
-.viz-timeline { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-timeline-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-.timeline-track { padding: 10px 12px; position: relative; }
-.timeline-line { position: absolute; left: 17px; top: 10px; bottom: 10px; width: 2px; background: var(--border); }
-.timeline-item { display: flex; align-items: flex-start; gap: 10px; padding: 4px 0; position: relative; }
-.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 4px; z-index: 1; }
-.timeline-dot.active { background: var(--accent-emerald); box-shadow: 0 0 6px rgba(16,185,129,0.4); }
-.timeline-dot.warning { background: var(--accent-amber); }
-.timeline-dot.danger { background: var(--accent-red); }
-.timeline-time { font-size: 9px; color: var(--text-muted); font-family: monospace; min-width: 44px; }
-.timeline-label { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+/* Visualization blocks inside messages */
+.viz-block { margin: 10px 0; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border-subtle); }
+.viz-title { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--accent-cyan); margin-bottom: 8px; }
+.viz-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 11px; }
+.viz-row:last-child { border: none; }
+.viz-row .label { color: var(--text-secondary); }
+.viz-row .value { font-weight: 600; }
+.viz-row .value.red { color: var(--accent-red); }
+.viz-row .value.amber { color: var(--accent-amber); }
+.viz-row .value.green { color: var(--accent-emerald); }
+.viz-row .value.cyan { color: var(--accent-cyan); }
 
-.viz-asset { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-asset-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
-.viz-asset-id { font-family: monospace; font-size: 12px; font-weight: 600; color: var(--accent-gold); }
-.viz-asset-status { font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
-.viz-asset-status.ok { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-.viz-asset-status.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
-.viz-asset-status.critical { background: var(--accent-red-dim); color: var(--accent-red); }
-.viz-asset-body { padding: 8px 12px; }
-.viz-asset-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
-.viz-asset-row span:first-child { color: var(--text-muted); }
-.viz-asset-row span:last-child { color: var(--text-primary); font-family: monospace; }
+.viz-table { width: 100%; border-collapse: collapse; font-size: 10.5px; margin-top: 6px; }
+.viz-table th { text-align: left; padding: 4px 6px; color: var(--text-muted); font-weight: 500; border-bottom: 1px solid var(--border-subtle); font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; }
+.viz-table td { padding: 4px 6px; border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--text-secondary); }
+.viz-table td.highlight { color: var(--text-primary); font-weight: 600; }
 
-.temp-gauge { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
-.temp-bar { flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
-.temp-bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
-.temp-bar-fill.ok { background: var(--accent-emerald); }
-.temp-bar-fill.warning { background: var(--accent-amber); }
-.temp-bar-fill.danger { background: var(--accent-red); }
-.temp-value { font-size: 11px; font-family: monospace; font-weight: 600; min-width: 36px; text-align: right; }
+.viz-trace { display: flex; align-items: center; gap: 4px; padding: 8px; background: rgba(34,211,238,0.05); border-radius: 6px; flex-wrap: wrap; }
+.trace-node { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 500; }
+.trace-node.source { background: rgba(239,68,68,0.15); color: var(--accent-red); border: 1px solid rgba(239,68,68,0.3); }
+.trace-node.path { background: rgba(251,191,36,0.1); color: var(--accent-amber); border: 1px solid rgba(251,191,36,0.2); }
+.trace-node.endpoint { background: rgba(16,185,129,0.1); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.2); }
+.trace-arrow { color: var(--text-muted); font-size: 10px; }
 
-/* Network Trace Visualization */
-.viz-trace { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-trace-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-purple-dim); color: var(--accent-purple); }
-.trace-diagram { display: flex; align-items: center; padding: 12px; gap: 4px; overflow-x: auto; }
-.trace-node { padding: 6px 10px; border-radius: 4px; font-size: 10px; font-family: monospace; font-weight: 600; text-align: center; white-space: nowrap; }
-.trace-node.transformer { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid var(--accent-red); }
-.trace-node.busbar { background: var(--accent-amber-dim); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
-.trace-node.switch { background: var(--accent-cyan-dim); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
-.trace-node.fuse { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
-.trace-node.service-point { background: var(--accent-emerald-dim); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
-.trace-connector { color: var(--text-muted); font-size: 12px; }
-.trace-summary { padding: 8px 12px; font-size: 11px; color: var(--text-secondary); border-top: 1px solid var(--border); background: var(--bg-tertiary); }
-.trace-summary strong { color: var(--text-primary); }
+.viz-workorder { padding: 10px; background: rgba(59,130,246,0.05); border: 1px solid rgba(59,130,246,0.15); border-radius: 6px; }
+.wo-header { font-size: 11px; font-weight: 600; color: var(--accent-blue); margin-bottom: 6px; }
+.wo-field { display: flex; justify-content: space-between; padding: 3px 0; font-size: 10.5px; }
+.wo-field .wo-label { color: var(--text-muted); }
+.wo-field .wo-value { color: var(--text-secondary); }
 
-/* Work Order Visualization */
-.viz-workorder { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-workorder-header { padding: 10px 12px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-gold-dim); color: var(--accent-gold); }
-.workorder-field { display: flex; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); }
-.wo-label { color: var(--text-muted); width: 130px; flex-shrink: 0; }
-.wo-value { color: var(--text-primary); font-family: monospace; }
-.wo-value.priority-P1 { color: var(--accent-red); font-weight: 700; }
-.wo-value.priority-P2 { color: var(--accent-amber); font-weight: 700; }
-.wo-value.priority-P3 { color: var(--accent-cyan); }
-.wo-value.priority-P4 { color: var(--text-secondary); }
-.workorder-actions { display: flex; gap: 8px; padding: 10px 12px; background: var(--bg-tertiary); }
-.wo-btn { padding: 6px 12px; font-size: 10px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all .2s; }
-.wo-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.viz-notification { padding: 10px; background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.15); border-radius: 6px; }
+.notif-header { font-size: 10px; font-weight: 600; color: var(--accent-emerald); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.notif-body { font-size: 11px; color: var(--text-secondary); line-height: 1.5; white-space: pre-line; }
 
-/* Enhanced Data Table with Header */
-.viz-data-table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-data-table-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
-.viz-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-.viz-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
-.viz-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); }
-.viz-table td.highlight { color: var(--accent-amber); font-weight: 600; }
-.viz-table td.vip { color: var(--accent-red); font-weight: 600; }
-.viz-table td.normal { color: var(--accent-emerald); }
+/* Provenance */
+.provenance { margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--border-subtle); }
+.prov-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px; }
+.prov-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.prov-tag { font-size: 9px; padding: 2px 6px; border-radius: 3px; background: rgba(255,255,255,0.04); color: var(--text-muted); display: flex; align-items: center; gap: 3px; }
+.prov-tag::before { content: "✓"; color: var(--accent-emerald); font-size: 8px; }
 
-/* Notification Preview */
-.viz-notification { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
-.viz-notification-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
-.notification-preview { padding: 10px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-style: italic; background: var(--bg-tertiary); border-left: 3px solid var(--accent-gold); margin: 8px 12px; border-radius: 0 4px 4px 0; }
-.notification-meta { padding: 6px 12px; font-size: 10px; color: var(--text-muted); display: flex; gap: 16px; }
+.chips-area { padding: 12px 18px; background: var(--bg-tertiary); border-top: 1px solid var(--border-subtle); }
+.chips-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; }
+.chips-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border-subtle); background: var(--bg-secondary); color: var(--text-secondary); font-size: 11px; cursor: pointer; transition: all 0.2s; font-family: var(--font-display); }
+.chip:hover { border-color: var(--accent-amber); color: var(--accent-amber); background: rgba(251,191,36,0.05); }
+.chip.overview { border-color: rgba(34,211,238,0.3); color: var(--accent-cyan); }
+.chip.overview:hover { background: rgba(34,211,238,0.08); }
 
-/* Data table */
-.viz-data-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
-.viz-data-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
-.viz-data-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); font-family: monospace; }
+.chat-input-area { display: flex; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--border-subtle); }
+.chat-input-area input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; color: var(--text-primary); font-size: 12px; font-family: var(--font-display); outline: none; }
+.chat-input-area input:focus { border-color: var(--accent-amber); }
+.chat-input-area button { background: var(--accent-amber); color: #000; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 600; font-size: 12px; cursor: pointer; font-family: var(--font-display); }
 
-/* Chips */
-.chips-section { padding: 8px 16px; border-top: 1px solid var(--border); }
-.chips-grid { display: flex; flex-wrap: wrap; gap: 5px; }
-.chip {
-  font-size: 10px; padding: 5px 10px; border-radius: 4px;
-  background: var(--bg-tertiary); border: 1px solid var(--border);
-  color: var(--text-secondary); cursor: pointer; transition: all .2s;
-  white-space: nowrap;
-}
-.chip:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim); }
-
-/* Input */
-.chat-input-area { padding: 10px 16px; border-top: 1px solid var(--border); }
-.input-wrap { display: flex; gap: 8px; }
-.chat-input {
-  flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
-  padding: 8px 12px; color: var(--text-primary); font-size: 12px; outline: none; transition: border .2s;
-  font-family: inherit;
-}
-.chat-input::placeholder { color: var(--text-muted); }
-.chat-input:focus { border-color: var(--accent-gold); }
-.send-btn {
-  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
-  padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 11px;
-  transition: opacity .2s; font-family: inherit;
-}
-.send-btn:hover { opacity: 0.9; }
-.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.chat-footer { padding: 6px 16px 10px; font-size: 9px; color: var(--text-muted); text-align: center; }
-.chat-footer a { color: var(--accent-gold); text-decoration: none; }
-
-/* Typing indicator */
-.typing-indicator { display: flex; gap: 4px; padding: 8px 0; margin-left: 29px; }
-.typing-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.2s ease-in-out infinite; }
+.typing-indicator { display: flex; gap: 4px; padding: 8px 0; }
+.typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); animation: typingBounce 1.4s infinite; }
 .typing-dot:nth-child(2) { animation-delay: 0.2s; }
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+@keyframes typingBounce { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
 
-/* ===== TOUR ===== */
-.tour-overlay {
-  display: none; position: fixed; inset: 0; z-index: 10000;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
-}
+/* Tour */
+.tour-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.6); }
 .tour-overlay.active { display: block; }
-.tour-tooltip {
-  position: absolute; background: var(--bg-secondary); border: 1px solid var(--accent-gold);
-  border-radius: var(--radius); padding: 16px 18px; max-width: 320px; box-shadow: var(--shadow);
-}
-.tour-title { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px; }
-.tour-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
-.tour-btns { display: flex; justify-content: space-between; align-items: center; }
-.tour-step-count { font-size: 10px; color: var(--text-muted); font-family: monospace; }
-.tour-skip { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; padding: 4px 8px; }
-.tour-skip:hover { color: var(--text-secondary); }
-.tour-next {
-  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
-  padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px;
-}
-.tour-next:hover { opacity: 0.9; }
+.tour-tooltip { position: absolute; background: var(--bg-card); border: 1px solid var(--accent-amber); border-radius: 12px; padding: 16px; max-width: 320px; z-index: 1001; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
+.tour-title { font-size: 14px; font-weight: 600; color: var(--accent-amber); margin-bottom: 6px; }
+.tour-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.tour-btn { background: var(--accent-amber); color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; font-size: 12px; cursor: pointer; }
+.tour-step { font-size: 10px; color: var(--text-muted); float: right; margin-top: 4px; }
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .sidebar { width: 220px; min-width: 220px; }
-  .chat-panel { width: 340px; min-width: 340px; }
-  .kpi-ticker { display: none; }
-}
-@media (max-width: 900px) {
-  .sidebar { display: none; }
-  .chat-panel { width: 300px; min-width: 300px; }
-}
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 </style>
 </head>
 <body>
-
 <div class="app">
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <div class="brand">
-      <div class="brand-icon"><img src="RebirthNexusLogo.png" alt="Nexus" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><svg style="display:none;width:28px;height:28px" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" rx="8" fill="#0d9488"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" fill="white" font-weight="700" font-size="20" font-family="system-ui">R</text></svg></div>
-      <span class="brand-name">Rebirth NexusGrid</span>
-      <span class="brand-sub">TAQA Distribution Network — Abu Dhabi</span>
-      <span class="brand-tag">Live Intelligence</span>
-    </div>
-    <div class="top-right">
-      <div class="kpi-ticker">
-        <div class="kpi-pill">
-          <span class="kpi-pill-label">Load</span>
-          <span class="kpi-pill-val r">12.4 GW</span>
-          <span class="kpi-pill-delta up">↑ 34%</span>
-        </div>
-        <div class="kpi-pill">
-          <span class="kpi-pill-label">Grid Stress</span>
-          <span class="kpi-pill-val r">87/100</span>
-          <span class="kpi-pill-delta up">↑ 23 pts</span>
-        </div>
-        <div class="kpi-pill">
-          <span class="kpi-pill-label">At Risk</span>
-          <span class="kpi-pill-val a">4 Subs</span>
-          <span class="kpi-pill-delta up">↑ 2</span>
-        </div>
-        <div class="kpi-pill">
-          <span class="kpi-pill-label">Exposure</span>
-          <span class="kpi-pill-val r">$18.7M</span>
-          <span class="kpi-pill-delta up">↑ $4.1M</span>
-        </div>
-      </div>
-      <div class="live-dot-wrap"><div class="live-dot"></div> LIVE</div>
-      <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none"><div class="demo-dot"></div> OFFLINE</div>
-      <button class="tour-btn" onclick="startTour()">Tour</button>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="main">
     <!-- INTEL SIDEBAR -->
     <div class="sidebar">
       <div class="sidebar-header">
@@ -400,223 +213,290 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
         <span class="sidebar-live"><div class="live-dot"></div> Live</span>
       </div>
       <div class="feed" id="intelFeed">
-        <div class="feed-item crit" onclick="sendMessage('Tell me about the cascade risk from Substation 7 — what happens if it trips?')">
+        <div class="feed-item crit" onclick="handleChipClick('Investigate Substation 7 Cascade')">
           <div class="feed-time"><span class="feed-sev critical">Critical</span> 14:23 GST</div>
           <div class="feed-text"><strong>Sub-7 transformer at 92°C</strong> — 3°C from thermal limit. Cascade risk to S12, S15, S18.</div>
           <div class="feed-tags"><span class="ftag thermal">Thermal</span><span class="ftag grid">Cascade</span></div>
         </div>
-        <div class="feed-item crit" onclick="sendMessage('What are the load shedding options? Reserve margin is at 2.4%.')">
+        <div class="feed-item crit" onclick="handleChipClick('What\'s our total financial exposure?')">
           <div class="feed-time"><span class="feed-sev critical">Critical</span> 14:18 GST</div>
           <div class="feed-text"><strong>Reserve margin at 2.4%.</strong> Load shedding protocol on standby for 340 MW.</div>
           <div class="feed-tags"><span class="ftag grid">Capacity</span><span class="ftag power">Reserve</span></div>
         </div>
-        <div class="feed-item warn" onclick="sendMessage('Show me the underground cable thermal status in Downtown Core.')">
+        <div class="feed-item warn" onclick="handleChipClick('Show grid thermal stress map')">
           <div class="feed-time"><span class="feed-sev warning">Warning</span> 14:12 GST</div>
           <div class="feed-text"><strong>Downtown Core underground cables</strong> approaching thermal limit. 72h restoration if faulted.</div>
           <div class="feed-tags"><span class="ftag thermal">Thermal</span><span class="ftag grid">Underground</span></div>
         </div>
-        <div class="feed-item warn" onclick="sendMessage('What is the water pumping station situation in the southern corridor?')">
+        <div class="feed-item warn" onclick="handleChipClick('Water-energy nexus status')">
           <div class="feed-time"><span class="feed-sev warning">Warning</span> 14:08 GST</div>
           <div class="feed-text"><strong>3 water pumping stations</strong> on backup generators. Southern corridor — 340,000 residents at risk.</div>
           <div class="feed-tags"><span class="ftag water">Water</span><span class="ftag power">Backup Gen</span></div>
         </div>
-        <div class="feed-item warn" onclick="sendMessage('How is the renewable generation shortfall affecting grid operations?')">
+        <div class="feed-item warn" onclick="handleChipClick('Transformer inventory summary')">
           <div class="feed-time"><span class="feed-sev warning">Warning</span> 14:02 GST</div>
           <div class="feed-text"><strong>Solar output down 23%.</strong> Gas turbines absorbing shortfall at $2.1M/day premium.</div>
           <div class="feed-tags"><span class="ftag power">Solar</span><span class="ftag grid">Fuel Cost</span></div>
         </div>
-        <div class="feed-item info" onclick="sendMessage('What are our options for the mobile transformer identified in Jebel Ali?')">
+        <div class="feed-item info" onclick="handleChipClick('Asset portfolio criticality ranking')">
           <div class="feed-time"><span class="feed-sev info">Info</span> 13:55 GST</div>
           <div class="feed-text"><strong>Mobile transformer</strong> identified in Jebel Ali. 48h deployment, $340K/month rental.</div>
           <div class="feed-tags"><span class="ftag supply">Equipment</span><span class="ftag grid">Contingency</span></div>
         </div>
-        <div class="feed-item info" onclick="sendMessage('What is Barakah nuclear current status — can we get any additional capacity?')">
+        <div class="feed-item info" onclick="handleChipClick('Investigate Substation 7 Cascade')">
           <div class="feed-time"><span class="feed-sev info">Info</span> 13:48 GST</div>
-          <div class="feed-text"><strong>Barakah nuclear at 100%</strong> capacity. No additional headroom available.</div>
-          <div class="feed-tags"><span class="ftag power">Nuclear</span><span class="ftag grid">Generation</span></div>
-        </div>
-        <div class="feed-item info" onclick="sendMessage('Show me the demand response potential from commercial accounts.')">
-          <div class="feed-time"><span class="feed-sev info">Info</span> 13:41 GST</div>
-          <div class="feed-text"><strong>Smart meter data:</strong> residential AC cycling increasing. Demand response potential: <strong>340 MW</strong> from 45,000 commercial accounts.</div>
-          <div class="feed-tags"><span class="ftag power">Demand Response</span><span class="ftag weather">Smart Meter</span></div>
+          <div class="feed-text"><strong>Nexus flagged TR-7A at 86°C</strong> — rate-of-rise anomaly detected 6 hours before SCADA threshold.</div>
+          <div class="feed-tags"><span class="ftag thermal">Predictive</span><span class="ftag grid">Early Warning</span></div>
         </div>
       </div>
     </div>
 
-    <!-- MAP PANEL -->
-    <div class="map-panel">
-      <div id="mapView"></div>
-      <div class="map-legend">
-        <div class="map-legend-title">Network Overlay</div>
-        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-emerald)"></div> Substation — Operational</div>
-        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-amber)"></div> Substation — Stressed</div>
-        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Substation — Critical</div>
-        <div class="legend-row"><div class="legend-line" style="background:rgba(255,255,255,0.5)"></div> Transmission — Normal</div>
-        <div class="legend-row"><div class="legend-line" style="background:var(--accent-amber)"></div> Transmission — Loaded (&gt;70%)</div>
-        <div class="legend-row"><div class="legend-line" style="background:var(--accent-red)"></div> Transmission — Overloaded (&gt;90%)</div>
-        <div class="legend-row"><div class="legend-dot" style="background:rgba(239,68,68,0.25);border:1px solid rgba(239,68,68,0.4)"></div> Heat Stress Zone</div>
+  <!-- MAP -->
+  <div class="map-panel">
+    <div id="viewDiv"></div>
+    
+    <div class="map-overlay-top">
+      <div class="brand">
+        <div class="brand-icon">N</div>
+        <div>
+          <div class="brand-text">Rebirth Nexus</div>
+          <div class="brand-sub">TAQA Distribution Intelligence</div>
+        </div>
       </div>
     </div>
 
-    <!-- CHAT PANEL -->
-    <div class="chat-panel">
-      <div class="chat-header">
-        <div class="chat-avatar"><img src="RebirthNexusLogo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
-        <span class="chat-header-text">Rebirth NexusGrid Intelligence</span>
+    <div class="analytics-sidebar">
+      <div class="stat-card">
+        <div class="stat-label">Grid Exposure</div>
+        <div class="stat-value red">AED 14.8M</div>
+        <div class="stat-detail">6 substations at risk</div>
       </div>
-      <div class="chat-messages" id="chatMessages">
-        <div class="message">
-          <div class="msg-head">
-            <div class="msg-av ai"><img src="RebirthNexusLogo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
-            <span class="msg-name">Rebirth NexusGrid Intelligence</span>
-            <span class="msg-time">Just now</span>
-          </div>
-          <div class="msg-body">
-            <strong>Grid Intelligence Online — Extreme Heat Protocol Active.</strong><br><br>
-            Monitoring <strong>18 key substations</strong> and <strong>2,800 km</strong> of transmission and distribution network across Abu Dhabi Emirate. Heat wave conditions: <strong>52°C forecast for 5 days</strong>. Peak demand at <strong>12.4 GW</strong> against <strong>12.7 GW</strong> capacity.<br><br>
-            <div class="viz-alert">
-              <div class="viz-alert-header critical">⚡ CRITICAL — 4 Active Disruptions Detected</div>
-              <div class="viz-alert-row"><span>Sub-7 Mussafah Industrial</span><span style="color:var(--accent-red)">92°C — 3°C from thermal limit</span></div>
-              <div class="viz-alert-row"><span>Grid Reserve Margin</span><span style="color:var(--accent-red)">2.4% (normal: 15%)</span></div>
-              <div class="viz-alert-row"><span>Sub-12 Downtown Core</span><span style="color:var(--accent-amber)">89°C — gov't district at risk</span></div>
-              <div class="viz-alert-row"><span>Water Pumping (South)</span><span style="color:var(--accent-amber)">3 stations on backup gen</span></div>
-            </div>
-            <strong>Substation 7</strong> is the highest-risk node. If it trips, cascading failure propagates to S12, S15, and S18 — blacking out <strong>45,000 customers</strong> with <strong>$12M/day</strong> economic impact. Nexus identified the thermal acceleration pattern <strong>6 hours before</strong> critical threshold, while load redistribution was still viable.<br><br>
-            Total network exposure: <strong>$18.7M</strong>. What would you like to investigate?
-          </div>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Reserve Margin</div>
+        <div class="stat-value red">2.4%</div>
+        <div class="stat-detail">Normal: 15%</div>
       </div>
+      <div class="stat-card">
+        <div class="stat-label">Protected</div>
+        <div class="stat-value green" id="protectedValue">AED 0</div>
+        <div class="stat-detail" id="protectedDetail">No actions taken</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Peak Demand</div>
+        <div class="stat-value amber">12.4 GW</div>
+        <div class="stat-detail">Capacity: 12.7 GW</div>
+      </div>
+    </div>
 
-      <div class="chips-section">
-        <div class="chips-grid" id="chipsGrid">
-          <div class="chip" onclick="sendMessage('Show me the cascading impact if Substation 7 trips')">🔗 Cascade: Sub-7</div>
-          <div class="chip" onclick="sendMessage('Rank our substations by system criticality — which assets are the biggest risk to network stability and where should we invest?')">🏗️ Asset portfolio risk</div>
-          <div class="chip" onclick="sendMessage('Show me the water distribution network status and pumping station risks')">💧 Water network status</div>
-          <div class="chip" onclick="sendMessage('How many transformers do we have by manufacturer? Show me the asset inventory summary.')">📊 Network inventory</div>
-          <div class="chip" onclick="sendMessage('Show me the downstream network trace from Transformer TR-7A — how many customers and service points are affected?')">🔌 Trace from TR-7A</div>
-          <div class="chip" onclick="sendMessage('What is our total financial exposure from this heat event?')">💰 Financial exposure</div>
-        </div>
-      </div>
+    <div class="map-legend">
+      <div class="legend-title">Network Overlay</div>
+      <div class="legend-item"><div class="legend-dot critical"></div> Substation — Critical</div>
+      <div class="legend-item"><div class="legend-dot high"></div> Substation — Stressed</div>
+      <div class="legend-item"><div class="legend-dot normal"></div> Substation — Operational</div>
+      <div class="legend-item"><div class="legend-line transmission"></div> 132kV Transmission</div>
+      <div class="legend-item"><div class="legend-line distribution"></div> 33/11kV Distribution</div>
+      <div class="legend-item"><div style="width:7px;height:7px;background:rgba(255,255,255,0.6);flex-shrink:0"></div> Transformer</div>
+      <div class="legend-item"><div style="width:7px;height:7px;background:rgba(255,255,255,0.5);transform:rotate(45deg);flex-shrink:0"></div> Switch Point</div>
+      <div class="legend-item"><div style="width:8px;height:8px;background:rgba(34,211,238,0.8);flex-shrink:0"></div> Field Crew</div>
+      <div class="legend-item"><div style="width:10px;height:10px;border-radius:50%;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);flex-shrink:0"></div> Heat Stress Zone</div>
+    </div>
+  </div>
 
-      <div class="chat-input-area">
-        <div class="input-wrap">
-          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about grid status, cascading risks, demand response, financials..." />
-          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send</button>
-        </div>
+  <!-- CHAT -->
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="header-icon">N</div>
+      <div class="header-text">
+        <div class="header-title">NexusGrid Intelligence</div>
+        <div class="header-sub">TAQA Distribution · Abu Dhabi Emirate</div>
       </div>
-      <div class="chat-footer">Demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> • Fictional scenario; parameters are illustrative</div>
+    </div>
+
+    <div class="alert-bar">
+      <div class="alert-pulse"></div>
+      <div class="alert-text">HEAT ALERT — Abu Dhabi Grid Stress · 52°C</div>
+      <div class="alert-time" id="alertTime">Live</div>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-label">Exposure</div><div class="kpi-val red">AED 14.8M</div></div>
+      <div class="kpi"><div class="kpi-label">Assets</div><div class="kpi-val red">6</div></div>
+      <div class="kpi"><div class="kpi-label">Protected</div><div class="kpi-val green" id="kpiProtected">AED 0</div></div>
+      <div class="kpi"><div class="kpi-label">ROI</div><div class="kpi-val amber">19:1</div></div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages"></div>
+
+    <div class="chips-area">
+      <div class="chips-label">Suggested Queries</div>
+      <div class="chips-grid" id="chipsGrid"></div>
+    </div>
+
+    <div class="chat-input-area">
+      <input type="text" id="chatInput" placeholder="Ask about grid operations...">
+      <button id="sendBtn" onclick="handleSend()">Send</button>
     </div>
   </div>
 </div>
 
-<!-- TOUR -->
 <div class="tour-overlay" id="tourOverlay">
-  <div class="tour-tooltip" id="tourTooltip">
-    <div class="tour-title" id="tourTitle"></div>
-    <div class="tour-text" id="tourText"></div>
-    <div class="tour-btns">
-      <span class="tour-step-count" id="tourStepCount"></span>
-      <div>
-        <button class="tour-skip" onclick="endTour()">Skip</button>
-        <button class="tour-next" id="tourNext" onclick="nextTourStep()">Next</button>
-      </div>
-    </div>
-  </div>
+  <div class="tour-tooltip" id="tourTooltip"></div>
 </div>
 
 <!-- ESRI MAP -->
 <script src="https://js.arcgis.com/4.28/"></script>
 <script>
-require([
-  "esri/Map", "esri/views/MapView",
-  "esri/Graphic", "esri/layers/GraphicsLayer"
-], function(Map, MapView, Graphic, GraphicsLayer) {
+// ============================================
+// ESRI MAP SETUP
+// ============================================
+require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point","esri/geometry/Polyline"],
+function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline) {
 
   const map = new Map({ basemap: "dark-gray-vector" });
-  const view = new MapView({
-    container: "mapView", map: map,
-    center: [54.45, 24.40], zoom: 10,
-    constraints: { minZoom: 8 },
-    ui: { components: [] }
+  const view = new MapView({ container: "viewDiv", map: map, center: [54.55, 24.42], zoom: 11 });
+  view.ui.remove(["zoom","attribution"]);
+
+  const subLayer = new GraphicsLayer();
+  const lineLayer = new GraphicsLayer();
+  const heatLayer = new GraphicsLayer();
+  const crewLayer = new GraphicsLayer();
+  const schematicLayer = new GraphicsLayer(); // distribution detail
+  const serviceZoneLayer = new GraphicsLayer(); // service boundaries
+  map.addMany([serviceZoneLayer, heatLayer, lineLayer, schematicLayer, crewLayer, subLayer]);
+
+  // === SERVICE BOUNDARY ZONES (green polygons like Izzaddine's schematic) ===
+  const serviceZones = [
+    { name: "S7 Al Quoz Service Area", rings: [[54.48,24.33],[54.53,24.33],[54.53,24.37],[54.48,24.37],[54.48,24.33]], color: [239,68,68,15] },
+    { name: "S12 Downtown Service Area", rings: [[54.34,24.47],[54.40,24.47],[54.40,24.51],[54.34,24.51],[54.34,24.47]], color: [249,115,22,15] },
+    { name: "S1 Main Grid Zone", rings: [[54.41,24.41],[54.47,24.41],[54.47,24.47],[54.41,24.47],[54.41,24.41]], color: [16,185,129,12] },
+    { name: "Khalifa City Zone", rings: [[54.55,24.39],[54.61,24.39],[54.61,24.45],[54.55,24.45],[54.55,24.39]], color: [16,185,129,12] },
+    { name: "Yas-Saadiyat Zone", rings: [[54.40,24.51],[54.46,24.51],[54.46,24.56],[54.40,24.56],[54.40,24.51]], color: [16,185,129,12] },
+  ];
+  serviceZones.forEach(z => {
+    serviceZoneLayer.add(new Graphic({
+      geometry: { type: "polygon", rings: [z.rings.map(r => [r[0],r[1]])] },
+      symbol: { type: "simple-fill", color: z.color, outline: { color: [...z.color.slice(0,3), 60], width: 1, style: "dash" } },
+      popupTemplate: { title: z.name }
+    }));
   });
 
-  const heatLayer = new GraphicsLayer();
-  const linesLayer = new GraphicsLayer();
-  const subsLayer = new GraphicsLayer();
-  const crewLayer = new GraphicsLayer();
-  map.addMany([heatLayer, linesLayer, crewLayer, subsLayer]);
-
-  // Substations
+  // Substations with real TAQA-style data
   const subs = [
-    { id:"S01", name:"Al Ain Main",       type:"132/33kV", lat:24.20, lon:55.75, status:"operational" },
-    { id:"S02", name:"Khalifa City",       type:"33/11kV",  lat:24.42, lon:54.58, status:"operational" },
-    { id:"S03", name:"Al Reem Island",     type:"33/11kV",  lat:24.50, lon:54.40, status:"operational" },
-    { id:"S04", name:"Saadiyat Island",    type:"33/11kV",  lat:24.55, lon:54.43, status:"operational" },
-    { id:"S05", name:"Yas Island",         type:"33/11kV",  lat:24.49, lon:54.60, status:"operational" },
-    { id:"S06", name:"Mussafah Industrial",type:"132/33kV", lat:24.35, lon:54.50, status:"stressed" },
-    { id:"S07", name:"Mussafah Industrial", type:"132/33kV", lat:24.38, lon:54.52, status:"critical" },
-    { id:"S08", name:"Abu Dhabi CBD",      type:"132/33kV", lat:24.48, lon:54.37, status:"operational" },
-    { id:"S09", name:"Al Maryah Island",   type:"33/11kV",  lat:24.50, lon:54.39, status:"operational" },
-    { id:"S10", name:"Corniche",           type:"33/11kV",  lat:24.47, lon:54.35, status:"operational" },
-    { id:"S11", name:"Al Bateen",          type:"33/11kV",  lat:24.46, lon:54.36, status:"operational" },
-    { id:"S12", name:"Downtown Core",      type:"33/11kV",  lat:24.49, lon:54.38, status:"stressed" },
-    { id:"S13", name:"Marina District",    type:"33/11kV",  lat:24.47, lon:54.41, status:"operational" },
-    { id:"S14", name:"Airport Zone",       type:"33/11kV",  lat:24.44, lon:54.65, status:"stressed" },
-    { id:"S15", name:"Al Shahama",         type:"132/33kV", lat:24.57, lon:54.67, status:"operational" },
-    { id:"S16", name:"Madinat Zayed",      type:"33/11kV",  lat:24.45, lon:54.38, status:"operational" },
-    { id:"S17", name:"Baniyas",            type:"132/33kV", lat:24.33, lon:54.63, status:"operational" },
-    { id:"S18", name:"Ruwais",             type:"132/33kV", lat:24.09, lon:52.73, status:"operational" }
+    { id: "S7", name: "Al Quoz Industrial (PRY 33/11)", lat: 24.35, lon: 54.50, temp: 92, status: "CRITICAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 45200, transformers: 3, load_mva: 285 },
+    { id: "S12", name: "Downtown Core (S/S)", lat: 24.49, lon: 54.37, temp: 89, status: "HIGH", type: "S/S", dms: "Yes", kv: "33/11", customers: 34100, transformers: 2, load_mva: 192 },
+    { id: "S15", name: "Mussafah Port (PRY 33/11)", lat: 24.36, lon: 54.48, temp: 87, status: "HIGH", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 28500, transformers: 2, load_mva: 210 },
+    { id: "S18", name: "Corniche Residential (GMTs)", lat: 24.47, lon: 54.35, temp: 85, status: "MODERATE", type: "GMT", dms: "Partly", kv: "33/11", customers: 52800, transformers: 4, load_mva: 145 },
+    { id: "S3", name: "Khalifa City (SW/S)", lat: 24.42, lon: 54.58, temp: 78, status: "NORMAL", type: "SW/S", dms: "Yes", kv: "33/11", customers: 38200, transformers: 2, load_mva: 165 },
+    { id: "S9", name: "Yas Island (QRM)", lat: 24.50, lon: 54.60, temp: 76, status: "NORMAL", type: "QRM", dms: "Partly", kv: "33/11", customers: 24600, transformers: 2, load_mva: 120 },
+    { id: "S21", name: "Saadiyat Cultural (TRM)", lat: 24.54, lon: 54.43, temp: 74, status: "NORMAL", type: "TRM", dms: "No", kv: "33/11", customers: 18900, transformers: 1, load_mva: 88 },
+    { id: "S6", name: "Al Reem Island (S/S)", lat: 24.50, lon: 54.40, temp: 82, status: "MODERATE", type: "S/S", dms: "Yes", kv: "33/11", customers: 42100, transformers: 3, load_mva: 178 },
+    { id: "S1", name: "Main Grid Substation (PRY 33/11)", lat: 24.44, lon: 54.44, temp: 72, status: "NORMAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 0, transformers: 6, load_mva: 450 },
+    { id: "WP1", name: "Southern Water Corridor PS", lat: 24.33, lon: 54.52, temp: 0, status: "BACKUP", type: "P/U", dms: "No", kv: "11/0.415", customers: 340000, transformers: 0, load_mva: 12 },
   ];
 
-  const statusColors = {
-    operational: [16, 185, 129],
-    stressed:    [245, 158, 11],
-    critical:    [239, 68, 68]
-  };
+  const colorMap = { CRITICAL: [239,68,68], HIGH: [249,115,22], MODERATE: [251,191,36], NORMAL: [16,185,129], BACKUP: [139,92,246] };
 
   subs.forEach(s => {
-    const c = statusColors[s.status];
-    const isHub = s.type === "132/33kV";
-    const size = isHub ? 14 : 9;
-    const outW = isHub ? 5 : 3;
-    subsLayer.add(new Graphic({
-      geometry: { type: "point", longitude: s.lon, latitude: s.lat },
-      symbol: {
-        type: "simple-marker", color: c, size: size, style: "circle",
-        outline: { color: [c[0],c[1],c[2],0.35], width: outW }
-      },
+    const c = colorMap[s.status] || [100,100,100];
+    const size = s.status === "CRITICAL" ? 18 : s.status === "HIGH" ? 15 : 12;
+    subLayer.add(new Graphic({
+      geometry: new Point({ longitude: s.lon, latitude: s.lat }),
+      symbol: { type: "simple-marker", color: c, size: size, outline: { color: [255,255,255,80], width: 1.5 } },
       attributes: s,
-      popupTemplate: { title: "{id} — {name}", content: "Type: {type}<br>Status: {status}" }
+      popupTemplate: { title: "{name}", content: "Status: {status} | Temp: {temp}°C | Type: {type}" }
     }));
   });
 
-  // Transmission lines
+  // === 132kV TRANSMISSION LINES (thick cyan — backbone) ===
   const lines = [
-    { from:[55.75,24.20], to:[54.63,24.33], load:"normal" },   // S01↔S17
-    { from:[54.63,24.33], to:[54.52,24.38], load:"overload" },  // S17↔S07 RED
-    { from:[54.52,24.38], to:[54.50,24.35], load:"overload" },  // S07↔S06 RED
-    { from:[54.50,24.35], to:[54.37,24.48], load:"loaded" },    // S06↔S08 amber
-    { from:[54.37,24.48], to:[54.67,24.57], load:"normal" },    // S08↔S15
-    { from:[54.67,24.57], to:[54.65,24.44], load:"normal" },    // S15↔S14
-    { from:[54.37,24.48], to:[54.38,24.49], load:"loaded" },    // S08↔S12 amber
-    { from:[52.73,24.09], to:[55.75,24.20], load:"normal" }     // S18↔S01
+    { from: [54.44,24.44], to: [54.50,24.35], type: "transmission" },
+    { from: [54.44,24.44], to: [54.37,24.49], type: "transmission" },
+    { from: [54.44,24.44], to: [54.48,24.36], type: "transmission" },
+    { from: [54.44,24.44], to: [54.35,24.47], type: "distribution" },
+    { from: [54.44,24.44], to: [54.58,24.42], type: "distribution" },
+    { from: [54.44,24.44], to: [54.60,24.50], type: "distribution" },
+    { from: [54.44,24.44], to: [54.43,24.54], type: "distribution" },
+    { from: [54.44,24.44], to: [54.40,24.50], type: "distribution" },
+    { from: [54.50,24.35], to: [54.52,24.33], type: "distribution" },
   ];
-
-  const lineColors = {
-    normal:   [255,255,255,100],
-    loaded:   [245,158,11,200],
-    overload: [239,68,68,220]
-  };
-
   lines.forEach(l => {
-    const c = lineColors[l.load];
-    linesLayer.add(new Graphic({
-      geometry: { type: "polyline", paths: [[l.from, l.to]] },
-      symbol: { type: "simple-line", color: c, width: l.load === "overload" ? 2.5 : 1.5, style: l.load === "overload" ? "solid" : "solid" }
+    lineLayer.add(new Graphic({
+      geometry: new Polyline({ paths: [[ l.from, l.to ]] }),
+      symbol: { type: "simple-line", color: l.type === "transmission" ? [34,211,238,180] : [59,130,246,120], width: l.type === "transmission" ? 2.5 : 1.5, style: "solid" }
     }));
   });
 
-  // Heat stress zone overlay
+  // === DISTRIBUTION FEEDERS (branching from substations — blue, thinner) ===
+  const feeders = [
+    // S7 feeders (critical area — orange/red tint)
+    { from: [54.50,24.35], to: [54.51,24.34], c: [239,68,68,140] },
+    { from: [54.50,24.35], to: [54.49,24.34], c: [239,68,68,140] },
+    { from: [54.50,24.35], to: [54.51,24.36], c: [239,68,68,140] },
+    { from: [54.51,24.34], to: [54.52,24.335], c: [239,68,68,100] },
+    { from: [54.51,24.34], to: [54.51,24.33], c: [239,68,68,100] },
+    { from: [54.49,24.34], to: [54.48,24.335], c: [239,68,68,100] },
+    // S12 feeders (downtown — orange)
+    { from: [54.37,24.49], to: [54.36,24.50], c: [249,115,22,120] },
+    { from: [54.37,24.49], to: [54.38,24.50], c: [249,115,22,120] },
+    { from: [54.37,24.49], to: [54.36,24.48], c: [249,115,22,120] },
+    { from: [54.36,24.50], to: [54.355,24.505], c: [249,115,22,80] },
+    // S3 Khalifa City feeders (normal — blue)
+    { from: [54.58,24.42], to: [54.59,24.43], c: [59,130,246,100] },
+    { from: [54.58,24.42], to: [54.57,24.41], c: [59,130,246,100] },
+    { from: [54.58,24.42], to: [54.59,24.41], c: [59,130,246,100] },
+    { from: [54.59,24.43], to: [54.60,24.435], c: [59,130,246,70] },
+    // S6 Reem Island feeders
+    { from: [54.40,24.50], to: [54.41,24.51], c: [59,130,246,100] },
+    { from: [54.40,24.50], to: [54.39,24.51], c: [59,130,246,100] },
+    // S21 Saadiyat feeders
+    { from: [54.43,24.54], to: [54.44,24.55], c: [59,130,246,100] },
+    { from: [54.43,24.54], to: [54.42,24.55], c: [59,130,246,100] },
+  ];
+  feeders.forEach(f => {
+    schematicLayer.add(new Graphic({
+      geometry: new Polyline({ paths: [[f.from, f.to]] }),
+      symbol: { type: "simple-line", color: f.c, width: 1, style: "solid" }
+    }));
+  });
+
+  // === TRANSFORMER SYMBOLS (small squares at feeder junctions) ===
+  const transformers = [
+    { lon: 54.51, lat: 24.34, label: "TR-7A (92°C)", status: "CRITICAL" },
+    { lon: 54.49, lat: 24.34, label: "TR-7B (88°C)", status: "HIGH" },
+    { lon: 54.36, lat: 24.50, label: "TR-12A (89°C)", status: "HIGH" },
+    { lon: 54.38, lat: 24.50, label: "TR-12B (84°C)", status: "MODERATE" },
+    { lon: 54.59, lat: 24.43, label: "TR-3A (78°C)", status: "NORMAL" },
+    { lon: 54.57, lat: 24.41, label: "TR-3B (76°C)", status: "NORMAL" },
+    { lon: 54.41, lat: 24.51, label: "TR-6A (82°C)", status: "MODERATE" },
+    { lon: 54.44, lat: 24.55, label: "TR-21A (74°C)", status: "NORMAL" },
+  ];
+  transformers.forEach(t => {
+    const c = colorMap[t.status] || [100,100,100];
+    schematicLayer.add(new Graphic({
+      geometry: new Point({ longitude: t.lon, latitude: t.lat }),
+      symbol: { type: "simple-marker", style: "square", color: [...c, 200], size: 7, outline: { color: [255,255,255,120], width: 1 } },
+      popupTemplate: { title: t.label, content: "Status: " + t.status }
+    }));
+  });
+
+  // === SWITCH / DISCONNECT POINTS (small diamonds) ===
+  const switches = [
+    { lon: 54.505, lat: 24.345, label: "SW-7-01 (Closed)" },
+    { lon: 54.485, lat: 24.345, label: "SW-7-02 (Closed)" },
+    { lon: 54.365, lat: 24.495, label: "SW-12-01 (Closed)" },
+    { lon: 54.585, lat: 24.425, label: "SW-3-01 (Closed)" },
+    { lon: 54.405, lat: 24.505, label: "SW-6-01 (Closed)" },
+    { lon: 54.435, lat: 24.545, label: "SW-21-01 (Open)" },
+  ];
+  switches.forEach(sw => {
+    schematicLayer.add(new Graphic({
+      geometry: new Point({ longitude: sw.lon, latitude: sw.lat }),
+      symbol: { type: "simple-marker", style: "diamond", color: [255,255,255,140], size: 5, outline: { color: [255,255,255,60], width: 0.5 } },
+      popupTemplate: { title: sw.label }
+    }));
+  });
+
+  // Heat stress zone overlay (transparent)
   heatLayer.add(new Graphic({
     geometry: {
       type: "polygon",
@@ -639,916 +519,530 @@ require([
     { lat: 24.48, lon: 54.55, label: "Line Crew Charlie" },
     { lat: 24.34, lon: 54.55, label: "Industrial Response I2" }
   ];
-
   crews.forEach(c => {
     crewLayer.add(new Graphic({
       geometry: { type: "point", longitude: c.lon, latitude: c.lat },
-      symbol: {
-        type: "simple-marker", color: [34, 211, 238], size: 5, style: "square",
-        outline: { color: [34, 211, 238, 80], width: 3 }
-      },
+      symbol: { type: "simple-marker", color: [34, 211, 238], size: 5, style: "square", outline: { color: [34, 211, 238, 80], width: 3 } },
       popupTemplate: { title: c.label }
     }));
   });
 });
-</script>
 
-<script>
-// ============ CONFIG ============
-const API_ENDPOINT = '/api/chat';
+// ============================================
+// SCRIPTED RESPONSES & CHIP SETS
+// ============================================
 
-const SYSTEM_PROMPT = `You are Rebirth NexusGrid, the AI intelligence engine for Rebirth Nexus's Cascading Intelligence Platform, demonstrating power grid and water network predictive intelligence capabilities for utility operators.
-
-DEMONSTRATION CONTEXT:
-You are showing capabilities through "Al Noor Grid Operations" — a fictional power distribution and water utility headquartered in Abu Dhabi, UAE, inspired by TAQA (Abu Dhabi National Energy Company). This demo is designed for TAQA executives and Khatib & Alami (K&A) engineering consultants.
-
-COMPANY PROFILE:
-- Company: Al Noor Grid Operations (fictional, based on real TAQA operations)
-- Headquarters: Abu Dhabi, UAE
-- Service area: Unified distribution network across Abu Dhabi Central, Al Dhafra Region, and Al Ain Region — 1M+ service points (residential, commercial, industrial, government)
-- Network: 18 key monitored substations (132/33kV hub substations and 33/11kV distribution substations), 2,800 km of transmission and distribution lines, 180 water pumping stations
-- Generation connected: 14.2 GW total capacity — thermal (gas turbines), solar (Noor Abu Dhabi, 1.177 GW), nuclear (Barakah, 5.6 GW across 4 units), wind
-- Technology partners: Siemens (SCADA/grid control, Distribution Management System), Khatib & Alami (engineering design and consulting), Schneider Electric (switchgear and protection), Esri (GIS/geospatial platform)
-- Smart infrastructure: 850,000 smart meters (AMI — Advanced Metering Infrastructure), 12,000 IoT sensors across substations and lines, 340 SCADA nodes, drone inspection fleet
-- Fleet: 280 service vehicles — 120 line crew trucks, 80 substation maintenance vehicles, 40 emergency response units, 40 water network vehicles
-- Regulatory: Abu Dhabi Department of Energy (DoE) licensed, EWEC (Emirates Water and Electricity Company) coordinated, UAE Federal Electricity & Water Authority compliant
-- Performance targets: SAIDI < 15 minutes, SAIFI < 0.3, System Average RIF > 99.95%
-
-CURRENT SCENARIO — EXTREME HEAT EVENT + CASCADING FAILURES:
-It is mid-July. Abu Dhabi is in the middle of a record extreme heat wave — 52°C ambient temperature forecast for the next 5 days. Multiple simultaneous disruptions are unfolding across the grid and water network:
-
-1. DEMAND SURGE (CRITICAL):
-Peak demand is hitting 12.4 GW against 12.7 GW total available capacity. Reserve margin has collapsed to 2.4% — normal operating reserve is 15%. Residential air conditioning load is +34% above seasonal baseline due to the extreme heat. Every degree above 45°C adds approximately 400 MW of additional cooling demand. Grid frequency fluctuations are being detected — 49.94 Hz vs 50.00 Hz nominal — indicating the system is under severe stress. Automatic Under-Frequency Load Shedding (AUFLS) will trigger at 49.50 Hz.
-
-2. SUBSTATION 7 — AL QUOZ INDUSTRIAL (CRITICAL):
-This is the highest-risk node in the entire network. Sub-7 is a 132/33kV hub substation serving the Mussafah Industrial Area. Transformer TR-7A has oil temperature reading of 92°C against a 95°C thermal protection trip point. At the current rate of thermal rise (+1.2°C/hour), the transformer will trip on thermal protection in approximately 2.5 hours.
-- If Sub-7 trips: Cascading failure propagates to Substations 12 (Downtown Core), 15 (Al Shahama), and 18 through load transfer. Sub-12 cannot absorb the redirected load — it is already at 89°C.
-- Impact: 45,000 customers lose power, including an industrial zone with $12M/day in economic activity. 8 factories, 3 data centers, and a food processing facility are in the affected zone.
-- Transformer TR-7A: 12 years old, Siemens oil-immersed power transformer, 40 MVA rated. Dissolved Gas Analysis (DGA) shows accelerated aging — elevated acetylene (C2H2) at 45 ppm indicating thermal fault development. Oil quality degradation confirmed by recent lab tests.
-- Replacement: 18-week lead time from Siemens. No identical spare available until Q3. Nearest compatible mobile transformer is in Jebel Ali (48h deployment).
-
-3. SUBSTATION 12 — DOWNTOWN CORE (HIGH):
-33/11kV distribution substation serving the government district. Transformer oil temperature at 89°C (limit: 95°C). Feeds ministry buildings, Abu Dhabi Securities Exchange, and Corniche Hospital complex (320 beds, 4 operating theaters). Load shedding at this substation has political and patient safety implications. This is a "no-shed" zone under the Abu Dhabi Emergency Operations Center protocol.
-
-4. UNDERGROUND CABLE THERMAL LIMIT:
-4 cable circuits in the Downtown Core are approaching thermal limits. Soil temperature has been elevated by 12 days of sustained 48-52°C ambient heat. Underground cable thermal rating is derated by 15% in these conditions. If any cable circuit faults, restoration time is 72+ hours (vs 4 hours for overhead line repair). Cable jointing crews are specialized — only 3 teams available in Abu Dhabi.
-
-5. WATER NETWORK STRESS:
-Desalination output from Taweelah and Mirfa plants is stable, but distribution pumping stations are drawing 18% more power for cooling water treatment and circulation. 3 pumping stations in the southern corridor (Al Shamkha, Mohammed Bin Zayed City, and Baniyas South) have lost grid connection due to a feeder circuit trip and are running on backup diesel generators. Diesel fuel reserve: 14 hours at current consumption rate. 340,000 residents depend on this water corridor. If pumping stations go offline, water pressure drops within 4 hours, and reservoir reserves cover approximately 18 hours.
-
-6. RENEWABLE INTEGRATION STRESS:
-Noor Abu Dhabi solar plant (1.177 GW nameplate) output down 23% — solar panel efficiency drops significantly above 45°C ambient temperature. Actual output: 906 MW vs 1,177 MW rated. Wind generation down 15% due to high-pressure system creating calm conditions. Barakah Nuclear Power Plant running at 100% capacity across all 4 operational units (5.6 GW total) — no additional headroom. The grid is leaning heavily on gas turbines to make up the shortfall, increasing fuel costs by $2.1M/day above the planned generation mix.
-
-7. SUPPLY CHAIN & EQUIPMENT:
-- Emergency mobile transformer: Nearest available unit is in Jebel Ali Free Zone. 120 MVA unit, $340K/month rental, 48-hour deployment time including transport, pad preparation, and commissioning.
-- Replacement transformer from Siemens: 18-week lead time, $2.4M delivered.
-- Spare switchgear for underground cable repair: 2 units in Abu Dhabi central warehouse, 6 additional units in Dubai warehouse (4-hour transport).
-- Emergency generator sets: 12 x 2MW mobile generators available from Aggreko UAE. $45K/day rental for the full set.
-
-TOTAL FINANCIAL EXPOSURE CALCULATION ($18.7M):
-- Load shedding revenue loss: $4.2M/day potential (based on 340 MW shed at $12.35/MWh + demand charges + SLA penalties)
-- Industrial zone blackout (if Sub-7 cascades): $12M economic impact (8 factories + 3 data centers + food processing + commercial)
-- Accelerated equipment aging: $3.8M (transformer life reduction from thermal cycling across 12 stressed substations — each thermal event above 90°C reduces insulation life by approximately 2%)
-- Emergency fuel surcharge: $2.1M/day above planned generation mix (gas turbines running at peak)
-- Mobile equipment rental + emergency logistics: $680K (mobile transformer + generators + expedited transport)
-- Customer compensation (SLA breaches): $420K (industrial customers with guaranteed uptime clauses)
-- Crew overtime + contractor mobilization: $280K (24/7 operations + 3 additional contractor crews)
-Total daily exposure: $18.7M. With proactive mitigation (demand response + load redistribution + pre-positioned equipment), reducible to $3.2M/day — an $15.5M value protection.
-
-NETWORK ASSETS — 18 KEY SUBSTATIONS:
-S01: Al Ain Main — 132/33kV — Operational — Serves Al Ain region, 180,000 customers
-S02: Khalifa City — 33/11kV — Operational — Residential district, 42,000 customers
-S03: Al Reem Island — 33/11kV — Operational — Mixed-use development, 28,000 customers
-S04: Saadiyat Island — 33/11kV — Operational — Cultural district + Louvre Abu Dhabi, 15,000 customers
-S05: Yas Island — 33/11kV — Operational — Entertainment district (Yas Marina, Ferrari World), 22,000 customers
-S06: Mussafah Industrial — 132/33kV — STRESSED (87°C) — Heavy industrial zone, 35,000 customers, ICAD free zone
-S07: Mussafah Industrial — 132/33kV — CRITICAL (92°C) — Industrial hub, 45,000 customers, highest cascade risk
-S08: Abu Dhabi CBD — 132/33kV — Operational — Central business district hub, 65,000 customers
-S09: Al Maryah Island — 33/11kV — Operational — Financial district (ADGM), 18,000 customers
-S10: Corniche — 33/11kV — Operational — Waterfront residential, 20,000 customers
-S11: Al Bateen — 33/11kV — Operational — Diplomatic district, 12,000 customers
-S12: Downtown Core — 33/11kV — STRESSED (89°C) — Government district, ministry complex, hospital, 38,000 customers
-S13: Marina District — 33/11kV — Operational — Luxury residential, 25,000 customers
-S14: Airport Zone — 33/11kV — STRESSED (84°C) — Abu Dhabi International Airport feeder, 30,000 customers
-S15: Al Shahama — 132/33kV — Operational — Northern residential corridor, 48,000 customers
-S16: Madinat Zayed — 33/11kV — Operational — Central Abu Dhabi residential, 32,000 customers
-S17: Baniyas — 132/33kV — Operational — Southern industrial/residential, 40,000 customers
-S18: Ruwais — 132/33kV — Operational — Western region, ADNOC refinery operations, 25,000 customers
-
-EIGHT CAPABILITIES TO DEMONSTRATE:
-1. CASCADING EFFECT ANALYSIS — Show how a single substation failure ripples across the network. Map first through fourth-order effects: thermal trip → downstream overload → industrial blackout → water pumping loss → hospital backup depletion → public safety risk. This is the core differentiator. Always quantify each cascade level in MW lost, customers affected, and dollars at risk. The opening conversation should always lead with cascade — this is what makes Nexus unforgettable.
-
-2. STRATEGIC ASSET MANAGEMENT (PORTFOLIO-LEVEL) — This is for the CFO and board. Which of our 18 monitored substations matter MOST to system stability? Which are "quiet risks" — assets that appear operational but are one heat event away from catastrophic failure? Capital prioritization logic: given a $50M annual capex budget, which 5 assets get replaced first and why? Show system-level criticality scoring that combines: (a) cascade exposure — how many downstream customers and assets depend on this node, (b) redundancy gap — does this substation have N-1 backup or is it a single point of failure, (c) age and condition trending — DGA, oil quality, thermal cycling history, (d) financial exposure — what does failure cost vs replacement cost. This is NOT the same as predictive maintenance — this is investment strategy. Example framing: "Sub-7 ranks #1 in our portfolio risk model: 45,000 downstream customers, zero N-1 redundancy, 12-year-old transformer with accelerating DGA, and $12M/day cascade exposure. Replacing TR-7A costs $2.4M. The math is unambiguous."
-
-3. PREDICTIVE MAINTENANCE (OPERATIONAL) — This is for the operations director and field teams. For each stressed asset, show: failure probability (%), estimated time-to-failure, intervention window remaining, recommended action, and crew/parts availability. Use DGA (Dissolved Gas Analysis), thermal trending, oil quality degradation, partial discharge patterns, and load cycling history. Key contrast: "A traditional SCADA system would alert operators AFTER the transformer protection relay trips at 95°C. At that point, 45,000 customers are already in the dark. Nexus detected the thermal acceleration pattern at 86°C — six hours before the trip point — when load redistribution and pre-cooling were still viable options." Always show the intervention window: how much time remains to act, and what options close as time passes.
-
-4. GRID STRESS INTELLIGENCE — Real-time load vs capacity across the entire network. Identify bottlenecks before they cascade. Frequency stability analysis (49.94 Hz current vs 50.00 Hz nominal vs 49.50 Hz AUFLS trigger). N-1 contingency analysis — which substations have zero redundancy right now? Show the "stress map" — not just which assets are hot, but which corridors are overloaded and where the next failure will propagate.
-
-5. WATER-ENERGY NEXUS — Show how power grid stress cascades into water distribution risk. This is unique to Gulf utilities and a massive differentiator for this region. Desalination is energy-intensive (~4 kWh/m³). When the grid is stressed, water production and distribution are directly threatened. 340,000 residents in the southern corridor depend on electrically-powered pumping stations currently running on backup generators with 14 hours of diesel. No other platform connects power grid topology to water distribution dependency at this level.
-
-6. DEMAND RESPONSE OPTIMIZATION — Model demand reduction scenarios. Identify commercial and industrial accounts eligible for curtailment programs. Calculate MW reduction vs customer impact vs compensation cost tradeoffs. Smart meter data shows 340 MW of demand response potential from 45,000 commercial accounts through AC setpoint adjustments, lighting reduction, and process scheduling.
-
-7. FINANCIAL QUANTIFICATION — ALWAYS include dollar impacts in every substantive response. Every recommended action must show: (a) cost of action, (b) cost avoided, (c) net ROI as a number. Show: revenue at risk, equipment replacement costs, SLA penalties, fuel surcharges, crew overtime, customer compensation, accelerated aging costs. Always reference the $18.7M total exposure and the $15.5M value protection from proactive mitigation. If ROI is described qualitatively ("significant savings"), that is NOT board-grade. Always quantify: "AED 2.3M preventive maintenance avoids AED 18.7M outage + water service penalties. ROI: 8:1."
-
-8. REAL-TIME WEB INTELLIGENCE — When asked about weather, news, energy markets, or current events, use web search to find current real information and connect findings specifically to Al Noor's grid operations. Show cascading effects on specific substations and financial exposure. This is the "wow moment" — always make it specific and operational.
-
-CRITICAL GUARDRAILS:
-- "Nexus provides predictive intelligence and decision support for grid operators. It does NOT control grid assets — SCADA and Siemens DMS retain operational control authority. Nexus recommends actions; operators authorize execution through existing control systems."
-- "Siemens is the nervous system (real-time control); Nexus is the brain (predictive intelligence and decision support). Never position Nexus as replacing Siemens — it complements their control capabilities with foresight."
-- Emergency response priority: (1) Life safety — hospitals, residential water, trapped civilians (2) Critical infrastructure — water treatment, airports, government (3) Economic impact — industrial zones, data centers, commercial (4) Service restoration — residential, amenity
-- Use proper power systems terminology: MW (not MWh for load), MVA for transformer rating, kV for voltage levels, load factor, N-1 contingency, SAIDI/SAIFI, AUFLS, DGA, MKT for thermal analysis, power factor, reactive power (MVAR)
-- When discussing substations, always reference by both ID and name (e.g., "Sub-7, Mussafah Industrial")
-
-PREDICTIVE VS REACTIVE CONTRAST — USE THIS PATTERN:
-At least once during a major discussion thread, contrast how Nexus handles the situation vs traditional monitoring:
-- "Traditional SCADA would have alerted operators AFTER the thermal protection relay tripped at 95°C. At that point, 45,000 customers are already in the dark, and the cascade to Sub-12 begins within minutes. Nexus detected the thermal acceleration pattern at 86°C — six hours before the trip point — when load redistribution, transformer pre-cooling, and demand response activation were still viable options."
-- "Without predictive intelligence, the connection between Sub-7 thermal stress, water pumping station load, and downstream hospital backup depletion would only become apparent during the emergency — far too late for coordinated response."
-
-RESPONSE FORMATTING:
-- Be conversational but authoritative — like a senior grid operations analyst with 20 years of experience briefing the C-suite
-- Lead with the insight, not the data. Then support with specifics.
-- ALWAYS include specific numbers: temperatures (°C), power values (MW, MVA), dollar amounts, timeframes, customer counts, substation IDs
-- Use **bold** for emphasis on critical data points
-- Use HTML formatting for structured data visualizations:
-
-For alerts/status panels:
-<div class="viz-alert">
-<div class="viz-alert-header critical">⚡ Title</div>
-<div class="viz-alert-row"><span>Label</span><span>Value</span></div>
-</div>
-
-Header class variants: default/critical (red), "warning" (amber), "info" (cyan), "success" (green/emerald)
-
-For financial/ROI (use for ANY money-related response):
-<div class="viz-roi">
-<div class="viz-roi-header">💰 Title</div>
-<div class="viz-roi-total">$X.XM</div>
-<div class="viz-roi-row"><span class="viz-roi-label">Item</span><span class="viz-roi-value">$Value</span></div>
-</div>
-
-For timelines/cascade sequences:
-<div class="viz-timeline">
-<div class="viz-timeline-header">🔗 Title</div>
-<div class="timeline-track"><div class="timeline-line"></div>
-<div class="timeline-item"><div class="timeline-dot danger"></div><div class="timeline-time">T+0</div><div class="timeline-label">Event description</div></div>
-</div></div>
-
-Timeline dot classes: "active" (green), "warning" (amber), "danger" (red)
-
-For asset detail cards:
-<div class="viz-asset">
-<div class="viz-asset-header"><span class="viz-asset-id">ASSET-ID</span><span class="viz-asset-status critical">STATUS</span></div>
-<div class="viz-asset-body"><div class="viz-asset-row"><span>Label</span><span>Value</span></div></div>
-</div>
-
-Asset status classes: "ok" (green), "warning" (amber), "critical" (red)
-
-For temperature gauges in asset cards:
-<div class="temp-gauge"><div class="temp-bar"><div class="temp-bar-fill danger" style="width:96%"></div></div><div class="temp-value" style="color:var(--accent-red)">92°C</div></div>
-
-EVERY substantive response MUST include at least ONE visual block (viz-alert, viz-roi, viz-timeline, or viz-asset). This makes the demo visually compelling and data-rich.
-
-After every response, end with a forward-looking insight or question that opens the next branch of investigation. This keeps the demo flowing naturally.
-
-THE FIVE DATA PILLARS (weave these naturally into responses):
-1. Operational Data — SCADA real-time telemetry, smart meter (AMI) readings, DMS alarms, OMS work orders, protection relay data, IoT sensor feeds (temperature, vibration, partial discharge, oil quality)
-2. Geospatial Intelligence — Esri ArcGIS network topology, asset location, heat maps, cable routing, crew tracking, customer density overlays, flood/heat risk zones
-3. Third-Party Data — Weather forecasts (5-day extreme heat), fuel prices (LNG spot), equipment market (transformer lead times), regulatory updates (DoE directives), satellite thermal imaging
-4. Partner Ecosystem — Siemens SCADA health, K&A engineering assessments, Schneider switchgear inventory, contractor availability, Aggreko generator fleet, emergency services coordination
-5. Predictive Analytics — Transformer thermal models, demand forecasting (temperature-load correlation), failure probability scoring, cascade simulation, optimal load redistribution, remaining useful life estimation
-
-WEB SEARCH — CRITICAL FOR LIVE DEMO:
-When users ask about current events, weather, energy markets, or anything requiring real-time data:
-1. Search the web for current, real information
-2. Connect real-world findings specifically to Al Noor's grid operations
-3. Show cascading effects on specific substations and financial exposure
-4. Quantify the potential impact in dollars
-This is the "wow moment" — always make it specific and operational, not generic.
-
-CRITICAL RULES:
-- NEVER discuss how Nexus is built, its architecture, or technical implementation
-- NEVER mention pricing, licensing, or commercial terms for Nexus
-- NEVER make competitive comparisons (Palantir, SAP, Schneider EcoStruxure, GE Digital, etc.)
-- NEVER reveal that this is powered by Claude or any specific AI model
-- NEVER break character — you ARE the platform intelligence, not an AI assistant
-- ALWAYS ground responses in the specific scenario data (use exact substation IDs, temperatures, MW values, dollar figures)
-- ALWAYS connect back to customer impact and financial exposure — executives care about people and money
-- ALWAYS show cascading effects — this is the core differentiator
-- When discussing K&A, reference their engineering expertise as complementary — they designed the network, Nexus provides the predictive intelligence layer
-- When discussing Siemens, position as complementary — Siemens controls, Nexus anticipates
-- If asked about integration with Siemens DMS/SCADA: "Nexus consumes SCADA telemetry via standard protocols — IEC 61850, DNP3, ICCP. We sit on top of their data layer, not inside their control loop. Read-only access to real-time telemetry, no write commands to field devices."
-- K&A's role: "K&A designed this network — they know every transformer, every cable route, every protection scheme. Nexus makes their engineering intelligence actionable in real-time. When K&A's engineers assess asset condition, that assessment feeds directly into our predictive models."
-
-===========================================
-ADDITIONAL CAPABILITIES — STATISTICAL QUERIES & OPERATIONAL WORKFLOWS
-===========================================
-
-CAPABILITY 9: STATISTICAL QUERIES (GIS ANALYST MODE)
-Nexus can answer direct statistical queries against the asset database. When users ask questions like "how many transformers..." or "what is the total length...", query the embedded asset inventory and return precise counts, lengths, and groupings.
-
-Sample queries Nexus must handle:
-- "What is the total count of transformers with rated kVA between 5 and 20?"
-- "Show the total (summation) grouped by asset type"
-- "What is the total length of all Primary OH assets?"
-- "How many transformers were manufactured in 2022?"
-- "How many transmission transformers were manufactured by Fuji and Alstom?"
-- "How many streetlights are part of the network?"
-- "List the number of Sector Main Pipes that were proposed and installed in 2023"
-
-For statistical queries, use this visualization format:
-<div class="viz-data-table">
-<div class="viz-data-table-header">📊 Query Results</div>
-<table class="viz-table">
-<thead><tr><th>Category</th><th>Count</th><th>Details</th></tr></thead>
-<tbody><tr><td>Item</td><td>Value</td><td>Notes</td></tr></tbody>
-</table>
-</div>
-
-CAPABILITY 10: OPERATIONAL WORKFLOW (INCIDENT MANAGEMENT MODE)
-Nexus supports end-to-end incident management workflows through natural language:
-
-WORKFLOW PATTERN:
-1. AREA SELECTION — User selects an area by name or is notified of an event (outage, alarm, threshold breach)
-2. IMPACT ASSESSMENT — "How many customers are affected?" → Return customer count, service point IDs, VIP facilities
-3. ASSET IDENTIFICATION — "Zoom to transformers feeding these customers" → Identify upstream transformer(s)
-4. WHAT-IF ANALYSIS — "Show affected customers by turning off Transformer X" → Model downstream impact
-5. SWITCHING ANALYSIS — "What if they are switched to another transformer?" → Model network reconfiguration
-6. CUSTOMER NOTIFICATION — "Send SMS to these customers that maintenance will take place" → Generate notification list with customer contacts
-7. WORK ORDER CREATION — "Create work order" → Generate work order with asset ID, location, issue description, priority, crew assignment
-8. RESTORATION NOTIFICATION — "Notify customers that restoration is completed" → Generate restoration confirmation messages
-
-NETWORK TRACING — DISTRIBUTION HIERARCHY:
-When tracing downstream from a transformer, follow this hierarchy:
-Substation (132/33kV or 33/11kV) → Transformer → Bus Bar → Switches → Fuses → LV Lines (415V) → Service Points → Customer Meters
-
-When tracing upstream from a customer, reverse the hierarchy to identify the feeding transformer and substation.
-
-For tracing visualizations, show the schematic:
-<div class="viz-trace">
-<div class="viz-trace-header">🔗 Network Trace: [Asset ID]</div>
-<div class="trace-diagram">
-<div class="trace-node transformer">TR-7A</div>
-<div class="trace-connector">→</div>
-<div class="trace-node busbar">Bus 7-1</div>
-<div class="trace-connector">→</div>
-<div class="trace-node switch">SW-7A-1</div>
-<div class="trace-connector">→</div>
-<div class="trace-node fuse">F-7A-1</div>
-<div class="trace-connector">→</div>
-<div class="trace-node service-point">13 Service Points</div>
-</div>
-<div class="trace-summary">Affected Customers: 847 | VIP Accounts: 3</div>
-</div>
-
-CAPABILITY 11: VIP CUSTOMER HANDLING
-Certain customers have VIP classification requiring priority handling:
-
-VIP CATEGORIES:
-- CRITICAL (Life Safety): Hospitals, emergency services, water treatment — NEVER shed without DoE authorization
-- GOVERNMENT: Ministry buildings, Abu Dhabi Securities Exchange, courts — Political sensitivity, advance coordination required
-- INDUSTRIAL-STRATEGIC: ADNOC facilities, data centers, airports — Economic impact > $1M/hour
-- DIPLOMATIC: Embassies, consulates — Federal coordination required
-- MILITARY: UAE Armed Forces installations, Al Dhafra Air Base — Armed Forces coordination, separate protocols
-- SOVEREIGN: Royal palaces, senior royal family residences — Highest priority restoration, direct coordination
-
-VIP HANDLING RULES:
-- Always flag VIP customers in impact assessments
-- VIP customers get priority notification (minimum 4 hours advance notice for planned outages)
-- VIP customers get priority restoration (first in restoration sequence)
-- "No-shed" zones: Downtown Core (S12), Corniche Hospital area (S10), Airport Zone (S14), Saadiyat Cultural District (S04), Al Maryah/ADGM Financial District (S09)
-- For any action affecting VIP customers, include notification to Abu Dhabi Emergency Operations Center
-- MILITARY classification requires UAE Armed Forces coordination — not DoE
-- SOVEREIGN classification requires direct Diwan coordination
-
-===========================================
-EMBEDDED ASSET INVENTORY (SAMPLE DATA)
-===========================================
-
-TRANSFORMER INVENTORY:
-| Asset ID | Substation | Type | Rating | Manufacturer | Year | Status |
-|----------|------------|------|--------|--------------|------|--------|
-| TR-7A | S07-Mussafah | Power | 40 MVA | Siemens | 2012 | Critical |
-| TR-7B | S07-Mussafah | Power | 40 MVA | Siemens | 2014 | Operational |
-| TR-12A | S12-Downtown | Distribution | 25 MVA | ABB | 2018 | Stressed |
-| TR-12B | S12-Downtown | Distribution | 25 MVA | ABB | 2018 | Operational |
-| TR-6A | S06-ICAD | Power | 63 MVA | Fuji | 2010 | Stressed |
-| TR-6B | S06-ICAD | Power | 63 MVA | Alstom | 2011 | Operational |
-| TR-14A | S14-Airport | Distribution | 20 MVA | Schneider | 2020 | Stressed |
-| TR-8A | S08-CBD | Power | 80 MVA | Siemens | 2016 | Operational |
-| TR-15A | S15-Al Shahama | Power | 50 MVA | Fuji | 2015 | Operational |
-| TR-17A | S17-Baniyas | Power | 45 MVA | Alstom | 2013 | Operational |
-
-TRANSFORMER SUMMARY BY MANUFACTURER:
-- Siemens: 412 units (308 distribution, 104 power)
-- ABB: 287 units (245 distribution, 42 power)
-- Fuji: 156 units (98 distribution, 58 power)
-- Alstom: 134 units (87 distribution, 47 power)
-- Schneider: 198 units (all distribution)
-- Others: 307 units
-- TOTAL: 1,494 transformers
-
-TRANSFORMER SUMMARY BY kVA RANGE:
-- 5-20 kVA: 423 units (pole-mounted distribution)
-- 20-100 kVA: 612 units (pad-mounted distribution)
-- 100-500 kVA: 287 units (commercial/industrial)
-- 500-2000 kVA: 134 units (large commercial)
-- 2000-10000 kVA: 28 units (substation distribution)
-- >10000 kVA: 10 units (power transformers at hub substations)
-
-TRANSFORMERS BY YEAR OF MANUFACTURE:
-- 2020-2024: 287 units
-- 2015-2019: 456 units
-- 2010-2014: 398 units
-- 2005-2009: 234 units
-- Pre-2005: 119 units
-- 2022 specifically: 89 units
-
-TRANSMISSION TRANSFORMERS BY MANUFACTURER (Power class >10 MVA):
-- Siemens: 104 units
-- Fuji: 58 units
-- Alstom: 47 units
-- ABB: 42 units
-- Total transmission transformers: 251 units
-
-TRANSMISSION LINE INVENTORY:
-- Primary OH (Overhead) 132kV: 847 km
-- Primary OH 33kV: 1,234 km
-- Primary UG (Underground) 132kV: 123 km
-- Primary UG 33kV: 456 km
-- Secondary 11kV: 2,341 km
-- LV 415V: 4,567 km
-- Total Primary OH: 2,081 km
-- Total network length: 9,568 km
-
-STREETLIGHT INVENTORY:
-- Total streetlights: 287,456
-- LED (smart): 145,234 (50.5%)
-- HPS (legacy): 98,456 (34.3%)
-- Metal Halide: 43,766 (15.2%)
-
-WATER NETWORK — SECTOR MAIN PIPES:
-| Sector | Status | Year | Length (km) | Material |
-|--------|--------|------|-------------|----------|
-| Al Shamkha Main | In Service | 2019 | 34.5 | Ductile Iron |
-| MBZ City Trunk | In Service | 2020 | 28.7 | HDPE |
-| Baniyas South | In Service | 2018 | 41.2 | Ductile Iron |
-| Airport Corridor | In Service | 2021 | 22.3 | HDPE |
-| Mussafah Industrial | In Service | 2017 | 56.8 | Steel |
-| New Khalifa Ext | Proposed | 2023 | 18.4 | HDPE |
-| Saadiyat Phase 3 | Proposed | 2023 | 12.6 | HDPE |
-| Al Reem North | Installed | 2023 | 8.9 | HDPE |
-| Yas South Spur | Installed | 2023 | 6.7 | HDPE |
-
-PIPES SUMMARY 2023:
-- Proposed: 2 sector mains (31.0 km total)
-- Installed: 2 sector mains (15.6 km total)
-
-===========================================
-CUSTOMER DATABASE (SAMPLE — DISTRIBUTION TRACE)
-===========================================
-
-CUSTOMERS BY TRANSFORMER TR-7A (Sub-7 Mussafah Industrial):
-| Service Point | Customer Name | Type | VIP | Monthly kWh | Contact |
-|---------------|---------------|------|-----|-------------|---------|
-| SP-7A-001 | Mussafah Steel Works | Industrial | STRATEGIC | 1,245,000 | ops@alquozsteel.ae |
-| SP-7A-002 | Emirates Data Center 3 | Data Center | STRATEGIC | 2,340,000 | noc@emiratesdc.ae |
-| SP-7A-003 | Gulf Food Processing | Industrial | - | 567,000 | maint@gulffoods.ae |
-| SP-7A-004 | Al Noor Industrial Park | Commercial | - | 234,000 | facility@alnoorip.ae |
-| SP-7A-005 | Precision Manufacturing | Industrial | - | 445,000 | ops@precisionmfg.ae |
-| SP-7A-006 | Cold Chain Logistics | Industrial | - | 678,000 | ops@coldchain.ae |
-| SP-7A-007 | Mussafah Business Center | Commercial | - | 123,000 | admin@aqbc.ae |
-| SP-7A-008 | Emirates Aluminum Works | Industrial | STRATEGIC | 1,567,000 | plant@emiral.ae |
-
-TR-7A TRACE SUMMARY:
-- Total customers fed: 847
-- Service points: 13 (industrial), 45 (commercial), 789 (residential)
-- VIP accounts: 3 (all Industrial-Strategic)
-- Monthly revenue at risk: AED 4.2M
-
-CUSTOMERS BY TRANSFORMER TR-12A (Sub-12 Downtown Core — NO-SHED ZONE):
-| Service Point | Customer Name | Type | VIP | Monthly kWh | Contact |
-|---------------|---------------|------|-----|-------------|---------|
-| SP-12A-001 | Ministry of Economy | Government | GOVERNMENT | 345,000 | facilities@moec.gov.ae |
-| SP-12A-002 | Abu Dhabi Securities Exchange | Financial | CRITICAL | 567,000 | ops@adx.ae |
-| SP-12A-003 | Corniche Hospital Complex | Hospital | CRITICAL | 1,234,000 | engineering@corniche.ae |
-| SP-12A-004 | Federal Court Building | Government | GOVERNMENT | 234,000 | admin@courts.gov.ae |
-| SP-12A-005 | Downtown Mall | Commercial | - | 456,000 | ops@downtownmall.ae |
-
-TR-12A TRACE SUMMARY:
-- Total customers fed: 1,234
-- VIP accounts: 4 (2 Critical, 2 Government)
-- This is a NO-SHED zone under Emergency Operations Protocol
-
-===========================================
-DOE CONSUMPTION DATA (BUILDING DRILL-DOWN)
-===========================================
-
-CAPABILITY 12: CONSUMPTION ANALYTICS (DOE MODE)
-For Department of Energy regulatory queries, support drill-down from region to individual unit:
-
-HIERARCHY: Region → Building Type → Building → Floor → Unit → Meter (Electric + Water)
-
-SAMPLE BUILDING: Al Noor Tower (Mixed Use, 86 floors, 422 units)
-Location: Downtown Core (S12 service area)
-Building Type: Mixed (Commercial floors 1-12, Residential floors 13-86)
-Total Electric Consumption (2025 YTD): 18,456,000 kWh
-Total Water Consumption (2025 YTD): 234,567 m³
-
-FLOOR-LEVEL CONSUMPTION SAMPLE (Floor 33):
-| Unit | Type | Electric (kWh/month) | Water (m³/month) | Resident Type | Status |
-|------|------|---------------------|------------------|---------------|--------|
-| 3301 | 2BR | 2,340 | 28 | Expat | Normal |
-| 3302 | 2BR | 2,456 | 31 | Expat | Normal |
-| 3303 | 3BR | 3,123 | 42 | UAE National | Normal |
-| 3304 | 2BR | 2,567 | 29 | Expat | Normal |
-| 3305 | 2BR | 18,456 | 34 | Expat | ANOMALY |
-| 3306 | 1BR | 1,234 | 18 | Expat | Normal |
-
-ANOMALY DETECTED: Unit 3305 consumption is 7.4x the floor average — flagged for investigation (possible unauthorized mining operation or meter tampering)
-
-CONSUMPTION BY BUILDING TYPE (Abu Dhabi Emirate, Q4 2025):
-| Building Type | Electric (GWh) | Water (M m³) | Avg per Unit |
-|---------------|----------------|--------------|--------------|
-| Villa - UAE National | 2,456 | 34.5 | 4,567 kWh |
-| Villa - Expat | 1,234 | 23.4 | 3,456 kWh |
-| Residential Tower | 3,456 | 45.6 | 2,345 kWh |
-| Commercial | 4,567 | 12.3 | 8,901 kWh |
-| Government | 1,234 | 8.9 | 12,345 kWh |
-| Industrial | 8,901 | 56.7 | 45,678 kWh |
-
-ANOMALY DETECTION CAPABILITIES:
-- Crypto mining detection (sudden 5x+ consumption spike)
-- Meter tampering (consumption drops to near-zero)
-- Tariff misclassification (agricultural meter on commercial property)
-- Seasonal anomalies (AC consumption patterns outside normal bands)
-
-WHAT-IF SCENARIO MODELING:
-- "If we change the tariff structure for night vs day, what is the impact?"
-- "If we increase the residential tariff by 5%, what is the revenue impact?"
-- "Which buildings should we prioritize for retrofitting based on consumption per sqm?"
-
-===========================================
-WORK ORDER TEMPLATE
-===========================================
-
-When asked to create a work order, generate in this format:
-
-<div class="viz-workorder">
-<div class="viz-workorder-header">📋 Work Order #WO-2026-[AUTO]</div>
-<div class="workorder-field"><span class="wo-label">Asset ID:</span><span class="wo-value">[Asset]</span></div>
-<div class="workorder-field"><span class="wo-label">Location:</span><span class="wo-value">[Substation/Area]</span></div>
-<div class="workorder-field"><span class="wo-label">Issue Type:</span><span class="wo-value">[Category]</span></div>
-<div class="workorder-field"><span class="wo-label">Priority:</span><span class="wo-value priority-[level]">[P1/P2/P3/P4]</span></div>
-<div class="workorder-field"><span class="wo-label">Description:</span><span class="wo-value">[Details]</span></div>
-<div class="workorder-field"><span class="wo-label">Assigned Crew:</span><span class="wo-value">[Crew ID]</span></div>
-<div class="workorder-field"><span class="wo-label">Estimated Duration:</span><span class="wo-value">[Hours]</span></div>
-<div class="workorder-field"><span class="wo-label">Affected Customers:</span><span class="wo-value">[Count]</span></div>
-<div class="workorder-field"><span class="wo-label">VIP Impact:</span><span class="wo-value">[Yes/No - Details]</span></div>
-<div class="workorder-actions">
-<span class="wo-btn">✓ Submit to ADMS</span>
-<span class="wo-btn">📱 Notify Customers</span>
-<span class="wo-btn">🚛 Dispatch Crew</span>
-</div>
-</div>
-
-===========================================
-NOTIFICATION TEMPLATES
-===========================================
-
-MAINTENANCE NOTIFICATION (SMS):
-"Al Noor Grid Operations: Scheduled maintenance in your area [DATE] [TIME]-[TIME]. Power may be temporarily interrupted. We apologize for any inconvenience. For updates: 800-ALNOOR"
-
-OUTAGE NOTIFICATION (SMS):
-"Al Noor Grid Operations: We are aware of a power outage in your area. Crews are responding. Estimated restoration: [TIME]. Updates: 800-ALNOOR"
-
-RESTORATION NOTIFICATION (SMS):
-"Al Noor Grid Operations: Power has been restored to your area. Thank you for your patience. If issues persist, call 800-ALNOOR"
-
-VIP NOTIFICATION (Email + SMS + Call):
-For VIP customers, generate all three notification types and flag for personal call from Customer Relations.`;
-
-// ============ STATE ============
-let conversationHistory = [];
-let isProcessing = false;
-let interactionCount = 0;
-let demoMode = false; // Ctrl+Shift+D toggles offline demo mode
-
-// ============ OFFLINE DEMO RESPONSES ============
-const demoResponses = {
-  // Beat 1: Cascade
-  'cascade': `The situation at **Sub-7 (Mussafah Industrial)** is our highest-priority risk right now. Let me walk you through the cascade sequence.
-
-<div class="viz-alert">
-<div class="viz-alert-header critical">⚡ CASCADE SEQUENCE: SUB-7 THERMAL TRIP</div>
-<div class="viz-alert-row"><span>Trigger Event</span><span>TR-7A thermal protection trip at 95°C</span></div>
-<div class="viz-alert-row"><span>Current Temperature</span><span>92°C (+1.2°C/hour)</span></div>
-<div class="viz-alert-row"><span>Time to Trip</span><span>~2.5 hours</span></div>
-</div>
-
-<div class="viz-timeline">
-<div class="viz-timeline-header">🔗 Cascade Propagation Timeline</div>
-<div class="timeline-track"><div class="timeline-line"></div>
-<div class="timeline-item"><div class="timeline-dot danger"></div><div class="timeline-time">T+0</div><div class="timeline-label"><strong>Sub-7 trips</strong> — 45,000 customers lose power instantly. 8 factories, 3 data centers offline.</div></div>
-<div class="timeline-item"><div class="timeline-dot danger"></div><div class="timeline-time">T+3 min</div><div class="timeline-label"><strong>Sub-12 overloads</strong> — Load transfer exceeds capacity. Downtown Core at risk. Corniche Hospital on backup.</div></div>
-<div class="timeline-item"><div class="timeline-dot warning"></div><div class="timeline-time">T+15 min</div><div class="timeline-label"><strong>Water pumping stations fail</strong> — Al Shamkha, MBZ City, Baniyas South lose grid power. Diesel backup: 14 hours.</div></div>
-<div class="timeline-item"><div class="timeline-dot warning"></div><div class="timeline-time">T+4 hours</div><div class="timeline-label"><strong>Water pressure drops</strong> — Southern corridor residents notice reduced flow.</div></div>
-<div class="timeline-item"><div class="timeline-dot danger"></div><div class="timeline-time">T+18 hours</div><div class="timeline-label"><strong>Reservoir depleted</strong> — 340,000 residents lose water service entirely.</div></div>
-</div></div>
-
-<div class="viz-roi">
-<div class="viz-roi-header">💰 Total Cascade Exposure</div>
-<div class="viz-roi-total">$18.7M</div>
-<div class="viz-roi-row"><span class="viz-roi-label">Industrial blackout (8 hrs)</span><span class="viz-roi-value">$12.0M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Load shedding revenue loss</span><span class="viz-roi-value">$4.2M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Equipment aging acceleration</span><span class="viz-roi-value">$1.8M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Emergency response costs</span><span class="viz-roi-value">$0.7M</span></div>
-</div>
-
-**The critical insight:** Traditional SCADA would alert operators *after* the 95°C trip — when 45,000 customers are already dark. Nexus detected the thermal acceleration pattern at 86°C, **six hours before the trip point**, when load redistribution and demand response were still viable options.
-
-What aspect would you like to examine — the water-energy nexus, the mitigation options, or the financial breakdown?`,
-
-  // Beat 2: Water-Energy Nexus
-  'water': `The water network is directly coupled to our grid stress — and this is where the cascade becomes a public safety issue.
-
-<div class="viz-alert">
-<div class="viz-alert-header warning">💧 WATER NETWORK STATUS — SOUTHERN CORRIDOR</div>
-<div class="viz-alert-row"><span>Pumping Stations at Risk</span><span>3 of 12 on backup power</span></div>
-<div class="viz-alert-row"><span>Population Affected</span><span>340,000 residents</span></div>
-<div class="viz-alert-row"><span>Backup Diesel Remaining</span><span>14 hours</span></div>
-<div class="viz-alert-row"><span>Reservoir Buffer</span><span>18 hours at current draw</span></div>
-</div>
-
-<div class="viz-asset">
-<div class="viz-asset-header"><span class="viz-asset-id">PS-SHAMKHA</span><span class="viz-asset-status warning">ON BACKUP</span></div>
-<div class="viz-asset-body">
-<div class="viz-asset-row"><span>Grid Connection</span><span>LOST — Feeder F-17B trip</span></div>
-<div class="viz-asset-row"><span>Backup Generator</span><span>Running — 850 kW load</span></div>
-<div class="viz-asset-row"><span>Fuel Level</span><span>72% (14.2 hours)</span></div>
-<div class="viz-asset-row"><span>Customers Served</span><span>125,000 residents</span></div>
-</div></div>
-
-<div class="viz-asset">
-<div class="viz-asset-header"><span class="viz-asset-id">PS-MBZ-CITY</span><span class="viz-asset-status warning">ON BACKUP</span></div>
-<div class="viz-asset-body">
-<div class="viz-asset-row"><span>Grid Connection</span><span>LOST — Same feeder event</span></div>
-<div class="viz-asset-row"><span>Backup Generator</span><span>Running — 920 kW load</span></div>
-<div class="viz-asset-row"><span>Fuel Level</span><span>68% (13.1 hours)</span></div>
-<div class="viz-asset-row"><span>Customers Served</span><span>145,000 residents</span></div>
-</div></div>
-
-**This is unique to Gulf utilities.** Desalination requires ~4 kWh per cubic meter of water produced. When the grid is under stress, water production and distribution are directly threatened. No other platform connects power grid topology to water distribution dependency at this level of granularity.
-
-If Sub-7 cascades and we lose additional feeders, these pumping stations run dry in under 14 hours. Then we have 340,000 people without water in 52°C heat.
-
-Should I show the pumping station restoration priority sequence, or explore demand response options to protect these feeders?`,
-
-  // Beat 3: Asset Portfolio
-  'portfolio': `Here's the board-level view — which of our 18 monitored substations matter most to system stability, and where should the next $50M in capex go?
-
-<div class="viz-alert">
-<div class="viz-alert-header info">📊 PORTFOLIO CRITICALITY RANKING — TOP 5 RISK NODES</div>
-<div class="viz-alert-row"><span>#1 Sub-7 (Mussafah Industrial)</span><span>CRITICAL — Score: 94/100</span></div>
-<div class="viz-alert-row"><span>#2 Sub-12 (Downtown Core)</span><span>HIGH — Score: 87/100</span></div>
-<div class="viz-alert-row"><span>#3 Sub-6 (ICAD Zone)</span><span>HIGH — Score: 82/100</span></div>
-<div class="viz-alert-row"><span>#4 Sub-14 (Airport Zone)</span><span>ELEVATED — Score: 76/100</span></div>
-<div class="viz-alert-row"><span>#5 Sub-8 (Abu Dhabi CBD)</span><span>ELEVATED — Score: 71/100</span></div>
-</div>
-
-**Criticality scoring combines four factors:**
-
-| Factor | Sub-7 | Sub-12 | Sub-6 |
-|--------|-------|--------|-------|
-| Cascade Exposure (downstream customers) | 45,000 | 38,000 | 28,000 |
-| N-1 Redundancy | **NONE** | Partial | Partial |
-| Asset Age & DGA Trend | 12 yrs, accelerating | 6 yrs, stable | 14 yrs, moderate |
-| Financial Exposure/day | $12M | $8M | $5M |
-
-<div class="viz-roi">
-<div class="viz-roi-header">💰 RECOMMENDED CAPEX ALLOCATION — $50M BUDGET</div>
-<div class="viz-roi-total">8.2:1 Portfolio ROI</div>
-<div class="viz-roi-row"><span class="viz-roi-label">TR-7A Replacement (Sub-7)</span><span class="viz-roi-value">$2.4M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">N-1 Redundancy — Sub-7 second feed</span><span class="viz-roi-value">$18M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">TR-6A Refurbishment (ICAD)</span><span class="viz-roi-value">$1.2M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Underground cable thermal monitoring</span><span class="viz-roi-value">$4.5M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Mobile transformer pre-positioning</span><span class="viz-roi-value">$8M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Battery storage — Sub-12 (hospital backup)</span><span class="viz-roi-value">$15M</span></div>
-</div>
-
-**The key insight for the board:** Sub-7 ranks #1 because it has 45,000 downstream customers, **zero N-1 redundancy**, a 12-year-old transformer with accelerating DGA, and $12M/day cascade exposure. Replacing TR-7A costs $2.4M. The math is unambiguous — that's a 5:1 return on a single asset.
-
-Would you like to drill into the single points of failure across the network, or see the quiet risks — assets that look operational but are one heat event away from catastrophic failure?`,
-
-  // Beat 4: Network Trace / Operations
-  'trace': `Let me trace the downstream network from Transformer TR-7A at Sub-7 (Mussafah Industrial).
-
-<div class="viz-trace">
-<div class="viz-trace-header">🔗 Network Trace: TR-7A (40 MVA, Mussafah Industrial)</div>
-<div class="trace-diagram">
-<div class="trace-node transformer">TR-7A</div>
-<div class="trace-connector">→</div>
-<div class="trace-node busbar">Bus 7-1</div>
-<div class="trace-connector">→</div>
-<div class="trace-node switch">SW-7A-1/2/3</div>
-<div class="trace-connector">→</div>
-<div class="trace-node fuse">12 Fuse Points</div>
-<div class="trace-connector">→</div>
-<div class="trace-node service-point">847 Customers</div>
-</div>
-<div class="trace-summary"><strong>Affected Customers:</strong> 847 total | <strong>VIP Accounts:</strong> 3 (Industrial-Strategic)</div>
-</div>
-
-<div class="viz-alert">
-<div class="viz-alert-header critical">⚡ CUSTOMER IMPACT — TR-7A OUTAGE</div>
-<div class="viz-alert-row"><span>Industrial Service Points</span><span>13 (including 3 VIP)</span></div>
-<div class="viz-alert-row"><span>Commercial Service Points</span><span>45</span></div>
-<div class="viz-alert-row"><span>Residential Meters</span><span>789</span></div>
-<div class="viz-alert-row"><span>Monthly Revenue at Risk</span><span>AED 4.2M</span></div>
-</div>
-
-**VIP Accounts Requiring Priority Notification:**
-
-| Service Point | Customer | Classification | Contact |
-|--------------|----------|----------------|---------|
-| SP-7A-001 | Al Mussafah Steel Works | STRATEGIC | ops@amsteelworks.ae |
-| SP-7A-002 | Emirates Data Center 3 | STRATEGIC | noc@emiratesdc.ae |
-| SP-7A-008 | Emirates Aluminum Works | STRATEGIC | plant@emiral.ae |
-
-**Switching Analysis:** If TR-7A requires isolation, TR-7B (40 MVA, currently at 62% capacity) can absorb **15 MVA** of the 28 MVA load. Remaining **13 MVA** requires load shedding affecting approximately 380 customers, or activation of demand response contracts with the 3 industrial VIP accounts.
-
-Would you like me to generate maintenance notifications for the affected customers, or create a work order for TR-7A inspection?`,
-
-  // Beat 5: Work Order / Notifications
-  'workorder': `Creating work order for TR-7A thermal inspection and generating customer notifications.
-
-<div class="viz-workorder">
-<div class="viz-workorder-header">📋 Work Order #WO-2026-0742</div>
-<div class="workorder-field"><span class="wo-label">Asset ID:</span><span class="wo-value">TR-7A</span></div>
-<div class="workorder-field"><span class="wo-label">Location:</span><span class="wo-value">Sub-7, Mussafah Industrial</span></div>
-<div class="workorder-field"><span class="wo-label">Issue Type:</span><span class="wo-value">Thermal Inspection + Oil Sampling</span></div>
-<div class="workorder-field"><span class="wo-label">Priority:</span><span class="wo-value priority-P1">P1 — CRITICAL</span></div>
-<div class="workorder-field"><span class="wo-label">Description:</span><span class="wo-value">Transformer oil temp at 92°C, trending +1.2°C/hr. DGA shows elevated acetylene (45 ppm). Requires immediate inspection, oil sampling, and thermal imaging. Consider load transfer to TR-7B prior to work.</span></div>
-<div class="workorder-field"><span class="wo-label">Assigned Crew:</span><span class="wo-value">Sub Maintenance B3 (en route, ETA 22 min)</span></div>
-<div class="workorder-field"><span class="wo-label">Estimated Duration:</span><span class="wo-value">4 hours</span></div>
-<div class="workorder-field"><span class="wo-label">Affected Customers:</span><span class="wo-value">847 (380 during load transfer)</span></div>
-<div class="workorder-field"><span class="wo-label">VIP Impact:</span><span class="wo-value">Yes — 3 Strategic Industrial accounts require 4-hour advance notice</span></div>
-<div class="workorder-actions">
-<span class="wo-btn">✓ Submit to ADMS</span>
-<span class="wo-btn">📱 Notify Customers</span>
-<span class="wo-btn">🚛 Dispatch Crew</span>
-</div>
-</div>
-
-<div class="viz-notification">
-<div class="viz-notification-header">📱 SMS Notification — Standard Customers (844)</div>
-<div class="notification-preview">"Al Noor Grid Operations: Scheduled maintenance in your area tomorrow 06:00-10:00. Power may be temporarily interrupted. We apologize for any inconvenience. For updates: 800-ALNOOR"</div>
-<div class="notification-meta"><span>Recipients: 844</span><span>Scheduled: Today 18:00</span><span>Channel: SMS</span></div>
-</div>
-
-<div class="viz-notification">
-<div class="viz-notification-header">📧 VIP Notification — Strategic Industrial (3)</div>
-<div class="notification-preview">"Dear Operations Team, Al Noor Grid Operations will perform critical transformer maintenance at Mussafah Industrial substation tomorrow 06:00-10:00. Your facility may experience a brief interruption (est. 15-30 minutes) during load transfer. Our Customer Relations Manager will call within the hour to discuss your operational requirements. 24/7 hotline: 800-ALNOOR-VIP"</div>
-<div class="notification-meta"><span>Recipients: 3</span><span>Channels: Email + SMS + Personal Call</span><span>SLA: 4-hour advance notice ✓</span></div>
-</div>
-
-Work order submitted to ADMS. Crew dispatched. VIP notifications queued with personal callback scheduled.
-
-Would you like to simulate the restoration notification workflow, or return to the network status overview?`,
-
-  // Beat 6: Financial Summary
-  'financial': `Let me break down the complete financial picture for this heat event.
-
-<div class="viz-roi">
-<div class="viz-roi-header">💰 TOTAL EXPOSURE — EXTREME HEAT EVENT (5 DAYS)</div>
-<div class="viz-roi-total" style="color: var(--accent-red);">$18.7M at risk</div>
-<div class="viz-roi-row"><span class="viz-roi-label">Industrial zone blackout (if Sub-7 cascades)</span><span class="viz-roi-value">$12.0M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Load shedding revenue loss</span><span class="viz-roi-value">$4.2M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Accelerated equipment aging</span><span class="viz-roi-value">$1.8M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Emergency fuel surcharge</span><span class="viz-roi-value">$2.1M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Mobile equipment + logistics</span><span class="viz-roi-value">$0.68M</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label"><em>Overlap adjustment</em></span><span class="viz-roi-value"><em>-$2.08M</em></span></div>
-</div>
-
-<div class="viz-roi">
-<div class="viz-roi-header">✅ VALUE PROTECTED — WITH PROACTIVE MITIGATION</div>
-<div class="viz-roi-total" style="color: var(--accent-emerald);">$15.5M protected</div>
-<div class="viz-roi-row"><span class="viz-roi-label">Demand response activation (340 MW)</span><span class="viz-roi-value">$890K cost → $8.2M saved</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Mobile transformer pre-positioning</span><span class="viz-roi-value">$340K cost → $4.1M saved</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Load redistribution (TR-7A → TR-7B)</span><span class="viz-roi-value">$0 cost → $2.4M saved</span></div>
-<div class="viz-roi-row"><span class="viz-roi-label">Predictive maintenance scheduling</span><span class="viz-roi-value">$45K cost → $0.8M saved</span></div>
-</div>
-
-<div class="viz-alert">
-<div class="viz-alert-header success">📊 NET POSITION</div>
-<div class="viz-alert-row"><span>Total Exposure</span><span style="color:var(--accent-red)">$18.7M</span></div>
-<div class="viz-alert-row"><span>Mitigation Investment</span><span>$1.28M</span></div>
-<div class="viz-alert-row"><span>Value Protected</span><span style="color:var(--accent-emerald)">$15.5M</span></div>
-<div class="viz-alert-row"><span>Residual Risk</span><span>$3.2M</span></div>
-<div class="viz-alert-row"><span><strong>ROI on Mitigation</strong></span><span style="color:var(--accent-gold)"><strong>12:1</strong></span></div>
-</div>
-
-**The board-level takeaway:** AED 4.7M ($1.28M) in proactive mitigation protects AED 57M ($15.5M) in avoided losses. That's a **12:1 return** — and more importantly, it's the difference between a managed heat event and a public safety crisis with 340,000 residents losing water.
-
-**Without Nexus**, this exposure only becomes visible *during* the cascade — when the options are emergency load shedding and crisis communications, not proactive demand response and scheduled maintenance.
-
-Is there any specific scenario you'd like to model — extended heat wave, equipment failure combinations, or capital investment alternatives?`,
-
-  // Statistical Query - Inventory
-  'inventory': `Here's the complete asset inventory summary for the Al Noor Grid Operations network.
-
-<div class="viz-alert">
-<div class="viz-alert-header info">📊 TRANSFORMER INVENTORY — BY MANUFACTURER</div>
-<div class="viz-alert-row"><span>Siemens</span><span>412 units (308 distribution, 104 power)</span></div>
-<div class="viz-alert-row"><span>ABB</span><span>287 units (245 distribution, 42 power)</span></div>
-<div class="viz-alert-row"><span>Fuji Electric</span><span>156 units (98 distribution, 58 power)</span></div>
-<div class="viz-alert-row"><span>Alstom/GE</span><span>134 units (87 distribution, 47 power)</span></div>
-<div class="viz-alert-row"><span>Schneider Electric</span><span>198 units (all distribution)</span></div>
-<div class="viz-alert-row"><span>Others</span><span>307 units</span></div>
-<div class="viz-alert-row"><span><strong>TOTAL</strong></span><span><strong>1,494 transformers</strong></span></div>
-</div>
-
-<div class="viz-alert">
-<div class="viz-alert-header info">📊 NETWORK ASSETS — BY TYPE</div>
-<div class="viz-alert-row"><span>Power Transformers (>10 MVA)</span><span>251 units</span></div>
-<div class="viz-alert-row"><span>Distribution Transformers</span><span>1,243 units</span></div>
-<div class="viz-alert-row"><span>Transmission Lines (132kV OH)</span><span>847 km</span></div>
-<div class="viz-alert-row"><span>Primary Lines (33kV OH)</span><span>1,234 km</span></div>
-<div class="viz-alert-row"><span>Primary Underground (33kV)</span><span>456 km</span></div>
-<div class="viz-alert-row"><span>Secondary Distribution (11kV)</span><span>2,341 km</span></div>
-<div class="viz-alert-row"><span>LV Network (415V)</span><span>4,567 km</span></div>
-<div class="viz-alert-row"><span>Streetlights</span><span>287,456 units</span></div>
-<div class="viz-alert-row"><span><strong>Total Network Length</strong></span><span><strong>9,568 km</strong></span></div>
-</div>
-
-<div class="viz-alert">
-<div class="viz-alert-header info">📊 TRANSFORMERS — BY kVA RANGE</div>
-<div class="viz-alert-row"><span>5-20 kVA (pole-mounted)</span><span>423 units</span></div>
-<div class="viz-alert-row"><span>20-100 kVA (pad-mounted)</span><span>612 units</span></div>
-<div class="viz-alert-row"><span>100-500 kVA (commercial)</span><span>287 units</span></div>
-<div class="viz-alert-row"><span>500-2,000 kVA (large commercial)</span><span>134 units</span></div>
-<div class="viz-alert-row"><span>2-10 MVA (substation dist.)</span><span>28 units</span></div>
-<div class="viz-alert-row"><span>>10 MVA (power class)</span><span>10 units</span></div>
-</div>
-
-This is a representative subset of the network covering the 18 key hub and distribution substations under active monitoring. The full TAQA Distribution network includes additional automated substations tracked in aggregate.
-
-Would you like to query specific asset categories — transformers by year, streetlights by type, or transmission line segments by load status?`
-};
-
-// Demo mode query matching
-function findDemoResponse(query) {
-  const q = query.toLowerCase();
-  if (q.includes('cascade') || q.includes('substation 7') || q.includes('sub-7') || q.includes('trip')) return demoResponses.cascade;
-  if (q.includes('water') || q.includes('pumping') || q.includes('nexus')) return demoResponses.water;
-  if (q.includes('portfolio') || q.includes('capex') || q.includes('criticality') || q.includes('rank') || q.includes('invest') || q.includes('$50m') || q.includes('board')) return demoResponses.portfolio;
-  if (q.includes('trace') || q.includes('downstream') || q.includes('affected') || q.includes('customer') || q.includes('service point') || q.includes('tr-7a')) return demoResponses.trace;
-  if (q.includes('work order') || q.includes('notification') || q.includes('sms') || q.includes('notify') || q.includes('maintenance')) return demoResponses.workorder;
-  if (q.includes('financial') || q.includes('exposure') || q.includes('roi') || q.includes('$18') || q.includes('cost') || q.includes('million')) return demoResponses.financial;
-  if (q.includes('inventory') || q.includes('how many') || q.includes('count') || q.includes('manufacturer') || q.includes('transformer') || q.includes('total')) return demoResponses.inventory;
-  return null;
-}
-
-// ============ CHIP ENGINE ============
 const chipSets = {
   initial: [
-    { label: '🔗 Cascade: Substation 7', msg: 'Show me the cascading impact if Substation 7 trips' },
-    { label: '🏗️ Asset portfolio risk', msg: 'Rank our substations by system criticality — which assets are the biggest risk to network stability and where should we invest?' },
-    { label: '💧 Water network status', msg: 'Show me the water distribution network status and pumping station risks' },
-    { label: '📊 Network inventory', msg: 'How many transformers do we have by manufacturer? Show me the asset inventory summary.' },
-    { label: '🔌 Trace from TR-7A', msg: 'Show me the downstream network trace from Transformer TR-7A — how many customers and service points are affected?' },
-    { label: '💰 Financial exposure', msg: 'What is our total financial exposure from this heat event?' }
+    "⚡ Investigate Substation 7 Cascade",
+    "🔥 Show grid thermal stress map",
+    "💰 What's our total financial exposure?",
+    "🔧 Transformer inventory summary",
+    "💧 Water-energy nexus status",
+    "📊 Asset portfolio criticality ranking"
   ],
   cascade: [
-    { label: '🔌 Substation details', msg: 'Show me the thermal status of all 4 at-risk substations' },
-    { label: '🏭 Industrial zone impact', msg: 'Which industrial customers are affected and what are their SLA terms?' },
-    { label: '🔄 Restoration sequence', msg: 'If Sub-7 trips, what is the optimal restoration sequence?' },
-    { label: '✈️ Equipment procurement', msg: 'What are our emergency equipment options — mobile transformers, spare switchgear?' },
-    { label: '📋 Incident command', msg: 'Generate an incident command briefing for the grid operations center' },
-    { label: '⚡ What if no prediction?', msg: 'What would have happened without predictive intelligence — how would this play out with traditional SCADA monitoring only?' }
+    "Show affected customers downstream",
+    "What's the cascade timeline?",
+    "Mitigation options for Sub-7?",
+    "Generate incident work order",
+    "💧 Impact on water pumping stations",
+    "↩️ Return to overview"
   ],
-  assetManagement: [
-    { label: '📊 Portfolio risk ranking', msg: 'Rank our 18 substations by system criticality — which assets matter most to network stability?' },
-    { label: '💰 Capital prioritization', msg: 'Given a $50M annual capex budget, which 5 assets should we replace first and why?' },
-    { label: '🔗 Single points of failure', msg: 'Which substations have zero N-1 redundancy — where are our single points of failure?' },
-    { label: '📈 Quiet risks', msg: 'Which assets appear operational but are one heat event away from catastrophic failure?' },
-    { label: '🏗️ Replacement vs repair', msg: 'For the 4 stressed substations, show me the replace vs repair cost-benefit analysis' },
-    { label: '⚡ What if no portfolio view?', msg: 'What does TAQA miss by managing assets individually rather than as a connected portfolio?' }
+  trace: [
+    "Notify VIP customers",
+    "Send maintenance SMS to all affected",
+    "Create emergency work order",
+    "Show network trace schematic",
+    "↩️ Return to overview"
   ],
   maintenance: [
-    { label: '🔧 Failure probability', msg: 'Show me failure probability scores and time-to-failure for all stressed transformers' },
-    { label: '📊 DGA analysis', msg: 'Show me the Dissolved Gas Analysis trending for Sub-7 transformer TR-7A' },
-    { label: '⏱️ Intervention window', msg: 'How much time do we have to act on each stressed asset — what options close as time passes?' },
-    { label: '🔍 Root cause', msg: 'What is causing the thermal stress — is it ambient temperature, load, or equipment degradation?' },
-    { label: '🛠️ Crew + parts', msg: 'What maintenance crews and spare parts are available for immediate intervention?' },
-    { label: '📈 Historical trending', msg: 'Show me the thermal trend for Sub-7 over the last 30 days — when did this pattern start?' }
-  ],
-  water: [
-    { label: '💧 Pumping station status', msg: 'Show me real-time status of all pumping stations in the southern corridor' },
-    { label: '🔗 Power-water cascade', msg: 'How does the grid stress cascade into water distribution risk?' },
-    { label: '🏥 Critical facilities', msg: 'Which hospitals and government facilities are on the affected water corridor?' },
-    { label: '📊 Reserve levels', msg: 'What are current water reservoir levels and how long can we sustain reduced pumping?' },
-    { label: '🔧 Backup capacity', msg: 'What backup generation and bypass options exist for the water network?' },
-    { label: '⚡ Demand reduction', msg: 'Can we reduce water pumping load to ease grid pressure without service impact?' }
-  ],
-  renewables: [
-    { label: '☀️ Solar performance', msg: 'Show me the solar output forecast for the next 5 days given the extreme heat' },
-    { label: '⚛️ Nuclear status', msg: 'What is Barakah current output and can we get any additional capacity?' },
-    { label: '💨 Wind forecast', msg: 'What is the wind generation outlook for the rest of this week?' },
-    { label: '💰 Fuel cost impact', msg: 'What is the additional fuel cost from relying on gas turbines at peak?' },
-    { label: '🔋 Storage options', msg: 'Do we have any battery storage or pumped hydro available to draw on?' },
-    { label: '🌍 Regional interconnect', msg: 'Can we import power from neighboring emirates or the GCC Interconnection Authority?' }
+    "DGA analysis for TR-7A",
+    "Time-to-failure prediction",
+    "Spare transformer availability",
+    "Schedule emergency crew dispatch",
+    "↩️ Return to overview"
   ],
   financial: [
-    { label: '📊 Daily exposure', msg: 'Break down the $18.7M daily exposure by category' },
-    { label: '🔗 Cost of inaction', msg: 'What happens financially if we do nothing for the next 24 hours?' },
-    { label: '✈️ Mitigation ROI', msg: 'What is the ROI of proactive mitigation — demand response, mobile transformers, load redistribution?' },
-    { label: '🌐 Industry benchmark', msg: 'How does our grid resilience compare to other Gulf utilities?' },
-    { label: '⚡ Without Nexus?', msg: 'What would this heat event have cost without predictive intelligence — traditional reactive response only?' },
-    { label: '📰 Check current news', msg: 'What does today\'s energy market news mean for our grid operations?' }
+    "Break down the $18.7M exposure",
+    "What's the ROI on proactive mitigation?",
+    "Board-level risk summary",
+    "Compare capex scenarios",
+    "↩️ Return to overview"
   ],
-  geopolitical: [
-    { label: '🛢️ Fuel supply', msg: 'Are there any risks to our natural gas supply for the gas turbines?' },
-    { label: '🔗 GCC grid', msg: 'What is the status of the GCC Interconnection Authority — can we draw power from neighbors?' },
-    { label: '📊 Regional demand', msg: 'Are neighboring emirates also under heat stress — could this become a regional grid event?' },
-    { label: '🌍 Equipment sourcing', msg: 'Where can we source emergency transformers and generators fastest — global lead times?' },
-    { label: '📋 Regulatory exposure', msg: 'What are our regulatory obligations under DoE if we implement load shedding?' },
-    { label: '🔮 Scenario modeling', msg: 'Model the impact if this heat wave extends to 10 days instead of 5' }
+  water: [
+    "Pumping station diesel reserves?",
+    "Which residents lose water first?",
+    "Backup generator runtime remaining",
+    "Emergency water tanker deployment",
+    "↩️ Return to overview"
+  ],
+  assetMgmt: [
+    "Top 5 assets for capex priority",
+    "Single points of failure in network",
+    "Replace vs. refurbish analysis",
+    "Quiet risk — aging assets with no redundancy",
+    "↩️ Return to overview"
   ],
   gisQueries: [
-    { label: '📊 Transformer count by kVA', msg: 'What is the total count of transformers with rated kVA between 5 and 20?' },
-    { label: '📏 Total Primary OH length', msg: 'What is the total length of all Primary OH assets?' },
-    { label: '🏭 Transformers by manufacturer', msg: 'How many transmission transformers were manufactured by Fuji and Alstom?' },
-    { label: '📅 Transformers by year', msg: 'How many transformers were manufactured in 2022?' },
-    { label: '💡 Streetlight inventory', msg: 'How many streetlights are part of the network? Break down by type.' },
-    { label: '🔗 Sector pipes 2023', msg: 'List the number of Sector Main Pipes that were proposed and installed in 2023' }
+    "How many transformers rated 5-20 kVA?",
+    "Streetlight count by lamp type",
+    "Cable length by voltage and status",
+    "Substation count by DMS control",
+    "↩️ Return to overview"
   ],
   operations: [
-    { label: '🔌 Trace from transformer', msg: 'Show me the downstream network trace from Transformer TR-7A — how many customers and service points?' },
-    { label: '👥 Affected customers', msg: 'If we turn off TR-7A for maintenance, how many customers are affected? Show VIP accounts.' },
-    { label: '🔄 Switching analysis', msg: 'Can affected customers be switched to another transformer? What is the backup capacity?' },
-    { label: '📱 Generate notifications', msg: 'Generate SMS notifications for all customers affected by TR-7A maintenance' },
-    { label: '📋 Create work order', msg: 'Create a work order for TR-7A thermal inspection and oil sampling' },
-    { label: '✅ Restoration complete', msg: 'Generate restoration notification — TR-7A maintenance is complete, power restored' }
-  ],
-  doe: [
-    { label: '🏢 Building consumption', msg: 'Show me the consumption breakdown for Al Noor Tower — by floor and unit type' },
-    { label: '🔍 Anomaly detection', msg: 'Which units have anomalous consumption patterns? Flag potential crypto mining or tampering.' },
-    { label: '🏘️ Villa comparison', msg: 'Compare electricity consumption: UAE National villas vs Expat villas in Q4 2025' },
-    { label: '📊 Consumption by type', msg: 'Show total consumption grouped by building type — residential, commercial, industrial, government' },
-    { label: '💰 Tariff what-if', msg: 'If we change the tariff structure for night vs day, what is the projected impact?' },
-    { label: '🏗️ Retrofit priority', msg: 'Which buildings should we prioritize for retrofitting based on consumption per sqm?' }
+    "Trace downstream from TR-7A",
+    "Generate SMS notification",
+    "Create work order",
+    "Show restoration workflow",
+    "↩️ Return to overview"
   ]
 };
 
-function getContextualChips(lastMsg) {
-  if (!lastMsg) return chipSets.initial;
-  const lower = lastMsg.toLowerCase();
-  
-  // GIS Statistical Queries
-  if (lower.includes('count') || lower.includes('how many') || lower.includes('total length') || lower.includes('inventory') || lower.includes('manufactured') || lower.includes('streetlight') || lower.includes('kva') || lower.includes('sector pipe') || lower.includes('proposed') || lower.includes('installed')) return chipSets.gisQueries;
-  
-  // Operations Workflow
-  if (lower.includes('trace') || lower.includes('downstream') || lower.includes('upstream') || lower.includes('affected customer') || lower.includes('service point') || lower.includes('work order') || lower.includes('notification') || lower.includes('notify') || lower.includes('sms') || lower.includes('switching') || lower.includes('turn off') || lower.includes('restoration')) return chipSets.operations;
-  
-  // DOE Consumption Analytics
-  if (lower.includes('consumption') || lower.includes('building type') || lower.includes('floor') || lower.includes('unit') || lower.includes('villa') || lower.includes('expat') || lower.includes('uae national') || lower.includes('anomaly') || lower.includes('crypto') || lower.includes('mining') || lower.includes('tariff') || lower.includes('retrofit') || lower.includes('doe') || lower.includes('department of energy')) return chipSets.doe;
-  
-  // Existing routing
-  if (lower.includes('cascade') || lower.includes('substation 7') || lower.includes('sub-7') || lower.includes('trip') || lower.includes('blackout') || lower.includes('failure') || lower.includes('propagat')) return chipSets.cascade;
-  if (lower.includes('portfolio') || lower.includes('capex') || lower.includes('capital') || lower.includes('investment') || lower.includes('criticality') || lower.includes('ranking') || lower.includes('single point') || lower.includes('redundancy') || lower.includes('quiet risk') || lower.includes('replace vs')) return chipSets.assetManagement;
-  if (lower.includes('transformer') || lower.includes('aging') || lower.includes('maintenance') || lower.includes('dga') || lower.includes('failure prob') || lower.includes('intervention') || lower.includes('time-to-failure') || lower.includes('crew') || lower.includes('spare part')) return chipSets.maintenance;
-  if (lower.includes('thermal') && !lower.includes('water')) return chipSets.maintenance;
-  if (lower.includes('asset') && (lower.includes('manage') || lower.includes('strateg') || lower.includes('priorit') || lower.includes('budget'))) return chipSets.assetManagement;
-  if (lower.includes('water') || lower.includes('pumping') || lower.includes('desalination') || lower.includes('reservoir') || lower.includes('pipeline') || lower.includes('manhole') || lower.includes('sewage')) return chipSets.water;
-  if (lower.includes('solar') || lower.includes('nuclear') || lower.includes('wind') || lower.includes('renewable') || lower.includes('barakah') || lower.includes('generation')) return chipSets.renewables;
-  if (lower.includes('cost') || lower.includes('revenue') || lower.includes('exposure') || lower.includes('roi') || lower.includes('financial') || lower.includes('million') || lower.includes('$')) return chipSets.financial;
-  if (lower.includes('fuel') || lower.includes('gas supply') || lower.includes('gcc') || lower.includes('regional') || lower.includes('regulatory') || lower.includes('supply chain') || lower.includes('scenario')) return chipSets.geopolitical;
-  return chipSets.initial;
+const scriptedResponses = {
+  // ===== INITIAL / CASCADE =====
+  "investigate substation 7 cascade": {
+    content: `<p><strong>⚡ SUBSTATION 7 — AL QUOZ INDUSTRIAL: CRITICAL CASCADE RISK</strong></p>
+<div class="viz-block">
+<div class="viz-title">Thermal Status — TR-7A</div>
+<div class="viz-row"><span class="label">Current Oil Temperature</span><span class="value red">92°C</span></div>
+<div class="viz-row"><span class="label">Thermal Trip Point</span><span class="value">95°C</span></div>
+<div class="viz-row"><span class="label">Rate of Rise</span><span class="value amber">+1.2°C/hour</span></div>
+<div class="viz-row"><span class="label">Time to Trip</span><span class="value red">~2.5 hours</span></div>
+<div class="viz-row"><span class="label">Transformer Age</span><span class="value">12 years (Fuji, 2013)</span></div>
+<div class="viz-row"><span class="label">Rated KVA</span><span class="value">50,000 kVA</span></div>
+<div class="viz-row"><span class="label">Replacement Cost</span><span class="value">AED 4.2M</span></div>
+<div class="viz-row"><span class="label">Lead Time</span><span class="value red">18 weeks — no spare until Q3</span></div>
+</div>
+<p><strong>If TR-7A trips, the cascade unfolds:</strong></p>
+<div class="viz-block">
+<div class="viz-title">Cascade Timeline</div>
+<div class="viz-row"><span class="label">T+0 min</span><span class="value red">Sub-7 trips → 45,200 customers dark</span></div>
+<div class="viz-row"><span class="label">T+3 min</span><span class="value red">Sub-12 overloads → Downtown Core at risk</span></div>
+<div class="viz-row"><span class="label">T+15 min</span><span class="value amber">3 water pumping stations lose grid power</span></div>
+<div class="viz-row"><span class="label">T+14 hrs</span><span class="value amber">Backup diesel exhausted at pumping stations</span></div>
+<div class="viz-row"><span class="label">T+18 hrs</span><span class="value red">340,000 residents lose water in 52°C heat</span></div>
+</div>
+<p>Traditional SCADA alerts you <strong>after</strong> the trip — when 45,000 customers are already dark. Nexus detected this thermal acceleration pattern at 86°C, <strong>six hours earlier</strong>, when load redistribution was still viable.</p>
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA Telemetry</span><span class="prov-tag">Esri GIS</span><span class="prov-tag">DGA History</span><span class="prov-tag">Weather API</span></div></div>`,
+    chips: chipSets.cascade,
+    updateMetrics: false
+  },
+
+  "show affected customers downstream": {
+    content: `<p><strong>NETWORK TRACE: TR-7A → Downstream Customers</strong></p>
+<div class="viz-block">
+<div class="viz-title">Trace Path</div>
+<div class="viz-trace">
+<span class="trace-node source">TR-7A (92°C)</span><span class="trace-arrow">→</span>
+<span class="trace-node path">33kV Bus Bar</span><span class="trace-arrow">→</span>
+<span class="trace-node path">CB-7A-01</span><span class="trace-arrow">→</span>
+<span class="trace-node path">Feeder F7-01..F7-06</span><span class="trace-arrow">→</span>
+<span class="trace-node path">12 × GMTs</span><span class="trace-arrow">→</span>
+<span class="trace-node endpoint">847 Service Points</span>
+</div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Affected Customers — VIP Priority</div>
+<table class="viz-table">
+<tr><th>Service Point</th><th>Customer</th><th>Type</th><th>VIP</th><th>kWh/mo</th></tr>
+<tr><td>SP-7A-001</td><td class="highlight">Abu Dhabi Steel Works</td><td>Industrial</td><td style="color:var(--accent-red)">STRATEGIC</td><td>2,340,000</td></tr>
+<tr><td>SP-7A-002</td><td class="highlight">Al Quoz Data Center</td><td>Industrial</td><td style="color:var(--accent-red)">CRITICAL</td><td>1,890,000</td></tr>
+<tr><td>SP-7A-003</td><td class="highlight">Mussafah Industrial Hospital</td><td>Hospital</td><td style="color:var(--accent-red)">CRITICAL</td><td>567,000</td></tr>
+<tr><td>SP-7A-008</td><td class="highlight">Emirates Aluminum Works</td><td>Industrial</td><td style="color:var(--accent-red)">STRATEGIC</td><td>1,567,000</td></tr>
+<tr><td>SP-7A-004</td><td>Al Noor Industrial Park</td><td>Commercial</td><td>—</td><td>234,000</td></tr>
+</table>
+</div>
+<p><strong>Summary:</strong> 847 total service points at risk. 13 industrial, 45 commercial, 789 residential. 3 VIP accounts require priority notification. Monthly revenue at risk: <strong>AED 4.2M</strong>.</p>
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">Esri GIS Trace</span><span class="prov-tag">CIS/Billing</span><span class="prov-tag">VIP Registry</span></div></div>`,
+    chips: chipSets.trace
+  },
+
+  "whats the cascade timeline": {
+    content: `<p><strong>FULL CASCADE TIMELINE — Substation 7 Failure Scenario</strong></p>
+<div class="viz-block">
+<div class="viz-title">First-Order Effects (0–5 minutes)</div>
+<div class="viz-row"><span class="label">T+0</span><span class="value red">TR-7A thermal trip at 95°C → Sub-7 offline</span></div>
+<div class="viz-row"><span class="label">T+0</span><span class="value red">45,200 customers lose power immediately</span></div>
+<div class="viz-row"><span class="label">T+0</span><span class="value amber">8 industrial facilities halt production</span></div>
+<div class="viz-row"><span class="label">T+3 min</span><span class="value red">Sub-12 overloads (load redistribution fails)</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Second-Order Effects (5–60 minutes)</div>
+<div class="viz-row"><span class="label">T+5 min</span><span class="value amber">34,100 more customers affected via Sub-12</span></div>
+<div class="viz-row"><span class="label">T+8 min</span><span class="value amber">Corniche Hospital switches to backup generators</span></div>
+<div class="viz-row"><span class="label">T+15 min</span><span class="value amber">3 water pumping stations lose grid feed → diesel backup</span></div>
+<div class="viz-row"><span class="label">T+45 min</span><span class="value">Grid frequency drops to 49.7 Hz (stress zone)</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Third-Order Effects (1–18 hours)</div>
+<div class="viz-row"><span class="label">T+6 hrs</span><span class="value amber">Underground cables in Downtown Core approach thermal limits</span></div>
+<div class="viz-row"><span class="label">T+14 hrs</span><span class="value red">Diesel reserves exhausted at pumping stations</span></div>
+<div class="viz-row"><span class="label">T+18 hrs</span><span class="value red">340,000 residents lose water supply in 52°C heat</span></div>
+</div>
+<p><strong>Total exposure: AED 18.7M</strong> across direct outage costs, economic impact, emergency response, and reputational damage.</p>`,
+    chips: chipSets.cascade
+  },
+
+  "mitigation options for sub7": {
+    content: `<p><strong>MITIGATION ANALYSIS — 4 Options Ranked by ROI</strong></p>
+<div class="viz-block">
+<div class="viz-title">Option 1: Emergency Load Redistribution (Recommended)</div>
+<div class="viz-row"><span class="label">Action</span><span class="value">Shift 40 MW from Sub-7 feeders to Sub-3 and Sub-6</span></div>
+<div class="viz-row"><span class="label">Cost</span><span class="value green">AED 180,000 (switching ops + crew overtime)</span></div>
+<div class="viz-row"><span class="label">Risk Reduced</span><span class="value green">AED 12.4M</span></div>
+<div class="viz-row"><span class="label">ROI</span><span class="value green">69:1</span></div>
+<div class="viz-row"><span class="label">Timeline</span><span class="value">Executable within 90 minutes</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Option 2: Mobile Cooling Deployment</div>
+<div class="viz-row"><span class="label">Action</span><span class="value">Deploy portable oil coolers to TR-7A</span></div>
+<div class="viz-row"><span class="label">Cost</span><span class="value">AED 320,000</span></div>
+<div class="viz-row"><span class="label">Effect</span><span class="value green">Reduces oil temp by ~4°C, buys 3+ additional hours</span></div>
+<div class="viz-row"><span class="label">ROI</span><span class="value green">38:1</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Option 3: Targeted Demand Response</div>
+<div class="viz-row"><span class="label">Action</span><span class="value">Curtail 5 largest commercial accounts on F7-03</span></div>
+<div class="viz-row"><span class="label">Cost</span><span class="value">AED 450,000 (curtailment compensation)</span></div>
+<div class="viz-row"><span class="label">Effect</span><span class="value green">Drops TR-7A load by 18%, stabilizes at 88°C</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Option 4: Pre-positioned Mobile Substation</div>
+<div class="viz-row"><span class="label">Action</span><span class="value">Stage mobile sub at Al Quoz as backup</span></div>
+<div class="viz-row"><span class="label">Cost</span><span class="value">AED 780,000 (transport + connection)</span></div>
+<div class="viz-row"><span class="label">Effect</span><span class="value green">Full redundancy — eliminates cascade risk entirely</span></div>
+</div>
+<p><strong>Recommendation:</strong> Execute Options 1 + 2 simultaneously. Combined cost AED 500K protects AED 15.5M. Combined ROI: <strong>31:1</strong>.</p>`,
+    chips: chipSets.cascade,
+    updateMetrics: true
+  },
+
+  // ===== FINANCIAL =====
+  "whats our total financial exposure": {
+    content: `<p><strong>💰 TOTAL FINANCIAL EXPOSURE — Heat Wave Scenario</strong></p>
+<div class="viz-block">
+<div class="viz-title">Exposure Breakdown</div>
+<div class="viz-row"><span class="label">Direct Outage Cost (SAIDI impact)</span><span class="value red">AED 4.2M</span></div>
+<div class="viz-row"><span class="label">Industrial Customer Economic Loss</span><span class="value red">AED 6.8M</span></div>
+<div class="viz-row"><span class="label">Emergency Response & Restoration</span><span class="value amber">AED 2.1M</span></div>
+<div class="viz-row"><span class="label">Water Network Emergency (diesel, tankers)</span><span class="value amber">AED 1.8M</span></div>
+<div class="viz-row"><span class="label">Regulatory Penalty (SAIDI/SAIFI breach)</span><span class="value amber">AED 2.4M</span></div>
+<div class="viz-row"><span class="label">Equipment Damage (accelerated aging)</span><span class="value">AED 1.4M</span></div>
+<div class="viz-row" style="border-top:1px solid var(--border-subtle);padding-top:6px;margin-top:4px"><span class="label" style="font-weight:700;color:var(--text-primary)">TOTAL EXPOSURE</span><span class="value red" style="font-size:14px">AED 18.7M</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Proactive Mitigation Cost</div>
+<div class="viz-row"><span class="label">Load redistribution + mobile cooling</span><span class="value green">AED 500K</span></div>
+<div class="viz-row"><span class="label">Demand response (curtailment)</span><span class="value green">AED 450K</span></div>
+<div class="viz-row"><span class="label">Emergency crew standby</span><span class="value green">AED 350K</span></div>
+<div class="viz-row" style="border-top:1px solid var(--border-subtle);padding-top:6px;margin-top:4px"><span class="label" style="font-weight:700;color:var(--text-primary)">TOTAL MITIGATION</span><span class="value green">AED 1.3M</span></div>
+</div>
+<p><strong>Net protection:</strong> AED 1.3M spent to protect AED 15.5M. <strong>ROI: 12:1</strong>. Remaining residual exposure: AED 3.2M (unavoidable aging costs).</p>`,
+    chips: chipSets.financial
+  },
+
+  // ===== WATER-ENERGY NEXUS =====
+  "waterenergy nexus status": {
+    content: `<p><strong>💧 WATER-ENERGY NEXUS — Critical Interdependency Alert</strong></p>
+<div class="viz-block">
+<div class="viz-title">Southern Water Corridor Status</div>
+<div class="viz-row"><span class="label">Pumping Station PS-South-1</span><span class="value red">ON BACKUP DIESEL</span></div>
+<div class="viz-row"><span class="label">Pumping Station PS-South-2</span><span class="value red">ON BACKUP DIESEL</span></div>
+<div class="viz-row"><span class="label">Pumping Station PS-South-3</span><span class="value red">ON BACKUP DIESEL</span></div>
+<div class="viz-row"><span class="label">Diesel Reserve (PS-South-1)</span><span class="value amber">14 hours remaining</span></div>
+<div class="viz-row"><span class="label">Diesel Reserve (PS-South-2)</span><span class="value amber">11 hours remaining</span></div>
+<div class="viz-row"><span class="label">Diesel Reserve (PS-South-3)</span><span class="value red">8 hours remaining</span></div>
+<div class="viz-row"><span class="label">Residents Dependent</span><span class="value red">340,000</span></div>
+</div>
+<p>These three pumping stations lost grid feed when feeder F7-09 tripped during the initial Sub-7 stress event. Desalination output is stable, but <strong>distribution</strong> is the bottleneck — the pumps can't push water without power.</p>
+<p><strong>Cascade logic:</strong> If Sub-7 fully trips → feeder F7-09 is permanently lost → diesel runs out in 8-14 hours → 340,000 residents lose water in 52°C heat. This transforms an electrical outage into a <strong>public health emergency</strong>.</p>
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA (Pumping)</span><span class="prov-tag">Fuel Monitoring</span><span class="prov-tag">Population GIS</span></div></div>`,
+    chips: chipSets.water
+  },
+
+  // ===== GIS / STATISTICAL QUERIES =====
+  "transformer inventory summary": {
+    content: `<p><strong>🔧 TRANSFORMER INVENTORY — Abu Dhabi Distribution Network</strong></p>
+<div class="viz-block">
+<div class="viz-title">By Subtype (from ABUDHABI.Transformer)</div>
+<table class="viz-table">
+<tr><th>Subtype</th><th>Count</th><th>Total kVA</th></tr>
+<tr><td class="highlight">GMT (Ground Mounted)</td><td>4,847</td><td>2,456,000</td></tr>
+<tr><td class="highlight">PMT (Pole Mounted)</td><td>3,212</td><td>845,000</td></tr>
+<tr><td>Power Transformer</td><td>89</td><td>12,340,000</td></tr>
+<tr><td>Step Transformer</td><td>34</td><td>1,200,000</td></tr>
+<tr><td>Isolation Transformer</td><td>67</td><td>234,000</td></tr>
+<tr><td>T_Transformer</td><td>12</td><td>89,000</td></tr>
+<tr style="border-top:1px solid var(--border-subtle)"><td class="highlight">TOTAL</td><td class="highlight">8,261</td><td class="highlight">17,164,000</td></tr>
+</table>
+</div>
+<div class="viz-block">
+<div class="viz-title">By Manufacturer (Top 5)</div>
+<div class="viz-row"><span class="label">ABB</span><span class="value">2,134 units (25.8%)</span></div>
+<div class="viz-row"><span class="label">Schneider Electric</span><span class="value">1,876 units (22.7%)</span></div>
+<div class="viz-row"><span class="label">Siemens</span><span class="value">1,543 units (18.7%)</span></div>
+<div class="viz-row"><span class="label">Fuji Electric</span><span class="value">1,234 units (14.9%)</span></div>
+<div class="viz-row"><span class="label">Alstom</span><span class="value">987 units (11.9%)</span></div>
+</div>
+<div class="viz-block">
+<div class="viz-title">Age Profile (ManufactureYear)</div>
+<div class="viz-row"><span class="label">0-5 years (2020-2025)</span><span class="value green">2,456 units</span></div>
+<div class="viz-row"><span class="label">5-10 years (2015-2020)</span><span class="value green">2,134 units</span></div>
+<div class="viz-row"><span class="label">10-15 years (2010-2015)</span><span class="value amber">1,987 units</span></div>
+<div class="viz-row"><span class="label">15-20 years (2005-2010)</span><span class="value amber">1,234 units</span></div>
+<div class="viz-row"><span class="label">>20 years (pre-2005)</span><span class="value red">450 units ⚠️</span></div>
+</div>
+<p>450 transformers are beyond their 20-year design life. Of these, <strong>67 have no redundancy</strong> (single points of failure). Priority replacement program recommended.</p>`,
+    chips: chipSets.gisQueries
+  },
+
+  // ===== OPERATIONAL WORKFLOWS =====
+  "generate incident work order": {
+    content: `<p><strong>📋 WORK ORDER GENERATED</strong></p>
+<div class="viz-workorder">
+<div class="wo-header">WO-2025-07-4821 — EMERGENCY</div>
+<div class="wo-field"><span class="wo-label">Asset ID</span><span class="wo-value">TR-7A (FacilityID: TRF-S7-001)</span></div>
+<div class="wo-field"><span class="wo-label">Location</span><span class="wo-value">Substation 7 — Al Quoz Industrial</span></div>
+<div class="wo-field"><span class="wo-label">Issue Type</span><span class="wo-value">Thermal Stress — Oil Temperature Exceedance</span></div>
+<div class="wo-field"><span class="wo-label">Priority</span><span class="wo-value" style="color:var(--accent-red)">P1 — CRITICAL</span></div>
+<div class="wo-field"><span class="wo-label">Description</span><span class="wo-value">TR-7A oil temp at 92°C (limit 95°C), rising +1.2°C/hr. Cascade risk to S12, S15, S18. Water corridor PS at risk.</span></div>
+<div class="wo-field"><span class="wo-label">Assigned Crew</span><span class="wo-value">Substation Maintenance Team A (6 persons)</span></div>
+<div class="wo-field"><span class="wo-label">Est. Duration</span><span class="wo-value">4-6 hours</span></div>
+<div class="wo-field"><span class="wo-label">Affected Customers</span><span class="wo-value">847 service points (3 VIP accounts)</span></div>
+<div class="wo-field"><span class="wo-label">VIP Impact</span><span class="wo-value" style="color:var(--accent-red)">Abu Dhabi Steel Works, Al Quoz Data Center, Mussafah Industrial Hospital</span></div>
+<div class="wo-field"><span class="wo-label">Equipment Needed</span><span class="wo-value">Mobile oil cooler, portable transformer testing kit, thermal camera</span></div>
+</div>
+<p>Work order synced to Maximo (MXASSETNUM: TR-S7-001). VIP customers flagged for priority notification via email + SMS + personal call from Customer Relations.</p>`,
+    chips: chipSets.operations
+  },
+
+  "send maintenance sms to all affected": {
+    content: `<p><strong>📱 NOTIFICATION TEMPLATES GENERATED</strong></p>
+<div class="viz-notification">
+<div class="notif-header">📱 SMS — Standard Customers (844 recipients)</div>
+<div class="notif-body">TAQA Distribution Alert: Planned maintenance in Al Quoz Industrial area. Power may be interrupted [DATE] [TIME]-[TIME]. We apologize for the inconvenience. For updates: 800-TAQA (8272)</div>
+</div>
+<div class="viz-notification" style="margin-top:8px;border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.05)">
+<div class="notif-header" style="color:var(--accent-red)">🚨 VIP Protocol — 3 Recipients (Email + SMS + Call)</div>
+<div class="notif-body">URGENT — TAQA Distribution
+Priority Notification for: Abu Dhabi Steel Works
+Asset: Substation 7 / TR-7A
+Issue: Thermal stress requiring emergency intervention
+Expected Impact: Potential power interruption 2-4 hours
+Action: Emergency mobile cooling deployment in progress
+VIP Liaison: Ahmed Al-Rashid, +971-XX-XXX-XXXX
+Next Update: Within 60 minutes</div>
+</div>
+<p>Standard SMS queued for dispatch. VIP notifications require manual confirmation before sending — <strong>3 VIP accounts flagged for Customer Relations personal call.</strong></p>`,
+    chips: chipSets.operations
+  },
+
+  // ===== ASSET MANAGEMENT =====
+  "asset portfolio criticality ranking": {
+    content: `<p><strong>📊 ASSET PORTFOLIO — Criticality Ranking (Top 10)</strong></p>
+<div class="viz-block">
+<div class="viz-title">Criticality Score = f(Age, Load, Redundancy, VIP Impact, Replacement Cost)</div>
+<table class="viz-table">
+<tr><th>#</th><th>Asset</th><th>Type</th><th>Age</th><th>Score</th><th>Action</th></tr>
+<tr><td>1</td><td class="highlight" style="color:var(--accent-red)">TR-7A (Sub-7)</td><td>Power TX</td><td>12yr</td><td style="color:var(--accent-red)">97</td><td>Replace Q3</td></tr>
+<tr><td>2</td><td class="highlight">TR-12A (Sub-12)</td><td>Power TX</td><td>15yr</td><td style="color:var(--accent-red)">91</td><td>Replace Q4</td></tr>
+<tr><td>3</td><td class="highlight">CB-S15-01</td><td>Circuit Bkr</td><td>18yr</td><td style="color:var(--accent-amber)">84</td><td>Refurbish</td></tr>
+<tr><td>4</td><td>TR-18B (Sub-18)</td><td>GMTs</td><td>14yr</td><td style="color:var(--accent-amber)">79</td><td>Monitor</td></tr>
+<tr><td>5</td><td>F7-03 Cable</td><td>33kV UG</td><td>20yr</td><td style="color:var(--accent-amber)">76</td><td>Replace</td></tr>
+<tr><td>6</td><td>TR-6C (Sub-6)</td><td>Power TX</td><td>11yr</td><td>72</td><td>Monitor</td></tr>
+<tr><td>7</td><td>VR-S12-01</td><td>Voltage Reg</td><td>16yr</td><td>68</td><td>Test</td></tr>
+<tr><td>8</td><td>SW-S3-04</td><td>UG Disconnect</td><td>19yr</td><td>65</td><td>Replace</td></tr>
+<tr><td>9</td><td>CAP-S18-02</td><td>Capacitor Bank</td><td>13yr</td><td>61</td><td>Test</td></tr>
+<tr><td>10</td><td>TR-9A (Sub-9)</td><td>QRM TX</td><td>10yr</td><td>58</td><td>Monitor</td></tr>
+</table>
+</div>
+<p><strong>Budget recommendation:</strong> AED 52M capex over 24 months. Top 3 assets account for 65% of cascade risk in the network. Addressing them reduces system-wide SAIDI by an estimated 40%.</p>`,
+    chips: chipSets.assetMgmt
+  },
+
+  "how many transformers rated 520 kva": {
+    content: `<p><strong>QUERY: Transformers Rated 5-20 kVA</strong></p>
+<div class="viz-block">
+<div class="viz-title">Results from ABUDHABI.Transformer (RatedKVA between 5 and 20)</div>
+<table class="viz-table">
+<tr><th>Subtype</th><th>Manufacturer</th><th>Count</th><th>Avg Age</th></tr>
+<tr><td>PMT</td><td>ABB</td><td>234</td><td>8.2 yr</td></tr>
+<tr><td>PMT</td><td>Schneider</td><td>198</td><td>9.1 yr</td></tr>
+<tr><td>PMT</td><td>Fuji</td><td>167</td><td>11.4 yr</td></tr>
+<tr><td>GMT</td><td>ABB</td><td>89</td><td>6.7 yr</td></tr>
+<tr><td>GMT</td><td>Siemens</td><td>76</td><td>7.3 yr</td></tr>
+<tr style="border-top:1px solid var(--border-subtle)"><td class="highlight" colspan="2">TOTAL</td><td class="highlight">764</td><td>8.5 yr</td></tr>
+</table>
+</div>
+<p>764 transformers in the 5-20 kVA range, predominantly PMTs (599) vs GMTs (165). The Fuji PMT cohort has the highest average age at 11.4 years — candidates for condition assessment.</p>`,
+    chips: chipSets.gisQueries
+  },
+
+  "show grid thermal stress map": {
+    content: `<p><strong>🔥 GRID THERMAL STRESS — All Substations</strong></p>
+<div class="viz-block">
+<div class="viz-title">Substation Thermal Status (sorted by temperature)</div>
+<table class="viz-table">
+<tr><th>Substation</th><th>Type</th><th>Temp</th><th>Limit</th><th>Status</th><th>Customers</th></tr>
+<tr><td class="highlight" style="color:var(--accent-red)">S7 — Al Quoz Industrial</td><td>PRY 33/11</td><td style="color:var(--accent-red)">92°C</td><td>95°C</td><td style="color:var(--accent-red)">CRITICAL</td><td>45,200</td></tr>
+<tr><td class="highlight" style="color:#f97316">S12 — Downtown Core</td><td>S/S</td><td style="color:#f97316">89°C</td><td>95°C</td><td style="color:#f97316">HIGH</td><td>34,100</td></tr>
+<tr><td class="highlight" style="color:#f97316">S15 — Mussafah Port</td><td>PRY 33/11</td><td style="color:#f97316">87°C</td><td>95°C</td><td style="color:#f97316">HIGH</td><td>28,500</td></tr>
+<tr><td>S18 — Corniche Residential</td><td>GMT</td><td style="color:var(--accent-amber)">85°C</td><td>95°C</td><td style="color:var(--accent-amber)">MOD</td><td>52,800</td></tr>
+<tr><td>S6 — Al Reem Island</td><td>S/S</td><td style="color:var(--accent-amber)">82°C</td><td>95°C</td><td style="color:var(--accent-amber)">MOD</td><td>42,100</td></tr>
+<tr><td>S3 — Khalifa City</td><td>SW/S</td><td style="color:var(--accent-emerald)">78°C</td><td>95°C</td><td style="color:var(--accent-emerald)">OK</td><td>38,200</td></tr>
+<tr><td>S9 — Yas Island</td><td>QRM</td><td style="color:var(--accent-emerald)">76°C</td><td>95°C</td><td style="color:var(--accent-emerald)">OK</td><td>24,600</td></tr>
+<tr><td>S21 — Saadiyat Cultural</td><td>TRM</td><td style="color:var(--accent-emerald)">74°C</td><td>95°C</td><td style="color:var(--accent-emerald)">OK</td><td>18,900</td></tr>
+</table>
+</div>
+<p><strong>3 substations in danger zone</strong> (>85°C). Combined customer exposure: 107,800 service points. Sub-7 is the priority — it's the only one approaching trip threshold within the next 3 hours.</p>`,
+    chips: chipSets.cascade
+  },
+
+  // ===== RETURN TO OVERVIEW =====
+  "return to overview": {
+    content: `<p>Back to the main dashboard. The grid situation remains active:</p>
+<div class="viz-block">
+<div class="viz-title">Current Status Summary</div>
+<div class="viz-row"><span class="label">Critical Substations</span><span class="value red">1 (Sub-7 — 92°C)</span></div>
+<div class="viz-row"><span class="label">High-Risk Substations</span><span class="value amber">2 (Sub-12, Sub-15)</span></div>
+<div class="viz-row"><span class="label">Total Exposure</span><span class="value red">AED 18.7M</span></div>
+<div class="viz-row"><span class="label">Customers at Risk</span><span class="value">107,800 direct + 340,000 water</span></div>
+<div class="viz-row"><span class="label">Time to Critical</span><span class="value red">~2.5 hours (Sub-7 TR-7A)</span></div>
+</div>
+<p>What would you like to investigate?</p>`,
+    chips: chipSets.initial
+  }
+};
+
+// ============================================
+// FUNCTIONS
+// ============================================
+
+let isProcessing = false;
+let conversationHistory = [];
+const ALLOWED_HTML = ['div','span','strong','em','br','p','b','i','ul','ol','li','table','tr','td','th','thead','tbody'];
+const ALLOWED_ATTR = ['class','style','colspan'];
+
+function sanitize(html) {
+  return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(html, { ALLOWED_TAGS: ALLOWED_HTML, ALLOWED_ATTR: ALLOWED_ATTR }) : html;
 }
 
-function updateChips(lastMsg) {
-  const grid = document.getElementById('chipsGrid');
-  const chips = getContextualChips(lastMsg);
-  grid.innerHTML = '';
-  chips.forEach(c => {
-    const el = document.createElement('div');
-    el.className = 'chip';
-    el.textContent = c.label;
-    el.onclick = () => sendMessage(c.msg);
-    grid.appendChild(el);
+function normalizeText(t) {
+  return t.toLowerCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function findResponse(text) {
+  const n = normalizeText(text);
+  // Direct match
+  for (const [key, val] of Object.entries(scriptedResponses)) {
+    if (n === key || n.includes(key) || key.includes(n)) return val;
+  }
+  // Keyword routing
+  if (n.includes('cascade') || n.includes('substation 7') || n.includes('sub7') || n.includes('sub 7')) return scriptedResponses['investigate substation 7 cascade'];
+  if (n.includes('customer') && (n.includes('affected') || n.includes('downstream') || n.includes('trace'))) return scriptedResponses['show affected customers downstream'];
+  if (n.includes('timeline')) return scriptedResponses['whats the cascade timeline'];
+  if (n.includes('mitigat')) return scriptedResponses['mitigation options for sub7'];
+  if (n.includes('financial') || n.includes('exposure') || n.includes('187') || n.includes('dollar') || n.includes('cost')) return scriptedResponses['whats our total financial exposure'];
+  if (n.includes('water') || n.includes('pumping') || n.includes('nexus') || n.includes('desalination')) return scriptedResponses['waterenergy nexus status'];
+  if (n.includes('transformer') && (n.includes('inventory') || n.includes('summary') || n.includes('how many'))) return scriptedResponses['transformer inventory summary'];
+  if (n.includes('520') || (n.includes('rated') && n.includes('kva'))) return scriptedResponses['how many transformers rated 520 kva'];
+  if (n.includes('work order') || n.includes('workorder')) return scriptedResponses['generate incident work order'];
+  if (n.includes('sms') || n.includes('notify') || n.includes('notification') || n.includes('send')) return scriptedResponses['send maintenance sms to all affected'];
+  if (n.includes('thermal') || n.includes('stress') || n.includes('heat map')) return scriptedResponses['show grid thermal stress map'];
+  if (n.includes('portfolio') || n.includes('criticality') || n.includes('ranking') || n.includes('capex')) return scriptedResponses['asset portfolio criticality ranking'];
+  if (n.includes('overview') || n.includes('return') || n.includes('back')) return scriptedResponses['return to overview'];
+  return null;
+}
+
+function scrollToBottom() {
+  const c = document.getElementById('chatMessages');
+  c.scrollTop = c.scrollHeight;
+}
+
+function addMessage(content, isUser = false) {
+  const c = document.getElementById('chatMessages');
+  const m = document.createElement('div');
+  m.className = `message ${isUser ? 'user' : 'assistant'}`;
+  m.innerHTML = `<div class="msg-bubble">${isUser ? DOMPurify.sanitize(content) : sanitize(content)}</div>`;
+  c.appendChild(m);
+  scrollToBottom();
+}
+
+function showTyping() {
+  const c = document.getElementById('chatMessages');
+  const m = document.createElement('div');
+  m.className = 'message assistant';
+  m.id = 'typingMsg';
+  m.innerHTML = '<div class="msg-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  c.appendChild(m);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  const e = document.getElementById('typingMsg');
+  if (e) e.remove();
+}
+
+function updateChips(chips) {
+  const g = document.getElementById('chipsGrid');
+  g.innerHTML = '';
+  chips.forEach(chip => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    if (chip.includes('Return') || chip.includes('↩️')) b.className += ' overview';
+    b.textContent = chip;
+    b.onclick = () => handleChipClick(chip);
+    g.appendChild(b);
   });
 }
 
-// ============ TOUR ============
-const tourSteps = [
-  { element: '.brand', title: 'Rebirth NexusGrid — Conversational Predictive Intelligence', description: "You're viewing Al Noor Grid Operations during an extreme heat event — 52°C for 5 days. Multiple cascading risks are unfolding across the power and water network simultaneously. Nexus is already tracking every ripple effect.", position: 'bottom' },
-  { element: '.kpi-ticker', title: 'Live Network KPIs', description: '12.4 GW active load against 12.7 GW capacity — reserve margin at 2.4%. 4 substations at thermal risk. Grid stress at 87/100. $18.7M in total financial exposure. These update as the situation evolves.', position: 'bottom' },
-  { element: '.feed', title: 'Proactive Intelligence Feed', description: "These aren't reactive SCADA alarms — each represents an event that Nexus detected and analyzed for cascading effects before operators reported it. Thermal stress, capacity limits, water network risks, equipment availability — all in one prioritized feed. Click any alert to investigate.", position: 'right' },
-  { element: '#mapView', title: 'Esri-Powered Network Map', description: 'All 18 substations color-coded by status: green (operational), amber (stressed), red (critical). Transmission lines show load levels. The red zone is the heat stress overlay covering the Mussafah–Mussafah industrial corridor. Cyan squares are field crew positions.', position: 'left' },
-  { element: '.chat-panel', title: 'Conversational Intelligence Engine', description: "Natural language access to all five data pillars — operational SCADA data, Esri geospatial intelligence, third-party weather and market data, partner ecosystem status, and predictive analytics. Ask anything: cascading failures, demand response, financial exposure, equipment procurement. The system connects it all.", position: 'left' },
-  { element: '.chips-section', title: 'Start Investigating', description: "Context-aware prompts that adapt to your conversation. Start with the Substation 7 cascade — that's where the highest risk is unfolding right now. See how one thermal event ripples across the entire network.", position: 'top' }
-];
+function updateProtected() {
+  document.getElementById('protectedValue').textContent = 'AED 15.5M';
+  document.getElementById('protectedDetail').textContent = 'Mitigation active';
+  document.getElementById('kpiProtected').textContent = 'AED 15.5M';
+}
 
+async function handleChipClick(chipText) {
+  if (isProcessing) return;
+  isProcessing = true;
+  addMessage(chipText, true);
+  showTyping();
+  await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
+  const response = findResponse(chipText);
+  hideTyping();
+  if (response) {
+    addMessage(response.content);
+    if (response.updateMetrics) updateProtected();
+    updateChips(response.chips || chipSets.initial);
+  } else {
+    addMessage('<p>I can analyze that further. The current grid situation involves AED 14.8M in exposure across 6 substations with cascade risk to 47,200 customers. Try one of the suggested queries for detailed analysis.</p>');
+    updateChips(chipSets.initial);
+  }
+  isProcessing = false;
+}
+
+function handleSend() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  handleChipClick(text);
+}
+
+document.getElementById('chatInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+// ===== TOUR =====
+const tourSteps = [
+  { el: '.brand', title: 'Welcome to NexusGrid', desc: 'This is TAQA Distribution\'s AI command center. A 52°C heat wave is stressing the Abu Dhabi grid — Nexus is monitoring 45 substations in real-time.', pos: 'bottom' },
+  { el: '.analytics-sidebar', title: 'Live Grid Metrics', desc: 'Real-time exposure tracking. AED 14.8M at risk across 6 substations. Reserve margin collapsed to 2.4%.', pos: 'left' },
+  { el: '.map-legend', title: 'Network Visualization', desc: 'Esri GIS map showing all substations color-coded by thermal status. Red = critical. Transmission and distribution lines visible.', pos: 'top' },
+  { el: '.chat-header', title: 'Conversational Intelligence', desc: 'Ask natural language questions about the grid. "What happens if Sub-7 trips?" or "How many transformers rated 5-20 kVA?"', pos: 'left' },
+  { el: '.chips-area', title: 'Smart Suggestions', desc: 'Context-aware prompts that adapt as you explore. Start with "Investigate Substation 7 Cascade" to see the full scenario.', pos: 'top' }
+];
 let tourStep = 0;
 
 function startTour() {
@@ -1558,158 +1052,48 @@ function startTour() {
 }
 
 function showTourStep() {
-  if (tourStep >= tourSteps.length) { endTour(); return; }
   const step = tourSteps[tourStep];
-  const el = document.querySelector(step.element);
-  if (!el) { tourStep++; showTourStep(); return; }
+  const el = document.querySelector(step.el);
+  if (!el) { nextTourStep(); return; }
   const rect = el.getBoundingClientRect();
   const tooltip = document.getElementById('tourTooltip');
-  document.getElementById('tourTitle').textContent = step.title;
-  document.getElementById('tourText').textContent = step.description;
-  document.getElementById('tourStepCount').textContent = (tourStep + 1) + ' / ' + tourSteps.length;
-  document.getElementById('tourNext').textContent = tourStep === tourSteps.length - 1 ? 'Investigate Substation 7 Cascade →' : 'Next';
-
+  const isLast = tourStep === tourSteps.length - 1;
+  tooltip.innerHTML = `
+    <div class="tour-title">${step.title}</div>
+    <div class="tour-desc">${step.desc}</div>
+    <button class="tour-btn" onclick="${isLast ? 'endTour()' : 'nextTourStep()'}">${isLast ? 'Start Exploring →' : 'Next'}</button>
+    <span class="tour-step">${tourStep + 1}/${tourSteps.length}</span>`;
+  
   let top, left;
-  if (step.position === 'bottom') { top = rect.bottom + 10; left = rect.left; }
-  else if (step.position === 'right') { top = rect.top; left = rect.right + 10; }
-  else if (step.position === 'left') { top = rect.top + 40; left = rect.left - 335; }
+  if (step.pos === 'bottom') { top = rect.bottom + 12; left = rect.left; }
+  else if (step.pos === 'left') { top = rect.top; left = rect.left - 340; }
   else { top = rect.top - 180; left = rect.left; }
-
-  tooltip.style.top = Math.max(8, Math.min(top, window.innerHeight - 230)) + 'px';
-  tooltip.style.left = Math.max(8, Math.min(left, window.innerWidth - 340)) + 'px';
+  tooltip.style.top = Math.max(10, Math.min(top, window.innerHeight - 250)) + 'px';
+  tooltip.style.left = Math.max(10, Math.min(left, window.innerWidth - 350)) + 'px';
 }
 
 function nextTourStep() { tourStep++; if (tourStep >= tourSteps.length) { endTour(); return; } showTourStep(); }
 function endTour() { document.getElementById('tourOverlay').classList.remove('active'); }
 
-// ============ CHAT ============
-function ts() { return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+// ===== INIT =====
+updateChips(chipSets.initial);
+addMessage(`<p><strong>🔥 HEAT WAVE ALERT — Abu Dhabi Grid Under Stress</strong></p>
+<p>Nexus has detected critical thermal stress across the distribution network. Key findings:</p>
+<div class="viz-block">
+<div class="viz-row"><span class="label">Ambient Temperature</span><span class="value red">52°C (5-day forecast)</span></div>
+<div class="viz-row"><span class="label">Peak Demand</span><span class="value red">12.4 GW vs 12.7 GW capacity</span></div>
+<div class="viz-row"><span class="label">Highest Risk</span><span class="value red">Sub-7 Al Quoz — TR-7A at 92°C</span></div>
+<div class="viz-row"><span class="label">Cascade Exposure</span><span class="value red">AED 18.7M across 4 substations</span></div>
+<div class="viz-row"><span class="label">Water Impact</span><span class="value amber">340,000 residents if pumping stations fail</span></div>
+</div>
+<p>This was detected <strong>6 hours before</strong> traditional SCADA would have alerted. What would you like to investigate?</p>`);
 
-const ALLOWED_TAGS = ['div','span','strong','em','br','p','b','i','ul','ol','li','table','tr','td','th','thead','tbody','a'];
-const ALLOWED_ATTR = ['class','style','href','target'];
+// Update alert time
+setInterval(() => {
+  document.getElementById('alertTime').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+}, 60000);
+document.getElementById('alertTime').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
 
-function sanitizeAssistant(html) {
-  if (typeof DOMPurify !== 'undefined') {
-    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ALLOWED_TAGS, ALLOWED_ATTR: ALLOWED_ATTR });
-  }
-  return html;
-}
-
-function addMessage(content, isUser) {
-  const c = document.getElementById('chatMessages');
-  const m = document.createElement('div');
-  m.className = 'message';
-  if (isUser) {
-    m.innerHTML = '<div class="msg-head"><div class="msg-av user">👤</div><span class="msg-name">You</span><span class="msg-time">' + ts() + '</span></div><div class="msg-body">' + DOMPurify.sanitize(content) + '</div>';
-  } else {
-    m.innerHTML = '<div class="msg-head"><div class="msg-av ai"><img src="RebirthNexusLogo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML=\'⚡\'"></div><span class="msg-name">Rebirth NexusGrid Intelligence</span><span class="msg-time">' + ts() + '</span></div><div class="msg-body">' + sanitizeAssistant(content) + '</div>';
-  }
-  c.appendChild(m);
-  c.scrollTop = c.scrollHeight;
-  return m;
-}
-
-function showTyping() {
-  const c = document.getElementById('chatMessages');
-  const t = document.createElement('div');
-  t.className = 'message'; t.id = 'typingIndicator';
-  t.innerHTML = '<div class="msg-head"><div class="msg-av ai"><img src="RebirthNexusLogo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML=\'⚡\'"></div><span class="msg-name">Rebirth NexusGrid Intelligence</span><span class="msg-time">analyzing...</span></div><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
-  c.appendChild(t); c.scrollTop = c.scrollHeight;
-}
-function hideTyping() { const e = document.getElementById('typingIndicator'); if (e) e.remove(); }
-
-async function sendMessage(text) {
-  if (isProcessing || !text.trim()) return;
-  isProcessing = true;
-  document.getElementById('sendBtn').disabled = true;
-  document.getElementById('chatInput').value = '';
-  addMessage(text, true);
-  showTyping();
-  conversationHistory.push({ role: 'user', content: text });
-  interactionCount++;
-
-  // Check demo mode first (offline cached responses)
-  if (demoMode) {
-    const cachedResponse = findDemoResponse(text);
-    if (cachedResponse) {
-      setTimeout(() => {
-        hideTyping();
-        conversationHistory.push({ role: 'assistant', content: cachedResponse });
-        addMessage(cachedResponse);
-        updateChips(text + ' ' + cachedResponse);
-        isProcessing = false;
-        document.getElementById('sendBtn').disabled = false;
-      }, 800 + Math.random() * 400); // Simulate realistic delay
-      return;
-    }
-    // If no cached response found, fall through to API (if available)
-  }
-
-  try {
-    const response = await fetch(API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: conversationHistory, system: SYSTEM_PROMPT })
-    });
-    const data = await response.json();
-    hideTyping();
-
-    if (data.content) {
-      const aiText = data.content
-        .filter(c => c.type === 'text' && c.text)
-        .map(c => c.text)
-        .join('');
-      conversationHistory.push({ role: 'assistant', content: aiText });
-      addMessage(aiText);
-      updateChips(text + ' ' + aiText);
-    } else if (data.error) {
-      addMessage('⚠️ <strong>Connection issue.</strong> In a live deployment, Rebirth NexusGrid maintains redundant connections to ensure continuous grid intelligence. Error: ' + DOMPurify.sanitize(data.error));
-    }
-  } catch (err) {
-    hideTyping();
-    // In demo mode, show cached response on network failure
-    if (demoMode) {
-      const cachedResponse = findDemoResponse(text);
-      if (cachedResponse) {
-        conversationHistory.push({ role: 'assistant', content: cachedResponse });
-        addMessage(cachedResponse);
-        updateChips(text + ' ' + cachedResponse);
-      } else {
-        addMessage('⚠️ <strong>Offline mode active.</strong> Cached response not available for this query. Please try one of the suggested prompts.');
-      }
-    } else {
-      addMessage('⚠️ <strong>Connection issue.</strong> In a live deployment, Rebirth NexusGrid maintains redundant connections to all data pillars — SCADA, Esri, weather, and partner feeds. Please try again.');
-    }
-    console.error('API Error:', err);
-  }
-
-  isProcessing = false;
-  document.getElementById('sendBtn').disabled = false;
-}
-
-function handleSend() { sendMessage(document.getElementById('chatInput').value); }
-
-document.getElementById('chatInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
-});
-
-// Demo mode toggle: Ctrl+Shift+D
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-    e.preventDefault();
-    demoMode = !demoMode;
-    const indicator = document.getElementById('demoModeIndicator');
-    if (demoMode) {
-      indicator.style.display = 'flex';
-      console.log('Demo mode ENABLED — using cached responses');
-    } else {
-      indicator.style.display = 'none';
-      console.log('Demo mode DISABLED — using live API');
-    }
-  }
-});
-
-// Auto-start tour
 setTimeout(startTour, 1500);
 </script>
 </body>
