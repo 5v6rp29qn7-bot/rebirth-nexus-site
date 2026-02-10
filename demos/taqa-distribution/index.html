@@ -216,9 +216,57 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+/* === PASSWORD GATE === */
+.password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
+.password-gate.hidden { display: none; }
+.password-box { background: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; width: 90%; }
+.pw-logo { width: 64px; height: 64px; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; overflow: hidden; }
+.pw-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pw-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9; }
+.pw-subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+.pw-input { width: 100%; padding: 12px 16px; background: #0a0e17; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f1f5f9; font-size: 14px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; box-sizing: border-box; }
+.pw-input:focus { border-color: #fbbf24; }
+.pw-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 8px; color: #000; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.pw-btn:hover { opacity: 0.9; }
+.pw-error { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
+.pw-error.show { display: block; }
+.pw-footer { font-size: 11px; color: #475569; margin-top: 20px; }
+@keyframes pwShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+.pw-shake { animation: pwShake 0.4s ease; }
+
 </style>
 </head>
 <body>
+<!-- PASSWORD GATE -->
+<div class="password-gate" id="pwGate">
+  <div class="password-box">
+    <div class="pw-logo"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='⚡'"></div>
+    <div class="pw-title">Nexus Demo Access</div>
+    <div class="pw-subtitle">TAQA Distribution Intelligence</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="Enter access code" autocomplete="off">
+    <button class="pw-btn" id="pwBtn">Access Demo</button>
+    <div class="pw-error" id="pwError">Incorrect access code</div>
+    <div class="pw-footer">Rebirth Nexus Inc. · Confidential</div>
+  </div>
+</div>
+<script>
+(function(){
+  var k='nexus_taqa_dist';
+  if(sessionStorage.getItem(k)==='granted'){document.getElementById('pwGate').classList.add('hidden');}
+  document.getElementById('pwBtn').onclick=check;
+  document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+  function check(){
+    if(document.getElementById('pwInput').value==='deserthawk'){
+      sessionStorage.setItem(k,'granted');
+      document.getElementById('pwGate').classList.add('hidden');
+    } else {
+      var e=document.getElementById('pwError');e.classList.add('show');
+      var b=document.querySelector('.password-box');b.classList.add('pw-shake');
+      setTimeout(function(){b.classList.remove('pw-shake');},400);
+    }
+  }
+})();
+</script>
 <div class="app">
     <!-- INTEL SIDEBAR -->
     <div class="sidebar">
