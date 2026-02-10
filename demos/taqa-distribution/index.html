@@ -90,7 +90,9 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 .legend-line.distribution { background: var(--accent-blue); }
 
 /* ===== SCHEMATIC INSET ===== */
-.schematic-inset { position: absolute; bottom: 16px; right: 16px; z-index: 10; width: 280px; background: rgba(10,14,23,0.94); backdrop-filter: blur(12px); border-radius: 10px; border: 1px solid var(--border-subtle); overflow: hidden; }
+.schematic-inset { position: absolute; bottom: 16px; right: 16px; z-index: 10; width: 280px; background: rgba(10,14,23,0.94); backdrop-filter: blur(12px); border-radius: 10px; border: 1px solid var(--border-subtle); overflow: hidden; display: none; transition: opacity 0.3s; }
+.schematic-inset.visible { display: block; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .schematic-header { padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
 .schematic-title { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; }
 .schematic-badge { font-size: 8px; padding: 2px 6px; border-radius: 3px; background: rgba(239,68,68,0.15); color: var(--accent-red); font-weight: 600; text-transform: uppercase; }
@@ -453,6 +455,7 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline, Color) {
   const map = new Map({ basemap: "dark-gray-vector" });
   const view = new MapView({ container: "viewDiv", map: map, center: [54.55, 24.42], zoom: 11 });
   view.ui.remove(["zoom","attribution"]);
+  window._mapView = view; // expose for chip zoom
 
   const subLayer = new GraphicsLayer();
   const lineLayer = new GraphicsLayer();
@@ -1085,11 +1088,59 @@ function updateProtected() {
   document.getElementById('kpiProtected').textContent = 'AED 15.5M';
 }
 
+// Map zoom targets for each query type
+const zoomTargets = {
+  "sub-7": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "sub-12": { center: [54.37, 24.49], zoom: 14, schematic: false },
+  "cascade": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "thermal": { center: [54.48, 24.38], zoom: 12, schematic: false },
+  "financial": { center: [54.48, 24.42], zoom: 11, schematic: false },
+  "water": { center: [54.52, 24.33], zoom: 13, schematic: false },
+  "transformer": { center: [54.48, 24.42], zoom: 12, schematic: false },
+  "asset": { center: [54.48, 24.42], zoom: 11, schematic: false },
+  "trace": { center: [54.50, 24.35], zoom: 15, schematic: true },
+  "overview": { center: [54.55, 24.42], zoom: 11, schematic: false },
+  "inventory": { center: [54.48, 24.42], zoom: 11, schematic: false },
+  "customers": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "work order": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "mitigation": { center: [54.50, 24.35], zoom: 13, schematic: true },
+  "notify": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "sms": { center: [54.50, 24.35], zoom: 14, schematic: false },
+  "pumping": { center: [54.52, 24.33], zoom: 13, schematic: false },
+  "diesel": { center: [54.52, 24.33], zoom: 13, schematic: false },
+  "dga": { center: [54.50, 24.35], zoom: 15, schematic: true },
+  "spare": { center: [54.50, 24.35], zoom: 14, schematic: true },
+  "crew": { center: [54.50, 24.35], zoom: 14, schematic: true },
+};
+
+function getZoomTarget(chipText) {
+  const t = chipText.toLowerCase();
+  for (const [key, val] of Object.entries(zoomTargets)) {
+    if (t.includes(key)) return val;
+  }
+  return null;
+}
+
+function showSchematic(show) {
+  const el = document.querySelector('.schematic-inset');
+  if (el) { if (show) el.classList.add('visible'); else el.classList.remove('visible'); }
+}
+
 async function handleChipClick(chipText) {
   if (isProcessing) return;
   isProcessing = true;
   addMessage(chipText, true);
   showTyping();
+
+  // Zoom map and toggle schematic
+  const zoom = getZoomTarget(chipText);
+  if (zoom && window._mapView) {
+    window._mapView.goTo({ center: zoom.center, zoom: zoom.zoom }, { duration: 800, easing: "ease-in-out" });
+    showSchematic(zoom.schematic);
+  } else {
+    showSchematic(false);
+  }
+
   await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
   const response = findResponse(chipText);
   hideTyping();
