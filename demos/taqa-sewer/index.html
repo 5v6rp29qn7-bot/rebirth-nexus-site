@@ -3,182 +3,666 @@
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus Intelligence — Municipal Stormwater POC</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌊</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rebirth Nexus — Municipal Stormwater & Sewer Intelligence</title>
 <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
-<script src="https://js.arcgis.com/4.28/"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 <style>
-:root{--bg:#070d14;--bg2:#0f1a2e;--bg3:#162038;--brd:rgba(255,255,255,.06);--t1:#e8edf5;--t2:#8b9dc3;--tm:#5a6f94;--blue:#2d8cf0;--red:#e54d4d;--amb:#e8a838;--grn:#2ecb71;--teal:#1abc9c;--purp:#9b59b6}
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden}
-.app{display:grid;grid-template-columns:1fr 420px;height:100vh}
-.map-panel{position:relative;overflow:hidden}
-#viewDiv{width:100%;height:100%}
-.map-overlay-top{position:absolute;top:16px;left:16px;z-index:10}
-.brand{display:flex;align-items:center;gap:10px;background:rgba(7,13,20,.92);backdrop-filter:blur(12px);padding:10px 16px;border-radius:10px;border:1px solid var(--brd)}
-.brand-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff}
-.brand-text{font-size:14px;font-weight:600}.brand-sub{font-size:10px;color:var(--tm);letter-spacing:1px;text-transform:uppercase}
-.sidebar{position:absolute;top:16px;right:436px;z-index:10;display:flex;flex-direction:column;gap:8px}
-.sc{background:rgba(7,13,20,.92);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;border:1px solid var(--brd);min-width:180px}
-.sc-l{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm)}
-.sc-v{font-size:22px;font-weight:700;margin-top:2px}
-.sc-d{font-size:10px;color:var(--tm);margin-top:2px}
-.red{color:var(--red)}.amb{color:var(--amb)}.grn{color:var(--grn)}.blue{color:var(--blue)}
-.legend{position:absolute;bottom:16px;left:16px;z-index:10;background:rgba(7,13,20,.92);backdrop-filter:blur(12px);padding:14px 18px;border-radius:10px;border:1px solid var(--brd)}
-.lg-t{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm);margin-bottom:10px}
-.lg-i{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--t2)}
-.lg-d{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.chat-panel{display:flex;flex-direction:column;background:var(--bg2);border-left:1px solid var(--brd);height:100vh}
-.ch{padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:12px}
-.ch-i{width:36px;height:36px;background:linear-gradient(135deg,var(--blue),var(--teal));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#fff}
-.ch-t{font-size:14px;font-weight:600}.ch-s{font-size:10px;color:var(--tm)}
-.ab{display:flex;align-items:center;gap:8px;padding:8px 18px;background:rgba(229,77,77,.08);border-bottom:1px solid rgba(229,77,77,.15)}
-.ab-p{width:8px;height:8px;border-radius:50%;background:var(--red);animation:p 2s infinite}
-@keyframes p{0%,100%{opacity:1}50%{opacity:.4}}
-.ab-t{font-size:11px;font-weight:500;color:var(--red);flex:1}
-.kr{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--brd);overflow-x:auto}
-.ki{background:var(--bg3);padding:8px 10px;border-radius:8px;text-align:center;flex:1;min-width:70px}
-.ki-l{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm)}
-.ki-v{font-size:13px;font-weight:700;margin-top:2px}
-.msgs{flex:1;overflow-y:auto;padding:14px 18px;scroll-behavior:smooth}
-.msg{margin-bottom:14px}.msg.u{text-align:right}
-.mb{display:inline-block;max-width:92%;padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;text-align:left}
-.msg.a .mb{background:var(--bg3);border:1px solid var(--brd)}
-.msg.u .mb{background:var(--blue);color:#fff;font-weight:500}
-.vb{margin:10px 0;padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border:1px solid var(--brd)}
-.vt{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--teal);margin-bottom:8px}
-.vr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}
-.vr:last-child{border:none}.vr .l{color:var(--t2)}.vr .v{font-weight:600}
-.vtbl{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px}
-.vtbl th{text-align:left;padding:4px 6px;color:var(--tm);font-weight:500;border-bottom:1px solid var(--brd);font-size:9px;text-transform:uppercase}
-.vtbl td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2)}
-.vtbl td.hl{color:var(--t1);font-weight:600}
-.trace{display:flex;align-items:center;gap:4px;padding:8px;background:rgba(26,188,156,.05);border-radius:6px;flex-wrap:wrap}
-.tn{padding:4px 8px;border-radius:4px;font-size:10px;font-weight:500}
-.tn.src{background:rgba(229,77,77,.15);color:var(--red);border:1px solid rgba(229,77,77,.3)}
-.tn.mid{background:rgba(232,168,56,.1);color:var(--amb);border:1px solid rgba(232,168,56,.2)}
-.tn.end{background:rgba(46,203,113,.1);color:var(--grn);border:1px solid rgba(46,203,113,.2)}
-.ta{color:var(--tm);font-size:10px}
-.wo{padding:10px;background:rgba(45,140,240,.05);border:1px solid rgba(45,140,240,.15);border-radius:6px}
-.wo-h{font-size:11px;font-weight:600;color:var(--blue);margin-bottom:6px}
-.wo-f{display:flex;justify-content:space-between;padding:3px 0;font-size:10.5px}
-.wo-f .wl{color:var(--tm)}.wo-f .wv{color:var(--t2)}
-.prov{margin-top:10px;padding-top:8px;border-top:1px solid var(--brd)}
-.prov-l{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:4px}
-.prov-t{display:flex;gap:4px;flex-wrap:wrap}
-.pt{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.04);color:var(--tm)}
-.pt::before{content:"✓";color:var(--grn);margin-right:3px;font-size:8px}
-.ca{padding:12px 18px;background:var(--bg3);border-top:1px solid var(--brd)}
-.ca-l{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:8px}
-.cg{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font-size:11px;cursor:pointer;transition:all .2s;font-family:inherit}
-.chip:hover{border-color:var(--blue);color:var(--blue);background:rgba(45,140,240,.05)}
-.chip.ov{border-color:rgba(26,188,156,.3);color:var(--teal)}
-.ia{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--brd)}
-.ia input{flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--t1);font-size:12px;font-family:inherit;outline:none}
-.ia input:focus{border-color:var(--blue)}
-.ia button{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit}
-.td{display:flex;gap:4px;padding:8px 0}.tdt{width:6px;height:6px;border-radius:50%;background:var(--tm);animation:tb 1.4s infinite}
-.tdt:nth-child(2){animation-delay:.2s}.tdt:nth-child(3){animation-delay:.4s}
-@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --bg-card-hover: #262636;
+  --border: #2a2a3a;
+  --border-accent: #3a3a50;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-muted: #606072;
+  --accent-gold: #d4af37;
+  --accent-gold-dim: rgba(212,175,55,0.12);
+  --accent-emerald: #10b981;
+  --accent-emerald-dim: rgba(16,185,129,0.12);
+  --accent-cyan: #22d3ee;
+  --accent-cyan-dim: rgba(34,211,238,0.10);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.10);
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245,158,11,0.10);
+  --accent-purple: #a855f7;
+  --accent-purple-dim: rgba(168,85,247,0.10);
+  --gradient-brand: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #ef4444 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(245,158,11,0.05) 100%);
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* TOP BAR */
+.top-bar {
+  height: 48px; min-height: 48px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon { width: 28px; height: 28px; background: transparent; border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.brand-icon img { width: 100%; height: 100%; object-fit: contain; }
+.brand-name { font-size: 14px; font-weight: 600; background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-sub { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
+.brand-tag { font-size: 9px; color: var(--accent-gold); background: var(--accent-gold-dim); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+.top-right { display: flex; align-items: center; gap: 14px; }
+.kpi-ticker { display: flex; align-items: center; gap: 10px; }
+.kpi-pill { display: flex; align-items: center; gap: 6px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; font-size: 10px; }
+.kpi-pill-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
+.kpi-pill-val { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-weight: 700; font-size: 11px; }
+.kpi-pill-val.r { color: var(--accent-red); }
+.kpi-pill-val.a { color: var(--accent-amber); }
+.kpi-pill-val.g { color: var(--accent-emerald); }
+.kpi-pill-delta { font-size: 9px; font-family: monospace; }
+.kpi-pill-delta.up { color: var(--accent-red); }
+.kpi-pill-delta.dn { color: var(--accent-emerald); }
+
+.live-dot-wrap { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+.live-dot { width: 5px; height: 5px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+.demo-mode-indicator { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; background: var(--accent-amber-dim); padding: 3px 8px; border-radius: 4px; }
+.demo-dot { width: 5px; height: 5px; background: var(--accent-amber); border-radius: 50%; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.3)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(239,68,68,0)} }
+.tour-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .2s; }
+.tour-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+/* MAIN */
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* ===== INTEL SIDEBAR ===== */
+.sidebar {
+  width: 260px; min-width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--accent-red); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-live .live-dot { width: 4px; height: 4px; }
+
+/* Feed */
+.feed { flex: 1; overflow-y: auto; padding: 8px 10px; }
+.feed::-webkit-scrollbar { width: 2px; } .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 1px; }
+.feed-item {
+  background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 11px; margin-bottom: 6px; cursor: pointer; transition: all .2s;
+  border-left: 3px solid var(--accent-cyan);
+}
+.feed-item:hover { background: var(--bg-card); transform: translateX(2px); }
+.feed-item.crit { border-left-color: var(--accent-red); }
+.feed-item.warn { border-left-color: var(--accent-amber); }
+.feed-item.info { border-left-color: var(--accent-cyan); }
+.feed-time { font-size: 9px; color: var(--text-muted); font-family: monospace; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.feed-sev { font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+.feed-sev.critical { background: var(--accent-red-dim); color: var(--accent-red); }
+.feed-sev.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.feed-sev.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.feed-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.feed-text strong { color: var(--text-primary); font-weight: 600; }
+.feed-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+.ftag { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.ftag.thermal { background: var(--accent-red-dim); color: var(--accent-red); }
+.ftag.grid { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.ftag.water { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.ftag.power { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.ftag.supply { background: var(--accent-purple-dim); color: var(--accent-purple); }
+.ftag.weather { background: var(--accent-gold-dim); color: var(--accent-gold); }
+
+/* ===== MAP PANEL ===== */
+.map-panel {
+  flex: 1; position: relative; min-width: 0;
+  border-right: 1px solid var(--border);
+}
+#mapView { width: 100%; height: 100%; }
+.map-legend {
+  position: absolute; bottom: 12px; left: 12px;
+  background: rgba(10,10,15,0.92); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 10px; z-index: 10; backdrop-filter: blur(8px);
+}
+.map-legend-title { font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; }
+.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: var(--text-muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-line { width: 16px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+
+/* ===== CHAT PANEL ===== */
+.chat-panel {
+  width: 380px; min-width: 380px;
+  display: flex; flex-direction: column;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+.chat-header {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-secondary);
+}
+.chat-avatar { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
+.chat-avatar img { width: 100%; height: 100%; object-fit: contain; }
+.chat-header-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+/* Messages */
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; scroll-behavior: smooth; }
+.chat-messages::-webkit-scrollbar { width: 3px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.message { margin-bottom: 16px; animation: fadeIn .35s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.msg-av { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.msg-av.ai { overflow: hidden; }
+.msg-av.ai img { width: 100%; height: 100%; object-fit: contain; }
+.msg-av.user { background: var(--bg-card); border: 1px solid var(--border); }
+.msg-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.msg-time { font-size: 9px; color: var(--text-muted); font-family: monospace; }
+.msg-body { margin-left: 29px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.msg-body strong { color: #fff; font-weight: 600; }
+.msg-body em { color: var(--text-secondary); }
+.msg-body p { margin-bottom: 8px; }
+.msg-body ul, .msg-body ol { margin: 6px 0 6px 20px; }
+.msg-body li { margin-bottom: 3px; font-size: 12px; color: var(--text-secondary); }
+
+/* Viz components inside messages */
+.viz-alert { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-alert-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.viz-alert-header.critical, .viz-alert-header:not(.warning):not(.info):not(.success) { background: var(--accent-red-dim); color: var(--accent-red); }
+.viz-alert-header.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.viz-alert-header.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.viz-alert-header.success { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-alert-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.4); }
+.viz-alert-row:last-child { border-bottom: none; }
+.viz-alert-row span:first-child { color: var(--text-secondary); }
+.viz-alert-row span:last-child { color: var(--text-primary); font-family: monospace; font-weight: 500; }
+
+.viz-roi { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-roi-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-roi-total { text-align: center; font-size: 24px; font-weight: 700; font-family: monospace; color: var(--accent-emerald); padding: 12px; }
+.viz-roi-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-top: 1px solid rgba(42,42,58,0.4); }
+.viz-roi-label { color: var(--text-secondary); } .viz-roi-value { color: var(--text-primary); font-family: monospace; }
+
+.viz-timeline { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-timeline-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.timeline-track { padding: 10px 12px; position: relative; }
+.timeline-line { position: absolute; left: 17px; top: 10px; bottom: 10px; width: 2px; background: var(--border); }
+.timeline-item { display: flex; align-items: flex-start; gap: 10px; padding: 4px 0; position: relative; }
+.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 4px; z-index: 1; }
+.timeline-dot.active { background: var(--accent-emerald); box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+.timeline-dot.warning { background: var(--accent-amber); }
+.timeline-dot.danger { background: var(--accent-red); }
+.timeline-time { font-size: 9px; color: var(--text-muted); font-family: monospace; min-width: 44px; }
+.timeline-label { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+
+.viz-asset { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-asset-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.viz-asset-id { font-family: monospace; font-size: 12px; font-weight: 600; color: var(--accent-gold); }
+.viz-asset-status { font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
+.viz-asset-status.ok { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-asset-status.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.viz-asset-status.critical { background: var(--accent-red-dim); color: var(--accent-red); }
+.viz-asset-body { padding: 8px 12px; }
+.viz-asset-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
+.viz-asset-row span:first-child { color: var(--text-muted); }
+.viz-asset-row span:last-child { color: var(--text-primary); font-family: monospace; }
+
+.temp-gauge { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+.temp-bar { flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+.temp-bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+.temp-bar-fill.ok { background: var(--accent-emerald); }
+.temp-bar-fill.warning { background: var(--accent-amber); }
+.temp-bar-fill.danger { background: var(--accent-red); }
+.temp-value { font-size: 11px; font-family: monospace; font-weight: 600; min-width: 36px; text-align: right; }
+
+/* Network Trace Visualization */
+.viz-trace { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-trace-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-purple-dim); color: var(--accent-purple); }
+.trace-diagram { display: flex; align-items: center; padding: 12px; gap: 4px; overflow-x: auto; }
+.trace-node { padding: 6px 10px; border-radius: 4px; font-size: 10px; font-family: monospace; font-weight: 600; text-align: center; white-space: nowrap; }
+.trace-node.transformer { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.trace-node.busbar { background: var(--accent-amber-dim); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.trace-node.switch { background: var(--accent-cyan-dim); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+.trace-node.fuse { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+.trace-node.service-point { background: var(--accent-emerald-dim); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
+.trace-connector { color: var(--text-muted); font-size: 12px; }
+.trace-summary { padding: 8px 12px; font-size: 11px; color: var(--text-secondary); border-top: 1px solid var(--border); background: var(--bg-tertiary); }
+.trace-summary strong { color: var(--text-primary); }
+
+/* Work Order Visualization */
+.viz-workorder { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-workorder-header { padding: 10px 12px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-gold-dim); color: var(--accent-gold); }
+.workorder-field { display: flex; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); }
+.wo-label { color: var(--text-muted); width: 130px; flex-shrink: 0; }
+.wo-value { color: var(--text-primary); font-family: monospace; }
+.wo-value.priority-P1 { color: var(--accent-red); font-weight: 700; }
+.wo-value.priority-P2 { color: var(--accent-amber); font-weight: 700; }
+.wo-value.priority-P3 { color: var(--accent-cyan); }
+.wo-value.priority-P4 { color: var(--text-secondary); }
+.workorder-actions { display: flex; gap: 8px; padding: 10px 12px; background: var(--bg-tertiary); }
+.wo-btn { padding: 6px 12px; font-size: 10px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all .2s; }
+.wo-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+/* Enhanced Data Table with Header */
+.viz-data-table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-data-table-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.viz-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.viz-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
+.viz-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); }
+.viz-table td.highlight { color: var(--accent-amber); font-weight: 600; }
+.viz-table td.vip { color: var(--accent-red); font-weight: 600; }
+.viz-table td.normal { color: var(--accent-emerald); }
+
+/* Notification Preview */
+.viz-notification { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-notification-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.notification-preview { padding: 10px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-style: italic; background: var(--bg-tertiary); border-left: 3px solid var(--accent-gold); margin: 8px 12px; border-radius: 0 4px 4px 0; }
+.notification-meta { padding: 6px 12px; font-size: 10px; color: var(--text-muted); display: flex; gap: 16px; }
+
+/* Data table */
+.viz-data-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+.viz-data-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.viz-data-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); font-family: monospace; }
+
+/* Chips */
+.chips-section { padding: 8px 16px; border-top: 1px solid var(--border); }
+.chips-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font-size: 10px; padding: 5px 10px; border-radius: 4px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer; transition: all .2s;
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim); }
+
+/* Input */
+.chat-input-area { padding: 10px 16px; border-top: 1px solid var(--border); }
+.input-wrap { display: flex; gap: 8px; }
+.chat-input {
+  flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; color: var(--text-primary); font-size: 12px; outline: none; transition: border .2s;
+  font-family: inherit;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.chat-input:focus { border-color: var(--accent-gold); }
+.send-btn {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 11px;
+  transition: opacity .2s; font-family: inherit;
+}
+.send-btn:hover { opacity: 0.9; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chat-footer { padding: 6px 16px 10px; font-size: 9px; color: var(--text-muted); text-align: center; }
+.chat-footer a { color: var(--accent-gold); text-decoration: none; }
+
+/* Typing indicator */
+.typing-indicator { display: flex; gap: 4px; padding: 8px 0; margin-left: 29px; }
+.typing-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.2s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+/* ===== TOUR ===== */
+.tour-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+}
+.tour-overlay.active { display: block; }
+.tour-tooltip {
+  position: absolute; background: var(--bg-secondary); border: 1px solid var(--accent-gold);
+  border-radius: var(--radius); padding: 16px 18px; max-width: 320px; box-shadow: var(--shadow);
+}
+.tour-title { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px; }
+.tour-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.tour-btns { display: flex; justify-content: space-between; align-items: center; }
+.tour-step-count { font-size: 10px; color: var(--text-muted); font-family: monospace; }
+.tour-skip { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; padding: 4px 8px; }
+.tour-skip:hover { color: var(--text-secondary); }
+.tour-next {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.tour-next:hover { opacity: 0.9; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sidebar { width: 220px; min-width: 220px; }
+  .chat-panel { width: 340px; min-width: 340px; }
+  .kpi-ticker { display: none; }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .chat-panel { width: 300px; min-width: 300px; }
+}
+/* === PASSWORD GATE === */
+.password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
+.password-gate.hidden { display: none; }
+.password-box { background: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; width: 90%; }
+.pw-logo { width: 64px; height: 64px; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; overflow: hidden; }
+.pw-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pw-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9; }
+.pw-subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+.pw-input { width: 100%; padding: 12px 16px; background: #0a0e17; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f1f5f9; font-size: 14px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; box-sizing: border-box; }
+.pw-input:focus { border-color: #fbbf24; }
+.pw-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 8px; color: #000; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.pw-btn:hover { opacity: 0.9; }
+.pw-error { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
+.pw-error.show { display: block; }
+.pw-footer { font-size: 11px; color: #475569; margin-top: 20px; }
+@keyframes pwShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+.pw-shake { animation: pwShake 0.4s ease; }
+
 </style>
 </head>
 <body>
-<div class="app">
-<div class="map-panel">
-<div id="viewDiv"></div>
-<div class="map-overlay-top">
-<div class="brand"><div class="brand-icon">N</div><div><div class="brand-text">Rebirth Nexus</div><div class="brand-sub">Stormwater & Sewer Intelligence · Houston TX</div></div></div>
+<!-- PASSWORD GATE -->
+<div class="password-gate" id="pwGate">
+  <div class="password-box">
+    <div class="pw-logo"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='⚡'"></div>
+    <div class="pw-title">Nexus Demo Access</div>
+    <div class="pw-subtitle">TAQA Stormwater Intelligence</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="Enter access code" autocomplete="off">
+    <button class="pw-btn" id="pwBtn">Access Demo</button>
+    <div class="pw-error" id="pwError">Incorrect access code</div>
+    <div class="pw-footer">Rebirth Nexus Inc. · Confidential</div>
+  </div>
 </div>
-<div class="sidebar">
-<div class="sc"><div class="sc-l">Flood Exposure</div><div class="sc-v red">$12.4M</div><div class="sc-d">3 catchments critical</div></div>
-<div class="sc"><div class="sc-l">System Capacity</div><div class="sc-v red">127%</div><div class="sc-d">Exceeding design limits</div></div>
-<div class="sc"><div class="sc-l">SSO Risk</div><div class="sc-v amb">4 locations</div><div class="sc-d">Sanitary Sewer Overflow</div></div>
-<div class="sc"><div class="sc-l">Rainfall Rate</div><div class="sc-v blue">3.2 in/hr</div><div class="sc-d">1-hr 100-yr intensity</div></div>
-</div>
-<div class="legend">
-<div class="lg-t">Network Status</div>
-<div class="lg-i"><div class="lg-d" style="background:var(--red);box-shadow:0 0 8px rgba(229,77,77,.5)"></div> Overflow / Surcharge</div>
-<div class="lg-i"><div class="lg-d" style="background:var(--amb)"></div> Stressed (>85% capacity)</div>
-<div class="lg-i"><div class="lg-d" style="background:var(--grn)"></div> Normal Operations</div>
-<div class="lg-i"><div class="lg-d" style="background:var(--blue)"></div> Lift Station / Pump</div>
-<div class="lg-t" style="margin-top:10px">Infrastructure</div>
-<div class="lg-i"><div style="width:18px;height:2px;background:var(--teal);flex-shrink:0"></div> Stormwater Trunk</div>
-<div class="lg-i"><div style="width:18px;height:2px;background:var(--purp);flex-shrink:0"></div> Sanitary Sewer Main</div>
-</div>
-</div>
-
-<div class="chat-panel">
-<div class="ch"><div class="ch-i">N</div><div><div class="ch-t">NexusFlow Intelligence</div><div class="ch-s">Stormwater & Sewer Network · Harris County</div></div></div>
-<div class="ab"><div class="ab-p"></div><div class="ab-t">FLOOD ALERT — Houston Metro · 3.2 in/hr · 1-hr 100-yr Event</div></div>
-<div class="kr">
-<div class="ki"><div class="ki-l">Exposure</div><div class="ki-v red">$12.4M</div></div>
-<div class="ki"><div class="ki-l">Overflow</div><div class="ki-v red">3</div></div>
-<div class="ki"><div class="ki-l">SSO Risk</div><div class="ki-v amb">4</div></div>
-<div class="ki"><div class="ki-l">Pumps</div><div class="ki-v grn">18/22</div></div>
-</div>
-<div class="msgs" id="chatMessages"></div>
-<div class="ca"><div class="ca-l">Suggested Queries</div><div class="cg" id="chipsGrid"></div></div>
-<div class="ia"><input type="text" id="chatInput" placeholder="Ask about sewer & stormwater operations..."><button onclick="handleSend()">Send</button></div>
-</div>
-</div>
-
 <script>
-require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point","esri/geometry/Polyline"],
-function(Map,MapView,Graphic,GraphicsLayer,Point,Polyline){
-const map=new Map({basemap:"dark-gray-vector"});
-const view=new MapView({container:"viewDiv",map,center:[-95.37,29.76],zoom:11});
-view.ui.remove(["zoom","attribution"]);
-const ptLyr=new GraphicsLayer(),lineLyr=new GraphicsLayer();window._ptLyr=ptLyr;window._view=view;
-map.addMany([lineLyr,ptLyr]);
+(function(){
+  var k='nexus_taqa_sewer';
+  if(sessionStorage.getItem(k)==='granted'){document.getElementById('pwGate').classList.add('hidden');}
+  document.getElementById('pwBtn').onclick=check;
+  document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+  function check(){
+    if(document.getElementById('pwInput').value==='deserthawk'){
+      sessionStorage.setItem(k,'granted');
+      document.getElementById('pwGate').classList.add('hidden');
+    } else {
+      var e=document.getElementById('pwError');e.classList.add('show');
+      var b=document.querySelector('.password-box');b.classList.add('pw-shake');
+      setTimeout(function(){b.classList.remove('pw-shake');},400);
+    }
+  }
+})();
+</script>
 
-const nodes=[
-{id:"MH-101",name:"Brays Bayou Trunk MH-101",lat:29.70,lon:-95.40,status:"OVERFLOW",type:"Manhole",cap:127,depth:14.2},
-{id:"MH-204",name:"Sims Bayou Interceptor MH-204",lat:29.66,lon:-95.35,status:"OVERFLOW",type:"Manhole",cap:134,depth:16.8},
-{id:"MH-312",name:"Buffalo Bayou Junction MH-312",lat:29.76,lon:-95.37,status:"OVERFLOW",type:"Junction",cap:145,depth:18.1},
-{id:"LS-01",name:"Westpark Lift Station LS-01",lat:29.72,lon:-95.44,status:"STRESSED",type:"Lift Station",cap:92,depth:0},
-{id:"LS-02",name:"Almeda Lift Station LS-02",lat:29.68,lon:-95.38,status:"STRESSED",type:"Lift Station",cap:88,depth:0},
-{id:"LS-03",name:"Hobby Airport Lift Station",lat:29.64,lon:-95.28,status:"NORMAL",type:"Lift Station",cap:64,depth:0},
-{id:"MH-156",name:"Meyerland Trunk MH-156",lat:29.68,lon:-95.44,status:"STRESSED",type:"Manhole",cap:87,depth:12.4},
-{id:"WWTP",name:"69th St WWTP Headworks",lat:29.72,lon:-95.30,status:"STRESSED",type:"WWTP",cap:91,depth:0},
-{id:"MH-420",name:"Galleria Area MH-420",lat:29.74,lon:-95.46,status:"NORMAL",type:"Manhole",cap:55,depth:6.2},
-{id:"OUT-01",name:"Buffalo Bayou Outfall",lat:29.77,lon:-95.33,status:"NORMAL",type:"Outfall",cap:72,depth:0},
-{id:"SSO-1",name:"SSO Risk — Bellaire Blvd",lat:29.70,lon:-95.46,status:"SSO_RISK",type:"SSO Point",cap:0,depth:0},
-{id:"SSO-2",name:"SSO Risk — South Main",lat:29.67,lon:-95.37,status:"SSO_RISK",type:"SSO Point",cap:0,depth:0},
-{id:"SSO-3",name:"SSO Risk — Telephone Rd",lat:29.69,lon:-95.32,status:"SSO_RISK",type:"SSO Point",cap:0,depth:0},
-{id:"SSO-4",name:"SSO Risk — Navigation Blvd",lat:29.75,lon:-95.34,status:"SSO_RISK",type:"SSO Point",cap:0,depth:0},
-];
-const colors={OVERFLOW:[229,77,77],STRESSED:[232,168,56],NORMAL:[46,203,113],SSO_RISK:[155,89,182]};
-nodes.forEach(n=>{
-const c=colors[n.status]||[100,100,100];
-const sz=n.status==="OVERFLOW"?16:n.status==="SSO_RISK"?13:n.type==="Lift Station"||n.type==="WWTP"?14:10;
-const sym=n.type==="Lift Station"||n.type==="WWTP"?{type:"simple-marker",color:c,size:sz,style:"diamond",outline:{color:[255,255,255,80],width:1.5}}:{type:"simple-marker",color:c,size:sz,outline:{color:[255,255,255,60],width:1}};
-ptLyr.add(new Graphic({geometry:new Point({longitude:n.lon,latitude:n.lat}),symbol:sym,attributes:n}));
-});
-// Trunk lines
-const trunks=[
-[[-95.46,29.70],[-95.44,29.70],[-95.40,29.70],[-95.37,29.72],[-95.33,29.77]],
-[[-95.44,29.68],[-95.40,29.70]],
-[[-95.38,29.66],[-95.37,29.68],[-95.37,29.72]],
-[[-95.35,29.66],[-95.32,29.69],[-95.30,29.72]],
-[[-95.37,29.76],[-95.37,29.72],[-95.33,29.77]],
-];
-trunks.forEach((t,i)=>{
-lineLyr.add(new Graphic({geometry:new Polyline({paths:[t]}),symbol:{type:"simple-line",color:i<2?[26,188,156,160]:[155,89,182,120],width:i<2?2.5:1.5}}));
-});
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-icon"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='⚡'"></div>
+      <span class="brand-name">Rebirth Nexus</span>
+      <span class="brand-sub">Stormwater & Sewer Intelligence — Houston TX</span>
+      <span class="brand-tag">Live Intelligence</span>
+    </div>
+    <div class="top-right">
+      <div class="kpi-ticker">
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Rain Rate</span>
+          <span class="kpi-pill-val r">3.2 in/hr</span>
+          <span class="kpi-pill-delta up">↑ 100-yr</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">System Load</span>
+          <span class="kpi-pill-val r">127%</span>
+          <span class="kpi-pill-delta up">↑ 42%</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">SSO Risk</span>
+          <span class="kpi-pill-val a">4 Sites</span>
+          <span class="kpi-pill-delta up">↑ 3</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Exposure</span>
+          <span class="kpi-pill-val r">$15.0M</span>
+          <span class="kpi-pill-delta up">↑ $8.2M</span>
+        </div>
+      </div>
+      <div class="live-dot-wrap"><div class="live-dot"></div> LIVE</div>
+      <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none"><div class="demo-dot"></div> OFFLINE</div>
+      <!-- Tour removed -->
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- INTEL SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Flood Intelligence</span>
+        <span class="sidebar-live"><div class="live-dot"></div> Live</span>
+      </div>
+      <div class="feed" id="intelFeed">
+        <div class="feed-item crit" onclick="handle('Investigate Brays Bayou overflow cascade')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 15:42 CST</div>
+          <div class="feed-text"><strong>MH-101 at 127% capacity.</strong> Brays Bayou trunk surcharging. 0.6 ft to street overflow.</div>
+          <div class="feed-tags"><span class="ftag thermal">Overflow</span><span class="ftag grid">Cascade</span></div>
+        </div>
+        <div class="feed-item crit" onclick="handle('Show all SSO risk locations')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 15:38 CST</div>
+          <div class="feed-text"><strong>4 SSO locations at risk.</strong> Est. 1.1M gallons. EPA Consent Decree threshold.</div>
+          <div class="feed-tags"><span class="ftag thermal">SSO</span><span class="ftag grid">Regulatory</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('What\'s our total flood exposure?')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 15:31 CST</div>
+          <div class="feed-text"><strong>Exposure: $12.4M direct + $2.5M EPA.</strong> Mitigation window: 45 min remaining.</div>
+          <div class="feed-tags"><span class="ftag grid">Financial</span><span class="ftag thermal">Exposure</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('Lift station status across network')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 15:24 CST</div>
+          <div class="feed-text"><strong>LS-01 Westpark at 92%.</strong> All pumps running — zero redundancy. 18/22 stations operational.</div>
+          <div class="feed-tags"><span class="ftag water">Lift Station</span><span class="ftag power">Pumps</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('Manhole & pipe inventory summary')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 15:18 CST</div>
+          <div class="feed-text"><strong>38-year trunk line in Brays corridor.</strong> Joint separation and root intrusion. Condition Grade 3.</div>
+          <div class="feed-tags"><span class="ftag grid">Infrastructure</span><span class="ftag water">Aging</span></div>
+        </div>
+        <div class="feed-item info" onclick="handle('Catchment capacity ranking')">
+          <div class="feed-time"><span class="feed-sev info">Info</span> 15:10 CST</div>
+          <div class="feed-text"><strong>NWS QPE radar: 3.2 in/hr.</strong> 83,800 residents at risk across Meyerland, Westbury, Bellaire.</div>
+          <div class="feed-tags"><span class="ftag weather">Radar</span><span class="ftag power">Forecast</span></div>
+        </div>
+        <div class="feed-item info" onclick="handle('Investigate Brays Bayou overflow cascade')">
+          <div class="feed-time"><span class="feed-sev info">Info</span> 15:02 CST</div>
+          <div class="feed-text"><strong>Nexus predicted cascade trajectory</strong> 45 min before static level alarms would trigger — diversion to detention basin was still viable.</div>
+          <div class="feed-tags"><span class="ftag water">Predictive</span><span class="ftag power">Early Warning</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- MAP PANEL -->
+    <div class="map-panel">
+      <div id="mapView"></div>
+      <div class="map-legend">
+        <div class="map-legend-title">Sewer Network</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Manhole — Overflow</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-amber)"></div> Manhole — Stressed</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-emerald)"></div> Manhole — Normal</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-purple)"></div> SSO Risk Point</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-cyan)"></div> Lift Station / WWTP</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-cyan);border-radius:2px"></div> Detention Basin</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--accent-cyan)"></div> Trunk Sewer Line</div>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-avatar"><img src="/logo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
+        <span class="chat-header-text">Nexus Stormwater Intelligence</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="message">
+          <div class="msg-head">
+            <div class="msg-av ai"><img src="/logo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
+            <span class="msg-name">Nexus Stormwater Intelligence</span>
+            <span class="msg-time">Just now</span>
+          </div>
+          <div class="msg-body">
+            <strong>🌊 FLOOD EVENT ALERT — Houston Metro Under Extreme Rainfall</strong><br><br>
+            Monitoring <strong>16,737 manholes</strong> and <strong>969 miles</strong> of sewer main across Harris County. Rainfall: <strong>3.2 in/hr</strong> (100-year return period). System capacity exceeded in 3 catchments.<br><br>
+            <div class="viz-alert">
+              <div class="viz-alert-header critical">🌊 CRITICAL — 3 Active Overflows, 4 SSO Risk Points</div>
+              <div class="viz-alert-row"><span>MH-101 Brays Bayou Trunk</span><span style="color:var(--accent-red)">127% capacity — 0.6 ft to street</span></div>
+              <div class="viz-alert-row"><span>SSO Risk Points</span><span style="color:var(--accent-red)">4 locations — 1.1M gallons estimated</span></div>
+              <div class="viz-alert-row"><span>Lift Station LS-01</span><span style="color:var(--accent-amber)">92% — zero pump redundancy</span></div>
+              <div class="viz-alert-row"><span>69th St WWTP</span><span style="color:var(--accent-amber)">91% headworks capacity</span></div>
+            </div>
+            Nexus detected the upstream flow acceleration pattern <strong>45 minutes before</strong> traditional level sensors would have alarmed — when diversion to the Westpark detention basin was still feasible.<br><br>
+            Total flood exposure: <strong>$12.4M direct + $2.5M regulatory = $15.0M</strong>. What would you like to investigate?
+          </div>
+        </div>
+      </div>
+
+      <div class="chips-section">
+        <div class="chips-grid" id="chipsGrid">
+          <div class="chip" onclick="handle('Investigate Brays Bayou overflow cascade')">🌊 Investigate Brays Bayou overflow cascade</div>
+          <div class="chip" onclick="handle('Show all SSO risk locations')">🔴 SSO risk locations</div>
+          <div class="chip" onclick="handle('What\'s our total flood exposure?')">💰 Total flood exposure</div>
+          <div class="chip" onclick="handle('Manhole & pipe inventory summary')">🏗️ Asset inventory</div>
+          <div class="chip" onclick="handle('Lift station status across network')">⚙️ Lift station status</div>
+          <div class="chip" onclick="handle('Catchment capacity ranking')">📊 Catchment ranking</div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-wrap">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about flood risks, SSO events, catchment capacity, mitigation options..." />
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send</button>
+        </div>
+      </div>
+      <div class="chat-footer">Demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> • Synthetic scenario; Houston parameters are illustrative</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOUR -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-tooltip" id="tourTooltip">
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-text" id="tourText"></div>
+    <div class="tour-btns">
+      <span class="tour-step-count" id="tourStepCount"></span>
+      <div>
+        <button class="tour-skip" onclick="endTour()">Skip</button>
+        <button class="tour-next" id="tourNext" onclick="nextTourStep()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESRI MAP -->
+<script src="https://js.arcgis.com/4.28/"></script>
+<script>
+require([
+  "esri/Map", "esri/views/MapView",
+  "esri/Graphic", "esri/layers/GraphicsLayer", "esri/Color"
+], function(Map, MapView, Graphic, GraphicsLayer, Color) {
+  const map = new Map({ basemap: "dark-gray-vector" });
+  const view = new MapView({
+    container: "mapView", map: map,
+    center: [-95.37, 29.72], zoom: 11,
+    constraints: { minZoom: 9 },
+    ui: { components: [] }
+  });
+  window._mapView = view;
+  const ptLyr = new GraphicsLayer();
+  const lineLyr = new GraphicsLayer();
+  map.addMany([lineLyr, ptLyr]);
+
+  const nodes = [
+    { id:"MH-101", name:"Brays Bayou Trunk MH-101", lat:29.70, lon:-95.40, status:"OVERFLOW", type:"Manhole" },
+    { id:"MH-204", name:"Sims Bayou Interceptor MH-204", lat:29.66, lon:-95.35, status:"OVERFLOW", type:"Manhole" },
+    { id:"MH-312", name:"Buffalo Bayou Junction MH-312", lat:29.76, lon:-95.37, status:"OVERFLOW", type:"Junction" },
+    { id:"LS-01", name:"Westpark Lift Station LS-01", lat:29.72, lon:-95.44, status:"STRESSED", type:"Lift Station" },
+    { id:"LS-02", name:"Almeda Lift Station LS-02", lat:29.68, lon:-95.38, status:"STRESSED", type:"Lift Station" },
+    { id:"LS-03", name:"Hobby Airport Lift Station", lat:29.64, lon:-95.28, status:"NORMAL", type:"Lift Station" },
+    { id:"MH-156", name:"Meyerland Trunk MH-156", lat:29.68, lon:-95.44, status:"STRESSED", type:"Manhole" },
+    { id:"WWTP", name:"69th St WWTP Headworks", lat:29.72, lon:-95.30, status:"STRESSED", type:"WWTP" },
+    { id:"MH-420", name:"Galleria Area MH-420", lat:29.74, lon:-95.46, status:"NORMAL", type:"Manhole" },
+    { id:"OUT-01", name:"Buffalo Bayou Outfall", lat:29.77, lon:-95.33, status:"NORMAL", type:"Outfall" },
+    { id:"SSO-1", name:"SSO Risk - Bellaire Blvd", lat:29.70, lon:-95.46, status:"SSO_RISK", type:"SSO Point" },
+    { id:"SSO-2", name:"SSO Risk - South Main", lat:29.67, lon:-95.37, status:"SSO_RISK", type:"SSO Point" },
+    { id:"SSO-3", name:"SSO Risk - Telephone Rd", lat:29.69, lon:-95.32, status:"SSO_RISK", type:"SSO Point" },
+    { id:"SSO-4", name:"SSO Risk - Navigation Blvd", lat:29.75, lon:-95.34, status:"SSO_RISK", type:"SSO Point" },
+    { id:"DET-1", name:"Westpark Detention Basin", lat:29.71, lon:-95.46, status:"STRESSED", type:"Detention" },
+    { id:"DET-2", name:"Brays Bayou Detention (HCFCD)", lat:29.69, lon:-95.42, status:"STRESSED", type:"Detention" },
+  ];
+  const colors = { OVERFLOW:[239,68,68], STRESSED:[245,158,11], NORMAL:[16,185,129], SSO_RISK:[168,85,247], DETENTION:[34,211,238] };
+  nodes.forEach(n => {
+    const c = colors[n.status] || [100,100,100];
+    const sz = n.status==="OVERFLOW" ? 16 : n.status==="SSO_RISK" ? 13 : n.type==="Lift Station"||n.type==="WWTP" ? 14 : 10;
+    const sym = n.type==="Lift Station"||n.type==="WWTP"||n.type==="Outfall"
+      ? { type:"simple-marker", color:c, size:sz, style:"diamond", outline:{ color:[255,255,255,80], width:1.5 } }
+      : n.type==="Detention"
+      ? { type:"simple-marker", color:c, size:14, style:"square", outline:{ color:[255,255,255,80], width:1.5 } }
+      : { type:"simple-marker", color:c, size:sz, outline:{ color:[255,255,255,60], width:1 } };
+    ptLyr.add(new Graphic({
+      geometry: { type:"point", longitude:n.lon, latitude:n.lat },
+      symbol: sym, attributes: n,
+      popupTemplate: { title:"{name}", content:"Status: {status} | Type: {type}" }
+    }));
+  });
+  const trunks = [
+    [[-95.46,29.70],[-95.44,29.70],[-95.40,29.70],[-95.37,29.72],[-95.33,29.77]],
+    [[-95.44,29.68],[-95.40,29.70]],
+    [[-95.38,29.66],[-95.37,29.68],[-95.37,29.72]],
+    [[-95.35,29.66],[-95.32,29.69],[-95.30,29.72]],
+    [[-95.37,29.76],[-95.37,29.72],[-95.33,29.77]],
+  ];
+  trunks.forEach((t,i) => {
+    lineLyr.add(new Graphic({
+      geometry: { type:"polyline", paths:[t] },
+      symbol: { type:"simple-line", color: i<2 ? [34,211,238,160] : [168,85,247,120], width: i<2 ? 2.5 : 1.5 }
+    }));
+  });
+  ptLyr.add(new Graphic({
+    geometry: { type:"polygon", rings:[[[-95.48,29.72],[-95.38,29.72],[-95.34,29.68],[-95.36,29.64],[-95.44,29.64],[-95.48,29.68],[-95.48,29.72]]] },
+    symbol: { type:"simple-fill", color: new Color([239,68,68,0.08]), outline:{ color: new Color([239,68,68,0.3]), width:1.5, style:"dash" } }
+  }));
 });
 
-// ===== SCRIPTED RESPONSES =====
+
+const SYSTEM_PROMPT = `You are Rebirth Nexus Stormwater Intelligence, the AI engine for municipal sewer and stormwater predictive intelligence. You are demonstrating capabilities for Harris County/Houston TX stormwater operations.
+
+SCENARIO: Extreme rainfall event - 3.2 in/hr (100-year return period). System capacity exceeded in 3 catchments. 3 manholes surcharged, 4 SSO risk points, 83,800 residents at risk.
+
+KEY DATA:
+- MH-101 Brays Bayou: 127% capacity, 0.6 ft to street overflow
+- 4 SSO locations: est. 1.1M gallons total
+- Total exposure: $12.4M direct + $2.5M EPA = $15.0M
+- Mitigation cost: $270K (ROI: 38:1)
+- Nexus detected 45 min before SCADA level sensors
+
+Always include financial impacts. Use HTML formatting with div class="viz-alert" blocks. Be specific with numbers.`;
+
+const API_ENDPOINT = '/api/chat';
+let conversationHistory = [];
+let isProcessing = false;
+let interactionCount = 0;
+let demoMode = true; // Default to demo mode for subdirectory deployment
+
 const chipSets={
 initial:["🌊 Investigate Brays Bayou overflow cascade","🔴 Show all SSO risk locations","💰 What's our total flood exposure?","🏗️ Manhole & pipe inventory summary","⚙️ Lift station status across network","📊 Catchment capacity ranking"],
-cascade:["Which neighborhoods flood first?","Show downstream contamination risk","💰 What's our total flood exposure?","Generate emergency work order","Regulatory notification (TCEQ)","↩️ Return to overview"],
-sso:["Show downstream contamination risk","Regulatory notification (TCEQ)","💰 What's our total flood exposure?","↩️ Return to overview"],
-operations:["Regulatory notification (TCEQ)","⚙️ Lift station status across network","📊 Catchment capacity ranking","↩️ Return to overview"],
-assets:["🏗️ Manhole & pipe inventory summary","📊 Catchment capacity ranking","⚙️ Lift station status across network","↩️ Return to overview"]
+cascade:["Which neighborhoods flood first?","Show downstream contamination risk","Mitigation: diversion options","Generate emergency work order","Regulatory notification (TCEQ)","↩️ Return to overview"],
+sso:["SSO volume estimates","EPA/TCEQ reporting requirements","Affected waterways","Emergency bypass pumping options","↩️ Return to overview"],
+operations:["Deploy emergency bypass pumps","Generate SSO notification to TCEQ","Crew dispatch to MH-312","Activate flood gates at Outfall-01","↩️ Return to overview"],
+assets:["Pipe condition assessment summary","Manholes due for rehabilitation","Lift station maintenance backlog","CCTV inspection priorities","↩️ Return to overview"]
 };
 
 const R={
@@ -188,7 +672,7 @@ content:`<p><strong>🌊 BRAYS BAYOU TRUNK — CRITICAL CASCADE OVERFLOW</strong
 <div class="vr"><span class="l">Current Flow</span><span class="v red">127% of design capacity</span></div>
 <div class="vr"><span class="l">Water Surface Elevation</span><span class="v red">14.2 ft (rim at 14.8 ft)</span></div>
 <div class="vr"><span class="l">Surcharge Status</span><span class="v red">SURCHARGING — 0.6 ft to street overflow</span></div>
-<div class="vr"><span class="l">Rainfall Intensity</span><span class="v red">3.2 in/hr (1-hr 100-yr intensity)</span></div>
+<div class="vr"><span class="l">Rainfall Intensity</span><span class="v red">3.2 in/hr (1-hr intensity, 100-yr return period)</span></div>
 <div class="vr"><span class="l">Upstream Catchment</span><span class="v">42 sq mi — Meyerland, Bellaire, Westbury</span></div>
 <div class="vr"><span class="l">Pipe Diameter</span><span class="v">96" RCP (1987, 38 years old)</span></div>
 <div class="vr"><span class="l">Condition Rating</span><span class="v amb">3 (Fair — root intrusion, joint separation)</span></div>
@@ -201,17 +685,10 @@ content:`<p><strong>🌊 BRAYS BAYOU TRUNK — CRITICAL CASCADE OVERFLOW</strong
 <div class="vr"><span class="l">T+25 min</span><span class="v amb">4 SSO points activate — raw sewage enters bayou</span></div>
 <div class="vr"><span class="l">T+45 min</span><span class="v amb">Westpark Lift Station LS-01 overwhelmed → emergency bypass</span></div>
 <div class="vr"><span class="l">T+2 hrs</span><span class="v amb">69th St WWTP headworks at 140% — partial bypass to bayou</span></div>
-<div class="vr"><span class="l">T+4 hrs</span><span class="v red">EPA Consent Decree violation triggered</span></div>
+<div class="vr"><span class="l">T+4 hrs</span><span class="v red">EPA Consent Decree escalation threshold reached — enforcement risk elevated</span></div>
 </div>
-<p><div class="vb"><div class="vt">Early Warning Evidence</div>
-<div class="vr"><span class="l">Signal</span><span class="v">Upstream inflow rate-of-rise: +2.8 ft³/s/min vs catchment model</span></div>
-<div class="vr"><span class="l">Source</span><span class="v">NWS QPE Radar + upstream USGS gauges + I&I infiltration model</span></div>
-<div class="vr"><span class="l">Level Sensor Alarm</span><span class="v">Triggers at 14.0 ft (rim depth). Currently 14.2 ft — already past alarm.</span></div>
-<div class="vr"><span class="l">Nexus Flagged At</span><span class="v amb">11.8 ft (45 min ago) — inflow acceleration exceeded catchment response bounds</span></div>
-<div class="vr"><span class="l">Confidence</span><span class="v">91% — validated against radar QPE nowcast + historical I&I model</span></div>
-</div>
-<p>Nexus detected upstream flow acceleration <strong>45 minutes before</strong> level sensors alarmed — when diversion to the detention basin was still feasible.</p></p>
-<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">SCADA Level Sensors</span><span class="pt">USGS Stream Gauges</span><span class="pt">NWS QPE Radar</span><span class="pt">Esri Sewer GIS</span></div></div>`,
+<p>Nexus detected the upstream flow acceleration pattern <strong>45 minutes before</strong> traditional level sensors would alarm — when diversion to the detention basin was still feasible.</p>
+<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">SCADA Level Sensors</span><span class="pt">USGS Stream Gauges</span><span class="pt">NWS QPE Radar</span><span class="pt">HCFCD Flood Warning</span><span class="pt">Esri Sewer GIS</span></div></div>`,
 chips:chipSets.cascade},
 
 "which neighborhoods flood first":{
@@ -230,11 +707,10 @@ content:`<p><strong>FLOOD SEQUENCE — Neighborhood Impact Analysis</strong></p>
 <tr><td class="hl" style="color:var(--red)">Meyerland</td><td>12,400</td><td style="color:var(--red)">T+15 min</td><td>18-24 in</td><td>3,200 homes</td></tr>
 <tr><td class="hl" style="color:var(--red)">Westbury</td><td>38,700</td><td style="color:var(--red)">T+25 min</td><td>12-18 in</td><td>8,400 homes</td></tr>
 <tr><td class="hl" style="color:var(--amb)">Bellaire</td><td>18,200</td><td style="color:var(--amb)">T+35 min</td><td>6-12 in</td><td>4,100 homes</td></tr>
-<tr><td>Braeswood</td><td>8,900</td><td>T+45 min</td><td>6-10 in</td><td>2,300 homes</td></tr>
+<tr><td>Braeswood</td><td>8,900</td><td>T+50 min</td><td>6-10 in</td><td>2,300 homes</td></tr>
 <tr><td>Willowbend</td><td>5,600</td><td>T+60 min</td><td>4-8 in</td><td>1,400 homes</td></tr>
 </table></div>
-<p><strong>Summary:</strong> 83,800 residents at risk. 19,400 residential properties. First responders need to focus on Meyerland — it floods first and deepest. Estimated property damage: <strong>$8.2M</strong> if no intervention.</p>
-<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">Esri Sewer GIS</span><span class="pt">Census/ACS</span><span class="pt">FEMA Flood Maps</span><span class="pt">Harris CAD</span></div></div>`,
+<p><strong>Summary:</strong> 83,800 residents at risk. 19,400 residential properties. First responders need to focus on Meyerland — it floods first and deepest. Estimated property damage: <strong>$8.2M</strong> if no intervention.</p>`,
 chips:chipSets.cascade},
 
 "show downstream contamination risk":{
@@ -252,7 +728,7 @@ content:`<p><strong>🔴 CONTAMINATION CASCADE — SSO to Waterway Impact</stron
 <div class="vr"><span class="l">Buffalo Bayou</span><span class="v amb">Downstream from junction — 4-hour travel time</span></div>
 <div class="vr"><span class="l">Houston Ship Channel</span><span class="v">Ultimate receiving water — 8-12 hours</span></div>
 </div>
-<p><strong>Regulatory implications:</strong> Any SSO >10,000 gallons triggers mandatory TCEQ 24-hour notification. Four simultaneous SSOs exceeding 1M gallons total will trigger EPA Consent Decree review. Last similar event: Hurricane Harvey (2017).</p>`,
+<p><strong>Regulatory implications:</strong> All SSOs require TCEQ 24-hour notification regardless of volume. SSOs ≥50,000 gallons also trigger mandatory public notification. Four simultaneous SSOs exceeding 1M gallons total will trigger EPA Consent Decree review. Last similar event: Hurricane Harvey (2017).</p>`,
 chips:chipSets.sso},
 
 "show all sso risk locations":{
@@ -265,8 +741,7 @@ content:`<p><strong>🔴 SANITARY SEWER OVERFLOW — 4 Active Risk Locations</st
 <tr><td class="hl" style="color:var(--amb)">SSO-3: Telephone Rd</td><td>Lift station backup</td><td style="color:var(--amb)">180K gal</td><td style="color:var(--amb)">~25 min</td><td>Sims Bayou</td></tr>
 <tr><td class="hl">SSO-4: Navigation Blvd</td><td>Junction overflow</td><td>95K gal</td><td>~45 min</td><td>Buffalo Bayou</td></tr>
 </table></div>
-<p><strong>I&I (Inflow & Infiltration)</strong> is the primary driver — aging pipes with joint failures and root intrusion are letting stormwater into the sanitary system. This 96" trunk was installed in 1987 and has a condition rating of 3 (Fair). CCTV inspection in 2023 found 47 defects across 12,000 linear feet.</p>
-<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">SCADA Level Sensors</span><span class="pt">Esri Sewer GIS</span><span class="pt">NASSCO CCTV</span><span class="pt">I&I Model</span></div></div>`,
+<p><strong>I&I (Inflow & Infiltration)</strong> is the primary driver — aging pipes with joint failures and root intrusion are letting stormwater into the sanitary system. This 96" trunk was installed in 1987 and has a condition rating of 3 (Fair). CCTV inspection in 2023 found 47 defects across 12,000 linear feet.</p>`,
 chips:chipSets.sso},
 
 "whats our total flood exposure":{
@@ -277,11 +752,9 @@ content:`<p><strong>💰 TOTAL FLOOD EXPOSURE — Houston Sewer/Stormwater Event
 <div class="vr"><span class="l">Emergency Response & Cleanup</span><span class="v amb">$1.2M</span></div>
 <div class="vr"><span class="l">SSO Remediation & Disinfection</span><span class="v amb">$0.8M</span></div>
 <div class="vr"><span class="l">TCEQ Regulatory Penalties</span><span class="v amb">$1.4M</span></div>
-<div class="vr"><span class="l">EPA Consent Decree Fine (if triggered)</span><span class="v red">$2-3M (est.)</span></div>
+<div class="vr"><span class="l">EPA Consent Decree Fine (if triggered)</span><span class="v red">$2.5M</span></div>
 <div class="vr"><span class="l">Infrastructure Repair (pipe, manholes)</span><span class="v">$0.9M</span></div>
-<div class="vr" style="border-top:1px solid var(--brd);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--t1)">DIRECT EXPOSURE</span><span class="v red" style="font-size:14px">$12.4M</span></div>
-<div class="vr"><span class="l" style="font-style:italic">+ EPA Consent Decree (if triggered)</span><span class="v red" style="font-style:italic">$2.5M</span></div>
-<div class="vr"><span class="l" style="font-weight:700;color:var(--t1)">WORST-CASE TOTAL</span><span class="v red" style="font-size:14px">$15.0M</span></div>
+<div class="vr" style="border-top:1px solid var(--brd);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--t1)">TOTAL EXPOSURE</span><span class="v red" style="font-size:14px">$15.0M</span></div>
 </div>
 <div class="vb"><div class="vt">Proactive Mitigation Cost</div>
 <div class="vr"><span class="l">Emergency diversion to Westpark detention basin</span><span class="v grn">$120K</span></div>
@@ -290,10 +763,10 @@ content:`<p><strong>💰 TOTAL FLOOD EXPOSURE — Houston Sewer/Stormwater Event
 <div class="vr" style="border-top:1px solid var(--brd);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--t1)">TOTAL MITIGATION</span><span class="v grn">$270K</span></div>
 </div>
 <p><strong>Net protection:</strong> $270K spent protects $10.2M in damages. <strong>ROI: 38:1</strong>. Remaining $4.8M is residual from rain intensity exceeding all available capacity.</p>`,
-chips:chipSets.cascade},
+chips:chipSets.initial},
 
 "manhole pipe inventory summary":{
-content:`<p><strong>🏗️ SEWER ASSET INVENTORY — Southeast Service District (Pilot Area)</strong></p>
+content:`<p><strong>🏗️ SEWER ASSET INVENTORY — Harris County District</strong></p>
 <div class="vb"><div class="vt">Manholes (from Sewer GIS — wManhole)</div>
 <table class="vtbl">
 <tr><th>Type</th><th>Count</th><th>Avg Age</th><th>Avg Depth</th></tr>
@@ -334,8 +807,8 @@ content:`<p><strong>⚙️ LIFT STATION STATUS — All 22 Stations</strong></p>
 <tr><td>LS-04 Clear Lake</td><td>71%</td><td>2/3 running</td><td style="color:var(--grn)">NORMAL</td><td>Normal</td></tr>
 <tr><td>LS-05 Spring Branch</td><td>58%</td><td>1/2 running</td><td style="color:var(--grn)">NORMAL</td><td>Normal</td></tr>
 </table></div>
-<p><strong>Key risk:</strong> LS-01 (Westpark) is running all 3 pumps at 92% — no redundancy. If any pump fails during this event, immediate overflow. LS-02 similar risk. Both stations serve the highest-impact trunk lines feeding the Brays Bayou overflow area.</p>
-<p>Remaining 17 stations operating normally (45-75% capacity).</p>`,
+<p><strong>Key risk:</strong> LS-01 (Westpark) is running all 3 pumps at 92% — no redundancy. If any pump fails during this event, immediate overflow via the 16-inch force main to 69th St WWTP. LS-02 similar risk — its 12-inch force main is already at maximum hydraulic grade. Both stations serve the highest-impact trunk lines feeding the Brays Bayou overflow area.</p>
+<p>Remaining 17 stations operating normally (45-75% capacity). Emergency bypass pumps (6-inch diesel) staged at LS-01.</p>`,
 chips:chipSets.operations},
 
 "generate emergency work order":{
@@ -344,10 +817,10 @@ content:`<p><strong>📋 WORK ORDER GENERATED</strong></p>
 <div class="wo-f"><span class="wl">Asset</span><span class="wv">MH-101 (Brays Bayou Trunk), MH-204, MH-312</span></div>
 <div class="wo-f"><span class="wl">Issue</span><span class="wv">Surcharged manholes — overflow imminent / active</span></div>
 <div class="wo-f"><span class="wl">Priority</span><span class="wv" style="color:var(--red)">P1 — EMERGENCY</span></div>
-<div class="wo-f"><span class="wl">Description</span><span class="wv">1-hr 100-yr rainfall event (3.2 in/hr). 3 manholes surcharged >85% rim depth. 4 SSO locations at risk. Cascade to WWTP headworks.</span></div>
+<div class="wo-f"><span class="wl">Description</span><span class="wv">100-yr rainfall event (3.2 in/hr). 3 manholes surcharged >85% rim depth. 4 SSO locations at risk. Cascade to WWTP headworks.</span></div>
 <div class="wo-f"><span class="wl">Crew</span><span class="wv">Emergency Response Team A + B (12 persons)</span></div>
-<div class="wo-f"><span class="wl">Equipment</span><span class="wv">3× bypass pumps, traffic barriers, portable generators, vac truck</span></div>
-<div class="wo-f"><span class="wl">Regulatory</span><span class="wv">TCEQ 24-hr SSO notification required if SSO >10K gal</span></div>
+<div class="wo-f"><span class="wl">Equipment</span><span class="wv">3× 6-inch diesel bypass pumps (1,500 GPM each), 500 ft discharge hose per pump, traffic barriers, portable generators, vac truck</span></div>
+<div class="wo-f"><span class="wl">Regulatory</span><span class="wv">TCEQ 24-hr SSO notification required for all SSOs regardless of volume</span></div>
 <div class="wo-f"><span class="wl">Est. Duration</span><span class="wv">8-12 hours (weather dependent)</span></div>
 </div>
 <p>Work order synced to Cityworks. TCEQ notification template pre-populated and ready for supervisor approval.</p>`,
@@ -356,18 +829,19 @@ chips:chipSets.operations},
 "regulatory notification tceq":{
 content:`<p><strong>📋 TCEQ SSO NOTIFICATION — Pre-Populated</strong></p>
 <div class="vb" style="border-color:rgba(155,89,182,.3);background:rgba(155,89,182,.05)">
-<div class="vt" style="color:var(--purp)">TCEQ SSO Notification — SSO Notification (24-Hour)</div>
-<div class="vr"><span class="l">Permitted Entity</span><span class="v">City of Houston — WW Permit TX00XXXXX</span></div>
+<div class="vt" style="color:var(--purp)">TCEQ-00501 — Water Quality Noncompliance Notification (24-Hour)</div>
+<div class="vr"><span class="l">Permitted Entity</span><span class="v">City of Houston — WW Permit TX0028070</span></div>
 <div class="vr"><span class="l">Date/Time of SSO</span><span class="v">[AUTO-POPULATED FROM SCADA]</span></div>
 <div class="vr"><span class="l">Duration</span><span class="v">Ongoing — est. 4-8 hours</span></div>
 <div class="vr"><span class="l">SSO Locations</span><span class="v">4 locations (Bellaire, S. Main, Telephone, Navigation)</span></div>
 <div class="vr"><span class="l">Estimated Volume</span><span class="v red">1,135,000 gallons (combined)</span></div>
-<div class="vr"><span class="l">Cause</span><span class="v">Extreme rainfall (3.2 in/hr, 1-hr 100-yr) exceeding system capacity; I&I through aging infrastructure</span></div>
+<div class="vr"><span class="l">Cause</span><span class="v">Extreme rainfall (3.2 in/hr, 100-yr) exceeding system capacity; I&I through aging infrastructure</span></div>
 <div class="vr"><span class="l">Receiving Waters</span><span class="v">Brays Bayou, Sims Bayou, Buffalo Bayou</span></div>
 <div class="vr"><span class="l">Corrective Actions</span><span class="v">Bypass pumping deployed, diversion activated, emergency crews on-site</span></div>
 <div class="vr"><span class="l">Public Notification</span><span class="v">Posted at SSO locations, downstream public areas</span></div>
 </div>
-<p>Form pre-populated from real-time SCADA and GIS data. Requires supervisor digital signature before submission via TCEQ STEERS portal. <strong>Deadline: 24 hours from SSO start.</strong></p>`,
+<p>Form pre-populated from real-time SCADA and GIS data. Requires supervisor digital signature before electronic submission to TCEQ. <strong>Deadline: 24 hours from SSO start.</strong> 5-business-day written follow-up also required.</p>
+<p style="font-size:11px;color:var(--text-secondary)"><strong>Also triggered:</strong> MS4 permit (Phase I — City of Houston) wet-weather reporting · CMOM program incident log · HCFCD Flood Warning System coordination · EPA ECHO consent decree notification</p>`,
 chips:chipSets.sso},
 
 "catchment capacity ranking":{
@@ -392,7 +866,10 @@ content:`<p>Back to the main dashboard. Storm conditions remain active:</p>
 <div class="vb"><div class="vt">Current Status</div>
 <div class="vr"><span class="l">Active Overflows</span><span class="v red">3 manholes</span></div>
 <div class="vr"><span class="l">SSO Risk Points</span><span class="v amb">4 locations (1 active, 3 imminent)</span></div>
-<div class="vr"><span class="l">Total Exposure</span><span class="v red">$12.4M</span></div>
+<div class="vr"><span class="l">Total Exposure</span><span class="v red">$15.0M (direct + regulatory)</span></div>
+<div class="vr"><span class="l">Lift Stations</span><span class="v amb">2 stressed (LS-01 92%, LS-02 88%)</span></div>
+<div class="vr"><span class="l">Residents at Risk</span><span class="v red">83,800 across 5 neighborhoods</span></div>
+<div class="vr"><span class="l">Mitigation Window</span><span class="v amb">~45 min remaining</span></div>
 <div class="vr"><span class="l">Rainfall Forecast</span><span class="v">2.8 in/hr next 2 hours, then diminishing</span></div>
 </div><p>What would you like to investigate?</p>`,
 chips:chipSets.initial}
@@ -417,7 +894,7 @@ if(n.includes('catchment')||n.includes('capacity')||n.includes('ranking'))return
 if(n.includes('overview')||n.includes('return')||n.includes('back'))return R['return to overview'];
 return null;
 }
-function scroll(){setTimeout(()=>{document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight},10)}
+function scroll(){document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight}
 function addMsg(c,u=false){
 const el=document.getElementById('chatMessages'),m=document.createElement('div');
 m.className=`msg ${u?'u':'a'}`;
@@ -427,19 +904,39 @@ el.appendChild(m);scroll();
 function showTyp(){const el=document.getElementById('chatMessages'),m=document.createElement('div');m.className='msg a';m.id='typ';m.innerHTML='<div class="mb"><div class="td"><div class="tdt"></div><div class="tdt"></div><div class="tdt"></div></div></div>';el.appendChild(m);scroll()}
 function hideTyp(){const e=document.getElementById('typ');if(e)e.remove()}
 function updChips(chips){const g=document.getElementById('chipsGrid');g.innerHTML='';chips.forEach(c=>{const b=document.createElement('button');b.className='chip';if(c.includes('↩️'))b.className+=' ov';b.textContent=c;b.onclick=()=>handle(c);g.appendChild(b)})}
-function setCritical(ids){if(!window._ptLyr)return;const gs=window._ptLyr.graphics.items;ids.forEach(id=>{const g=gs.find(x=>x.attributes&&x.attributes.id===id);if(g)g.symbol={type:"simple-marker",color:[229,77,77],size:18,outline:{color:[255,255,255],width:2}}})}
-function zoomTo(lon,lat,z){if(window._view)window._view.goTo({center:[lon,lat],zoom:z||12},{duration:800})}
+// Map zoom targets
+const zoomTargets = {
+  "brays": { center: [-95.40, 29.70], zoom: 14 },
+  "mh-101": { center: [-95.40, 29.70], zoom: 15 },
+  "sso": { center: [-95.40, 29.70], zoom: 12 },
+  "neighborhood": { center: [-95.40, 29.70], zoom: 13 },
+  "contamina": { center: [-95.37, 29.72], zoom: 12 },
+  "financial": { center: [-95.37, 29.72], zoom: 11 },
+  "exposure": { center: [-95.37, 29.72], zoom: 11 },
+  "manhole": { center: [-95.37, 29.72], zoom: 12 },
+  "pipe": { center: [-95.37, 29.72], zoom: 12 },
+  "lift": { center: [-95.44, 29.72], zoom: 13 },
+  "pump": { center: [-95.44, 29.72], zoom: 13 },
+  "work order": { center: [-95.40, 29.70], zoom: 14 },
+  "tceq": { center: [-95.37, 29.72], zoom: 11 },
+  "regulatory": { center: [-95.37, 29.72], zoom: 11 },
+  "catchment": { center: [-95.37, 29.70], zoom: 12 },
+  "overview": { center: [-95.37, 29.72], zoom: 11 },
+  "return": { center: [-95.37, 29.72], zoom: 11 },
+};
+function getZoom(text) {
+  var t = text.toLowerCase();
+  for (var key in zoomTargets) { if (t.indexOf(key) !== -1) return zoomTargets[key]; }
+  return null;
+}
 
 async function handle(t){
 if(isProc)return;isProc=true;addMsg(t,true);showTyp();
+var z=getZoom(t);
+if(z&&window._mapView){window._mapView.goTo({center:z.center,zoom:z.zoom},{duration:800,easing:"ease-in-out"});}
 await new Promise(r=>setTimeout(r,400+Math.random()*400));
 const resp=find(t);hideTyp();
-if(resp){addMsg(resp.content);updChips(resp.chips||chipSets.initial);
-const n=t.toLowerCase();
-if(n.includes('cascade')||n.includes('investigate')||n.includes('brays')){{setCritical(["MH-101","MH-204","MH-312"]);zoomTo(-95.40,29.70,12)}}
-else if(n.includes('sso')||n.includes('contaminat')){{setCritical(["SSO-1","SSO-2","SSO-3","SSO-4"]);zoomTo(-95.37,29.72,11)}}
-else if(n.includes('overview')||n.includes('return'))zoomTo(-95.37,29.76,11);
-}
+if(resp){addMsg(resp.content);updChips(resp.chips||chipSets.initial)}
 else{addMsg('<p>I can investigate that area further. The current storm event has 3 active overflow points and 4 SSO risk locations. Try one of the suggested queries for detailed analysis.</p>');updChips(chipSets.initial)}
 isProc=false;
 }
@@ -453,23 +950,12 @@ addMsg(`<p><strong>🌊 FLOOD EVENT ALERT — Houston Metro Area Under Extreme R
 <div class="vr"><span class="l">Rainfall Intensity</span><span class="v red">3.2 in/hr (100-year return period)</span></div>
 <div class="vr"><span class="l">Manholes Surcharged</span><span class="v red">3 critical (MH-101, MH-204, MH-312)</span></div>
 <div class="vr"><span class="l">SSO Risk Points</span><span class="v amb">4 locations — 1 active overflow</span></div>
-<div class="vr"><span class="l">Total Exposure</span><span class="v red">$12.4M (property + regulatory)</span></div>
+<div class="vr"><span class="l">Total Exposure</span><span class="v red">$15.0M (direct + regulatory)</span></div>
 <div class="vr"><span class="l">Residents at Risk</span><span class="v">83,800 across 5 neighborhoods</span></div>
 </div>
 <p>This pattern was detected <strong>45 minutes before</strong> level sensors triggered — when diversion to the Westpark detention basin was still feasible. What would you like to investigate?</p>`);
-</script>
-<script>
-(function(){
-  var PW = "stormforge";
-  document.body.style.display="none";
-  var o=document.createElement("div");o.id="pw-gate";
-  o.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0e1a;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,sans-serif"><div style="text-align:center;max-width:380px;padding:40px"><div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px">NEXUS <span style=\'color:#00d4aa\'>INTELLIGENCE</span></div><div style="font-size:13px;color:#64748b;margin-bottom:32px">Authorized access only</div><input id="pw-input" type="password" placeholder="Enter access code" style="width:100%;padding:14px 18px;background:#111827;border:1px solid #1e293b;border-radius:8px;color:#fff;font-size:15px;outline:none;margin-bottom:16px;box-sizing:border-box" autofocus><button id="pw-btn" style="width:100%;padding:14px;background:#00d4aa;color:#0a0e1a;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer">Access Demo</button><div id="pw-err" style="color:#ef4444;font-size:13px;margin-top:12px;display:none">Invalid access code</div><div style="font-size:11px;color:#334155;margin-top:24px">&copy; 2026 Rebirth Nexus Inc.</div></div></div>';
-  document.documentElement.appendChild(o);
-  var s=document.createElement("style");s.textContent="@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}";document.head.appendChild(s);
-  function go(){if(document.getElementById("pw-input").value===PW){o.remove();document.body.style.display=""}else{var e=document.getElementById("pw-err");e.style.display="block";var i=document.getElementById("pw-input");i.style.borderColor="#ef4444";i.style.animation="shake 0.5s";setTimeout(function(){i.style.animation="";i.style.borderColor="#1e293b";e.style.display="none"},2000)}}
-  document.getElementById("pw-btn").addEventListener("click",go);
-  document.getElementById("pw-input").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
-})();
+
+function sendMessage(t) { handle(t); }
 </script>
 </body>
 </html>
