@@ -307,7 +307,7 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
         </div>
         <div class="feed-item info" onclick="handleChipClick('Investigate Substation 7 Cascade')">
           <div class="feed-time"><span class="feed-sev info">Info</span> 13:48 GST</div>
-          <div class="feed-text"><strong>Nexus flagged TR-7A at 86°C</strong> — rate-of-rise anomaly detected 6 hours before SCADA threshold.</div>
+          <div class="feed-text"><strong>Nexus flagged TR-7A at 86°C</strong> — predicted cascade trajectory 6 hours before static alarm thresholds would trigger.</div>
           <div class="feed-tags"><span class="ftag thermal">Predictive</span><span class="ftag grid">Early Warning</span></div>
         </div>
       </div>
@@ -385,7 +385,7 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
           <circle cx="128" cy="50" r="6" fill="none" stroke="#ef4444" stroke-width="1.5"/>
           <circle cx="128" cy="60" r="6" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
           <text x="142" y="52" class="schematic-label-val">TR-7A 92°C</text>
-          <text x="142" y="62" class="schematic-label">285 MVA</text>
+          <text x="142" y="62" class="schematic-label">50 MVA</text>
 
           <!-- 33kV Bus -->
           <line x1="128" y1="66" x2="128" y2="76" stroke="#fbbf24" stroke-width="2"/>
@@ -516,7 +516,7 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline, Color) {
 
   // Substations with real TAQA-style data
   const subs = [
-    { id: "S7", name: "Al Quoz Industrial (PRY 33/11)", lat: 24.35, lon: 54.50, temp: 92, status: "CRITICAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 45200, transformers: 3, load_mva: 285 },
+    { id: "S7", name: "Mussafah Industrial (PRY 33/11)", lat: 24.35, lon: 54.50, temp: 92, status: "CRITICAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 45200, transformers: 3, load_mva: 285 },
     { id: "S12", name: "Downtown Core (S/S)", lat: 24.49, lon: 54.37, temp: 89, status: "HIGH", type: "S/S", dms: "Yes", kv: "33/11", customers: 34100, transformers: 2, load_mva: 192 },
     { id: "S15", name: "Mussafah Port (PRY 33/11)", lat: 24.36, lon: 54.48, temp: 87, status: "HIGH", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 28500, transformers: 2, load_mva: 210 },
     { id: "S18", name: "Corniche Residential (GMTs)", lat: 24.47, lon: 54.35, temp: 85, status: "MODERATE", type: "GMT", dms: "Partly", kv: "33/11", customers: 52800, transformers: 4, load_mva: 145 },
@@ -749,17 +749,17 @@ const scriptedResponses = {
 <div class="viz-row"><span class="label">Replacement Cost</span><span class="value">AED 4.2M</span></div>
 <div class="viz-row"><span class="label">Lead Time</span><span class="value red">18 weeks — no spare until Q3</span></div>
 </div>
-<p><strong>If TR-7A trips, the cascade unfolds:</strong></p>
+<p><strong>N-1 contingency is already exhausted</strong> — TR-7B is offline for planned maintenance, leaving no redundant incomer. If TR-7A trips, the cascade unfolds:</p>
 <div class="viz-block">
 <div class="viz-title">Cascade Timeline</div>
-<div class="viz-row"><span class="label">T+0 min</span><span class="value red">Sub-7 trips → 45,200 customers dark</span></div>
-<div class="viz-row"><span class="label">T+3 min</span><span class="value red">Sub-12 overloads → Downtown Core at risk</span></div>
+<div class="viz-row"><span class="label">T+0 min</span><span class="value red">Sub-7 trips → automatic feeder transfer fails (no headroom) → 45,200 customers dark</span></div>
+<div class="viz-row"><span class="label">T+3 min</span><span class="value red">Sub-12 overloads from redirected 33kV load → Downtown Core at risk</span></div>
 <div class="viz-row"><span class="label">T+15 min</span><span class="value amber">3 water pumping stations lose grid power</span></div>
 <div class="viz-row"><span class="label">T+14 hrs</span><span class="value amber">Backup diesel exhausted at pumping stations</span></div>
 <div class="viz-row"><span class="label">T+18 hrs</span><span class="value red">340,000 residents lose water in 52°C heat</span></div>
 </div>
-<p>Traditional SCADA alerts you <strong>after</strong> the trip — when 45,000 customers are already dark. Nexus detected this thermal acceleration pattern at 86°C, <strong>six hours earlier</strong>, when load redistribution was still viable.</p>
-<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA Telemetry</span><span class="prov-tag">Esri GIS</span><span class="prov-tag">DGA History</span><span class="prov-tag">Weather API</span></div></div>`,
+<p>Standard SCADA alarms trigger at static thresholds — <strong>after</strong> the trip, when 45,000 customers are already dark. Nexus identified this thermal acceleration pattern and cascade trajectory at 86°C, <strong>six hours earlier</strong>, when load redistribution across adjacent feeders was still viable.</p>
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA/ADMS</span><span class="prov-tag">Esri GIS</span><span class="prov-tag">DGA History</span><span class="prov-tag">Weather API</span></div></div>`,
     chips: chipSets.cascade,
     updateMetrics: false
   },
@@ -782,7 +782,7 @@ const scriptedResponses = {
 <table class="viz-table">
 <tr><th>Service Point</th><th>Customer</th><th>Type</th><th>VIP</th><th>kWh/mo</th></tr>
 <tr><td>SP-7A-001</td><td class="highlight">Abu Dhabi Steel Works</td><td>Industrial</td><td style="color:var(--accent-red)">STRATEGIC</td><td>2,340,000</td></tr>
-<tr><td>SP-7A-002</td><td class="highlight">Al Quoz Data Center</td><td>Industrial</td><td style="color:var(--accent-red)">CRITICAL</td><td>1,890,000</td></tr>
+<tr><td>SP-7A-002</td><td class="highlight">Mussafah Data Center</td><td>Industrial</td><td style="color:var(--accent-red)">CRITICAL</td><td>1,890,000</td></tr>
 <tr><td>SP-7A-003</td><td class="highlight">Mussafah Industrial Hospital</td><td>Hospital</td><td style="color:var(--accent-red)">CRITICAL</td><td>567,000</td></tr>
 <tr><td>SP-7A-008</td><td class="highlight">Emirates Aluminum Works</td><td>Industrial</td><td style="color:var(--accent-red)">STRATEGIC</td><td>1,567,000</td></tr>
 <tr><td>SP-7A-004</td><td>Al Noor Industrial Park</td><td>Commercial</td><td>—</td><td>234,000</td></tr>
@@ -844,7 +844,7 @@ const scriptedResponses = {
 </div>
 <div class="viz-block">
 <div class="viz-title">Option 4: Pre-positioned Mobile Substation</div>
-<div class="viz-row"><span class="label">Action</span><span class="value">Stage mobile sub at Al Quoz as backup</span></div>
+<div class="viz-row"><span class="label">Action</span><span class="value">Stage mobile sub at Mussafah as backup</span></div>
 <div class="viz-row"><span class="label">Cost</span><span class="value">AED 780,000 (transport + connection)</span></div>
 <div class="viz-row"><span class="label">Effect</span><span class="value green">Full redundancy — eliminates cascade risk entirely</span></div>
 </div>
@@ -938,14 +938,14 @@ const scriptedResponses = {
 <div class="viz-workorder">
 <div class="wo-header">WO-2025-07-4821 — EMERGENCY</div>
 <div class="wo-field"><span class="wo-label">Asset ID</span><span class="wo-value">TR-7A (FacilityID: TRF-S7-001)</span></div>
-<div class="wo-field"><span class="wo-label">Location</span><span class="wo-value">Substation 7 — Al Quoz Industrial</span></div>
+<div class="wo-field"><span class="wo-label">Location</span><span class="wo-value">Substation 7 — Mussafah Industrial</span></div>
 <div class="wo-field"><span class="wo-label">Issue Type</span><span class="wo-value">Thermal Stress — Oil Temperature Exceedance</span></div>
 <div class="wo-field"><span class="wo-label">Priority</span><span class="wo-value" style="color:var(--accent-red)">P1 — CRITICAL</span></div>
 <div class="wo-field"><span class="wo-label">Description</span><span class="wo-value">TR-7A oil temp at 92°C (limit 95°C), rising +1.2°C/hr. Cascade risk to S12, S15, S18. Water corridor PS at risk.</span></div>
 <div class="wo-field"><span class="wo-label">Assigned Crew</span><span class="wo-value">Substation Maintenance Team A (6 persons)</span></div>
 <div class="wo-field"><span class="wo-label">Est. Duration</span><span class="wo-value">4-6 hours</span></div>
 <div class="wo-field"><span class="wo-label">Affected Customers</span><span class="wo-value">847 service points (3 VIP accounts)</span></div>
-<div class="wo-field"><span class="wo-label">VIP Impact</span><span class="wo-value" style="color:var(--accent-red)">Abu Dhabi Steel Works, Al Quoz Data Center, Mussafah Industrial Hospital</span></div>
+<div class="wo-field"><span class="wo-label">VIP Impact</span><span class="wo-value" style="color:var(--accent-red)">Abu Dhabi Steel Works, Mussafah Data Center, Mussafah Industrial Hospital</span></div>
 <div class="wo-field"><span class="wo-label">Equipment Needed</span><span class="wo-value">Mobile oil cooler, portable transformer testing kit, thermal camera</span></div>
 </div>
 <p>Work order synced to Maximo (MXASSETNUM: TR-S7-001). VIP customers flagged for priority notification via email + SMS + personal call from Customer Relations.</p>`,
@@ -956,7 +956,7 @@ const scriptedResponses = {
     content: `<p><strong>📱 NOTIFICATION TEMPLATES GENERATED</strong></p>
 <div class="viz-notification">
 <div class="notif-header">📱 SMS — Standard Customers (844 recipients)</div>
-<div class="notif-body">TAQA Distribution Alert: Planned maintenance in Al Quoz Industrial area. Power may be interrupted [DATE] [TIME]-[TIME]. We apologize for the inconvenience. For updates: 800-TAQA (8272)</div>
+<div class="notif-body">TAQA Distribution Alert: Planned maintenance in Mussafah Industrial area. Power may be interrupted [DATE] [TIME]-[TIME]. We apologize for the inconvenience. For updates: 800-TAQA (8272)</div>
 </div>
 <div class="viz-notification" style="margin-top:8px;border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.05)">
 <div class="notif-header" style="color:var(--accent-red)">🚨 VIP Protocol — 3 Recipients (Email + SMS + Call)</div>
@@ -1020,7 +1020,7 @@ Next Update: Within 60 minutes</div>
 <div class="viz-title">Substation Thermal Status (sorted by temperature)</div>
 <table class="viz-table">
 <tr><th>Substation</th><th>Type</th><th>Temp</th><th>Limit</th><th>Status</th><th>Customers</th></tr>
-<tr><td class="highlight" style="color:var(--accent-red)">S7 — Al Quoz Industrial</td><td>PRY 33/11</td><td style="color:var(--accent-red)">92°C</td><td>95°C</td><td style="color:var(--accent-red)">CRITICAL</td><td>45,200</td></tr>
+<tr><td class="highlight" style="color:var(--accent-red)">S7 — Mussafah Industrial</td><td>PRY 33/11</td><td style="color:var(--accent-red)">92°C</td><td>95°C</td><td style="color:var(--accent-red)">CRITICAL</td><td>45,200</td></tr>
 <tr><td class="highlight" style="color:#f97316">S12 — Downtown Core</td><td>S/S</td><td style="color:#f97316">89°C</td><td>95°C</td><td style="color:#f97316">HIGH</td><td>34,100</td></tr>
 <tr><td class="highlight" style="color:#f97316">S15 — Mussafah Port</td><td>PRY 33/11</td><td style="color:#f97316">87°C</td><td>95°C</td><td style="color:#f97316">HIGH</td><td>28,500</td></tr>
 <tr><td>S18 — Corniche Residential</td><td>GMT</td><td style="color:var(--accent-amber)">85°C</td><td>95°C</td><td style="color:var(--accent-amber)">MOD</td><td>52,800</td></tr>
@@ -1264,11 +1264,11 @@ addMessage(`<p><strong>🔥 HEAT WAVE ALERT — Abu Dhabi Grid Under Stress</str
 <div class="viz-block">
 <div class="viz-row"><span class="label">Ambient Temperature</span><span class="value red">52°C (5-day forecast)</span></div>
 <div class="viz-row"><span class="label">Peak Demand</span><span class="value red">12.4 GW vs 12.7 GW capacity</span></div>
-<div class="viz-row"><span class="label">Highest Risk</span><span class="value red">Sub-7 Al Quoz — TR-7A at 92°C</span></div>
+<div class="viz-row"><span class="label">Highest Risk</span><span class="value red">Sub-7 Mussafah — TR-7A at 92°C</span></div>
 <div class="viz-row"><span class="label">Cascade Exposure</span><span class="value red">AED 18.7M across 4 substations</span></div>
 <div class="viz-row"><span class="label">Water Impact</span><span class="value amber">340,000 residents if pumping stations fail</span></div>
 </div>
-<p>This was detected <strong>6 hours before</strong> traditional SCADA would have alerted. What would you like to investigate?</p>`);
+<p>Nexus identified this cascading failure trajectory <strong>6 hours before</strong> standard alarm thresholds would have triggered emergency protocols — when load redistribution was still feasible. What would you like to investigate?</p>`);
 
 // Update alert time
 setInterval(() => {
