@@ -89,6 +89,16 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 .legend-line.transmission { background: var(--accent-cyan); }
 .legend-line.distribution { background: var(--accent-blue); }
 
+/* ===== SCHEMATIC INSET ===== */
+.schematic-inset { position: absolute; bottom: 16px; right: 16px; z-index: 10; width: 280px; background: rgba(10,14,23,0.94); backdrop-filter: blur(12px); border-radius: 10px; border: 1px solid var(--border-subtle); overflow: hidden; }
+.schematic-header { padding: 8px 12px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+.schematic-title { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); font-weight: 600; }
+.schematic-badge { font-size: 8px; padding: 2px 6px; border-radius: 3px; background: rgba(239,68,68,0.15); color: var(--accent-red); font-weight: 600; text-transform: uppercase; }
+.schematic-body { padding: 12px; }
+.schematic-svg { width: 100%; }
+.schematic-label { font-size: 8px; fill: var(--text-muted); font-family: var(--font-mono); }
+.schematic-label-val { font-size: 8px; fill: var(--accent-red); font-family: var(--font-mono); font-weight: 600; }
+
 /* ===== ANALYTICS SIDEBAR ===== */
 .analytics-sidebar { position: absolute; top: 16px; right: 436px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
 .stat-card { background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-subtle); min-width: 180px; }
@@ -298,7 +308,95 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
       <div class="legend-item"><div style="width:7px;height:7px;background:rgba(255,255,255,0.6);flex-shrink:0"></div> Transformer</div>
       <div class="legend-item"><div style="width:7px;height:7px;background:rgba(255,255,255,0.5);transform:rotate(45deg);flex-shrink:0"></div> Switch Point</div>
       <div class="legend-item"><div style="width:8px;height:8px;background:rgba(34,211,238,0.8);flex-shrink:0"></div> Field Crew</div>
-      <div class="legend-item"><div style="width:10px;height:10px;border-radius:50%;background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.4);flex-shrink:0"></div> Heat Stress Zone</div>
+      <div class="legend-item"><div style="width:10px;height:10px;border-radius:50%;background:rgba(239,68,68,0.08);border:1px dashed rgba(239,68,68,0.3);flex-shrink:0"></div> Heat Stress Zone</div>
+    </div>
+
+    <!-- SCHEMATIC INSET: Sub-7 Single-Line Diagram -->
+    <div class="schematic-inset">
+      <div class="schematic-header">
+        <span class="schematic-title">Sub-7 Single Line — PRY 33/11</span>
+        <span class="schematic-badge">92°C Critical</span>
+      </div>
+      <div class="schematic-body">
+        <svg class="schematic-svg" viewBox="0 0 256 200" xmlns="http://www.w3.org/2000/svg">
+          <!-- 132kV Incoming -->
+          <line x1="128" y1="2" x2="128" y2="24" stroke="#ef4444" stroke-width="2.5"/>
+          <text x="142" y="10" class="schematic-label">132kV</text>
+
+          <!-- Main Breaker -->
+          <rect x="120" y="24" width="16" height="10" fill="none" stroke="#ef4444" stroke-width="1.5" rx="1"/>
+          <line x1="124" y1="29" x2="132" y2="29" stroke="#ef4444" stroke-width="1.5"/>
+          <text x="142" y="32" class="schematic-label-val">CB-01 Closed</text>
+
+          <!-- 132/33kV Transformer TR-7A -->
+          <line x1="128" y1="34" x2="128" y2="44" stroke="#ef4444" stroke-width="2"/>
+          <circle cx="128" cy="50" r="6" fill="none" stroke="#ef4444" stroke-width="1.5"/>
+          <circle cx="128" cy="60" r="6" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+          <text x="142" y="52" class="schematic-label-val">TR-7A 92°C</text>
+          <text x="142" y="62" class="schematic-label">285 MVA</text>
+
+          <!-- 33kV Bus -->
+          <line x1="128" y1="66" x2="128" y2="76" stroke="#fbbf24" stroke-width="2"/>
+          <line x1="40" y1="76" x2="216" y2="76" stroke="#fbbf24" stroke-width="2.5"/>
+          <text x="8" y="74" class="schematic-label" style="fill:#fbbf24">33kV BUS</text>
+
+          <!-- 33/11kV Transformers (3 feeders) -->
+          <!-- Feeder 1 -->
+          <line x1="72" y1="76" x2="72" y2="90" stroke="#fbbf24" stroke-width="1.5"/>
+          <rect x="64" y="90" width="16" height="8" fill="none" stroke="#fbbf24" stroke-width="1" rx="1"/>
+          <circle cx="72" cy="104" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <circle cx="72" cy="112" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <text x="56" y="126" class="schematic-label">F-7A</text>
+
+          <!-- Feeder 2 -->
+          <line x1="128" y1="76" x2="128" y2="90" stroke="#fbbf24" stroke-width="1.5"/>
+          <rect x="120" y="90" width="16" height="8" fill="none" stroke="#fbbf24" stroke-width="1" rx="1"/>
+          <circle cx="128" cy="104" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <circle cx="128" cy="112" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <text x="112" y="126" class="schematic-label">F-7B</text>
+
+          <!-- Feeder 3 -->
+          <line x1="184" y1="76" x2="184" y2="90" stroke="#fbbf24" stroke-width="1.5"/>
+          <rect x="176" y="90" width="16" height="8" fill="none" stroke="#fbbf24" stroke-width="1" rx="1"/>
+          <circle cx="184" cy="104" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <circle cx="184" cy="112" r="5" fill="none" stroke="#3b82f6" stroke-width="1"/>
+          <text x="168" y="126" class="schematic-label">F-7C</text>
+
+          <!-- 11kV Bus -->
+          <line x1="72" y1="117" x2="72" y2="136" stroke="#3b82f6" stroke-width="1.5"/>
+          <line x1="128" y1="117" x2="128" y2="136" stroke="#3b82f6" stroke-width="1.5"/>
+          <line x1="184" y1="117" x2="184" y2="136" stroke="#3b82f6" stroke-width="1.5"/>
+          <line x1="40" y1="136" x2="216" y2="136" stroke="#3b82f6" stroke-width="2"/>
+          <text x="8" y="134" class="schematic-label" style="fill:#3b82f6">11kV BUS</text>
+
+          <!-- Service points (downstream loads) -->
+          <line x1="56" y1="136" x2="56" y2="152" stroke="#3b82f6" stroke-width="1"/>
+          <line x1="88" y1="136" x2="88" y2="152" stroke="#3b82f6" stroke-width="1"/>
+          <line x1="112" y1="136" x2="112" y2="152" stroke="#3b82f6" stroke-width="1"/>
+          <line x1="144" y1="136" x2="144" y2="152" stroke="#3b82f6" stroke-width="1"/>
+          <line x1="168" y1="136" x2="168" y2="152" stroke="#3b82f6" stroke-width="1"/>
+          <line x1="200" y1="136" x2="200" y2="152" stroke="#3b82f6" stroke-width="1"/>
+
+          <!-- Load symbols (arrows) -->
+          <polygon points="52,152 60,152 56,160" fill="#3b82f6" opacity="0.6"/>
+          <polygon points="84,152 92,152 88,160" fill="#3b82f6" opacity="0.6"/>
+          <polygon points="108,152 116,152 112,160" fill="#3b82f6" opacity="0.6"/>
+          <polygon points="140,152 148,152 144,160" fill="#3b82f6" opacity="0.6"/>
+          <polygon points="164,152 172,152 168,160" fill="#3b82f6" opacity="0.6"/>
+          <polygon points="196,152 204,152 200,160" fill="#3b82f6" opacity="0.6"/>
+
+          <!-- Labels -->
+          <text x="24" y="172" class="schematic-label">Steel Works</text>
+          <text x="80" y="172" class="schematic-label">Data Ctr</text>
+          <text x="120" y="172" class="schematic-label">Hospital</text>
+          <text x="158" y="172" class="schematic-label">Indust.</text>
+          <text x="192" y="172" class="schematic-label">Resid.</text>
+
+          <!-- Stats bar -->
+          <text x="8" y="192" class="schematic-label">45,200 customers</text>
+          <text x="128" y="192" class="schematic-label-val">$12M/day exposure</text>
+        </svg>
+      </div>
     </div>
   </div>
 
@@ -349,8 +447,8 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 // ============================================
 // ESRI MAP SETUP
 // ============================================
-require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point","esri/geometry/Polyline"],
-function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline) {
+require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point","esri/geometry/Polyline","esri/Color"],
+function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline, Color) {
 
   const map = new Map({ basemap: "dark-gray-vector" });
   const view = new MapView({ container: "viewDiv", map: map, center: [54.55, 24.42], zoom: 11 });
@@ -360,25 +458,8 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline) {
   const lineLayer = new GraphicsLayer();
   const heatLayer = new GraphicsLayer();
   const crewLayer = new GraphicsLayer();
-  const schematicLayer = new GraphicsLayer(); // distribution detail
-  const serviceZoneLayer = new GraphicsLayer(); // service boundaries
-  map.addMany([serviceZoneLayer, heatLayer, lineLayer, schematicLayer, crewLayer, subLayer]);
-
-  // === SERVICE BOUNDARY ZONES (green polygons like Izzaddine's schematic) ===
-  const serviceZones = [
-    { name: "S7 Al Quoz Service Area", rings: [[54.48,24.33],[54.53,24.33],[54.53,24.37],[54.48,24.37],[54.48,24.33]], color: [239,68,68,15] },
-    { name: "S12 Downtown Service Area", rings: [[54.34,24.47],[54.40,24.47],[54.40,24.51],[54.34,24.51],[54.34,24.47]], color: [249,115,22,15] },
-    { name: "S1 Main Grid Zone", rings: [[54.41,24.41],[54.47,24.41],[54.47,24.47],[54.41,24.47],[54.41,24.41]], color: [16,185,129,12] },
-    { name: "Khalifa City Zone", rings: [[54.55,24.39],[54.61,24.39],[54.61,24.45],[54.55,24.45],[54.55,24.39]], color: [16,185,129,12] },
-    { name: "Yas-Saadiyat Zone", rings: [[54.40,24.51],[54.46,24.51],[54.46,24.56],[54.40,24.56],[54.40,24.51]], color: [16,185,129,12] },
-  ];
-  serviceZones.forEach(z => {
-    serviceZoneLayer.add(new Graphic({
-      geometry: { type: "polygon", rings: [z.rings.map(r => [r[0],r[1]])] },
-      symbol: { type: "simple-fill", color: z.color, outline: { color: [...z.color.slice(0,3), 60], width: 1, style: "dash" } },
-      popupTemplate: { title: z.name }
-    }));
-  });
+  const schematicLayer = new GraphicsLayer();
+  map.addMany([heatLayer, lineLayer, schematicLayer, crewLayer, subLayer]);
 
   // Substations with real TAQA-style data
   const subs = [
@@ -506,8 +587,8 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline) {
     },
     symbol: {
       type: "simple-fill",
-      color: [239, 68, 68, 25],
-      outline: { color: [239, 68, 68, 80], width: 1, style: "dash" }
+      color: new Color([239, 68, 68, 0.08]),
+      outline: { color: new Color([239, 68, 68, 0.3]), width: 1.5, style: "dash" }
     }
   }));
 
