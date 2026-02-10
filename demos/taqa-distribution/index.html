@@ -35,7 +35,36 @@
 body { font-family: var(--font-display); background: var(--bg-primary); color: var(--text-primary); height: 100vh; overflow: hidden; }
 
 /* ===== LAYOUT ===== */
-.app { display: grid; grid-template-columns: 1fr 420px; height: 100vh; }
+.app { display: grid; grid-template-columns: 260px 1fr 420px; height: 100vh; }
+
+
+/* ===== INTEL FEED ===== */
+.intel-feed { background: var(--bg-secondary); border-right: 1px solid var(--border-subtle); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.intel-header { padding: 14px 16px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; justify-content: space-between; }
+.intel-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.intel-live { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--accent-emerald); font-weight: 600; }
+.intel-live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-emerald); animation: pulse 2s infinite; }
+.intel-items { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.intel-item { padding: 10px 12px; background: rgba(255,255,255,0.02); border: 1px solid var(--border-subtle); border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+.intel-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
+.intel-item.crit { border-left: 3px solid var(--accent-red); }
+.intel-item.warn { border-left: 3px solid var(--accent-amber); }
+.intel-item.info { border-left: 3px solid var(--accent-cyan); }
+.intel-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.intel-sev { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 6px; border-radius: 3px; }
+.intel-sev.critical { background: rgba(239,68,68,0.15); color: var(--accent-red); }
+.intel-sev.warning { background: rgba(251,191,36,0.15); color: var(--accent-amber); }
+.intel-sev.info-sev { background: rgba(34,211,238,0.15); color: var(--accent-cyan); }
+.intel-time { font-size: 9px; color: var(--text-muted); }
+.intel-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.intel-text strong { color: var(--text-primary); }
+.intel-tags { display: flex; gap: 4px; margin-top: 6px; }
+.intel-tag { font-size: 9px; padding: 2px 6px; border-radius: 3px; background: rgba(255,255,255,0.05); color: var(--text-muted); }
+.intel-tag.thermal { color: var(--accent-red); background: rgba(239,68,68,0.08); }
+.intel-tag.grid { color: var(--accent-amber); background: rgba(251,191,36,0.08); }
+.intel-tag.water { color: var(--accent-cyan); background: rgba(34,211,238,0.08); }
+.intel-tag.power { color: var(--accent-emerald); background: rgba(16,185,129,0.08); }
+@media (max-width: 1100px) { .intel-feed { display: none; } .app { grid-template-columns: 1fr 420px; } }
 
 /* ===== MAP PANEL ===== */
 .map-panel { position: relative; overflow: hidden; }
@@ -173,24 +202,54 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 </style>
-<script>
-(function(){
-  var PW = "voltpeak";
-  var o=document.createElement("div");o.id="pw-gate";
-  o.style.cssText="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0e1a;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,sans-serif";
-  o.innerHTML='<div style="text-align:center;max-width:380px;padding:40px"><div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px">NEXUS <span style=\'color:#00d4aa\'>INTELLIGENCE</span></div><div style="font-size:13px;color:#64748b;margin-bottom:32px">Authorized access only</div><input id="pw-input" type="password" placeholder="Enter access code" style="width:100%;padding:14px 18px;background:#111827;border:1px solid #1e293b;border-radius:8px;color:#fff;font-size:15px;outline:none;margin-bottom:16px;box-sizing:border-box" autofocus><button id="pw-btn" style="width:100%;padding:14px;background:#00d4aa;color:#0a0e1a;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer">Access Demo</button><div id="pw-err" style="color:#ef4444;font-size:13px;margin-top:12px;display:none">Invalid access code</div><div style="font-size:11px;color:#334155;margin-top:24px">&copy; 2026 Rebirth Nexus Inc.</div></div>';
-  document.addEventListener("DOMContentLoaded",function(){
-    document.body.appendChild(o);
-    var s=document.createElement("style");s.textContent="@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}";document.head.appendChild(s);
-    function go(){if(document.getElementById("pw-input").value===PW){o.remove()}else{var e=document.getElementById("pw-err");e.style.display="block";var i=document.getElementById("pw-input");i.style.borderColor="#ef4444";i.style.animation="shake 0.5s";setTimeout(function(){i.style.animation="";i.style.borderColor="#1e293b";e.style.display="none"},2000)}}
-    document.getElementById("pw-btn").addEventListener("click",go);
-    document.getElementById("pw-input").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
-  });
-})();
-</script>
 </head>
 <body>
 <div class="app">
+  <!-- INTEL FEED -->
+  <div class="intel-feed">
+    <div class="intel-header">
+      <span class="intel-title">Grid Intelligence</span>
+      <span class="intel-live"><div class="intel-live-dot"></div> Live</span>
+    </div>
+    <div class="intel-items">
+      <div class="intel-item crit" onclick="handleChipClick('Investigate Substation 7 Cascade')">
+        <div class="intel-meta"><span class="intel-sev critical">Critical</span><span class="intel-time">14:23 GST</span></div>
+        <div class="intel-text"><strong>Sub-7 transformer at 92°C</strong> — 3°C from thermal trip. Cascade risk to S12, S15.</div>
+        <div class="intel-tags"><span class="intel-tag thermal">Thermal</span><span class="intel-tag grid">Cascade</span></div>
+      </div>
+      <div class="intel-item crit" onclick="handleChipClick('What\'s our total financial exposure?')">
+        <div class="intel-meta"><span class="intel-sev critical">Critical</span><span class="intel-time">14:18 GST</span></div>
+        <div class="intel-text"><strong>Reserve margin at 2.4%.</strong> Load shedding protocol on standby. AED 18.7M exposure.</div>
+        <div class="intel-tags"><span class="intel-tag grid">Capacity</span><span class="intel-tag power">Reserve</span></div>
+      </div>
+      <div class="intel-item warn" onclick="handleChipClick('Show grid thermal stress map')">
+        <div class="intel-meta"><span class="intel-sev warning">Warning</span><span class="intel-time">14:12 GST</span></div>
+        <div class="intel-text"><strong>4 substations above 85°C.</strong> ICAD corridor approaching cascade threshold.</div>
+        <div class="intel-tags"><span class="intel-tag thermal">Thermal</span><span class="intel-tag grid">Network</span></div>
+      </div>
+      <div class="intel-item warn" onclick="handleChipClick('Water-energy nexus status')">
+        <div class="intel-meta"><span class="intel-sev warning">Warning</span><span class="intel-time">14:08 GST</span></div>
+        <div class="intel-text"><strong>3 water pumping stations</strong> on Sub-7 feeders. 340,000 residents at risk if grid power lost.</div>
+        <div class="intel-tags"><span class="intel-tag water">Water</span><span class="intel-tag power">Backup Gen</span></div>
+      </div>
+      <div class="intel-item warn" onclick="handleChipClick('Transformer inventory summary')">
+        <div class="intel-meta"><span class="intel-sev warning">Warning</span><span class="intel-time">14:02 GST</span></div>
+        <div class="intel-text"><strong>6 transformers aging past 25 years</strong> in thermal stress zone. Priority replacement candidates.</div>
+        <div class="intel-tags"><span class="intel-tag grid">Assets</span><span class="intel-tag thermal">Aging</span></div>
+      </div>
+      <div class="intel-item info" onclick="handleChipClick('Asset portfolio criticality ranking')">
+        <div class="intel-meta"><span class="intel-sev info-sev">Info</span><span class="intel-time">13:55 GST</span></div>
+        <div class="intel-text"><strong>Asset criticality scores updated.</strong> 3 substations moved to "replace within 12 months."</div>
+        <div class="intel-tags"><span class="intel-tag grid">Planning</span><span class="intel-tag power">Capex</span></div>
+      </div>
+      <div class="intel-item info" onclick="handleChipClick('Investigate Substation 7 Cascade')">
+        <div class="intel-meta"><span class="intel-sev info-sev">Info</span><span class="intel-time">13:41 GST</span></div>
+        <div class="intel-text"><strong>Nexus flagged TR-7A at 86°C</strong> — rate-of-rise anomaly detected 6 hours before SCADA threshold.</div>
+        <div class="intel-tags"><span class="intel-tag thermal">Predictive</span><span class="intel-tag grid">Early Warning</span></div>
+      </div>
+    </div>
+  </div>
+
   <!-- MAP -->
   <div class="map-panel">
     <div id="viewDiv"></div>
