@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Intelligence — DOE Consumption Analytics</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
+<script src="https://js.arcgis.com/4.28/"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<style>
+:root{--bg:#0b0f18;--bg2:#131b2e;--bg3:#1a2540;--brd:rgba(255,255,255,.06);--t1:#edf0f7;--t2:#98a6c4;--tm:#5f718f;--mint:#34d399;--red:#f87171;--amb:#fbbf24;--cyan:#22d3ee;--purp:#a78bfa}
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden}
+.app{display:grid;grid-template-columns:1fr 420px;height:100vh}
+.mp{position:relative;overflow:hidden}#viewDiv{width:100%;height:100%}
+.ot{position:absolute;top:16px;left:16px;z-index:10}.br{display:flex;align-items:center;gap:10px;background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:10px 16px;border-radius:10px;border:1px solid var(--brd)}.bi{width:32px;height:32px;background:linear-gradient(135deg,var(--mint),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}.bt{font-size:14px;font-weight:600}.bs{font-size:10px;color:var(--tm);letter-spacing:1px;text-transform:uppercase}
+.sb{position:absolute;top:16px;right:436px;z-index:10;display:flex;flex-direction:column;gap:8px}.sc{background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;border:1px solid var(--brd);min-width:180px}.sl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm)}.sv{font-size:22px;font-weight:700;margin-top:2px}.sd{font-size:10px;color:var(--tm);margin-top:2px}
+.lg{position:absolute;bottom:16px;left:16px;z-index:10;background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:14px 18px;border-radius:10px;border:1px solid var(--brd)}.lt{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm);margin-bottom:10px}.li{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--t2)}.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cp{display:flex;flex-direction:column;background:var(--bg2);border-left:1px solid var(--brd);height:100vh}
+.ch{padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:12px}.ci{width:36px;height:36px;background:linear-gradient(135deg,var(--mint),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#000}
+.ib{display:flex;align-items:center;gap:8px;padding:8px 18px;background:rgba(52,211,153,.06);border-bottom:1px solid rgba(52,211,153,.12)}.id{width:8px;height:8px;border-radius:50%;background:var(--mint)}.it{font-size:11px;font-weight:500;color:var(--mint);flex:1}
+.kr{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--brd);overflow-x:auto}.ki{background:var(--bg3);padding:8px 10px;border-radius:8px;text-align:center;flex:1;min-width:70px}.kl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm)}.kv{font-size:13px;font-weight:700;margin-top:2px}
+.ms{flex:1;overflow-y:auto;padding:14px 18px;scroll-behavior:smooth}.mg{margin-bottom:14px}.mg.u{text-align:right}.mb{display:inline-block;max-width:92%;padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;text-align:left}.mg.a .mb{background:var(--bg3);border:1px solid var(--brd)}.mg.u .mb{background:var(--mint);color:#000;font-weight:500}
+.vb{margin:10px 0;padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border:1px solid var(--brd)}.vt{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:8px}.vr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}.vr:last-child{border:none}.vr .l{color:var(--t2)}.vr .v{font-weight:600}
+.tb{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px}.tb th{text-align:left;padding:4px 6px;color:var(--tm);font-weight:500;border-bottom:1px solid var(--brd);font-size:9px;text-transform:uppercase}.tb td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2)}.tb td.h{color:var(--t1);font-weight:600}
+.an{padding:10px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:6px;margin:8px 0}.ah{font-size:10px;font-weight:600;color:var(--red);margin-bottom:4px}.ab2{font-size:11px;color:var(--t2);line-height:1.4}
+.pv{margin-top:10px;padding-top:8px;border-top:1px solid var(--brd)}.pl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:4px}.pg{display:flex;gap:4px;flex-wrap:wrap}.pt{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.04);color:var(--tm)}.pt::before{content:"✓";color:var(--mint);margin-right:3px;font-size:8px}
+.ca{padding:12px 18px;background:var(--bg3);border-top:1px solid var(--brd)}.cl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:8px}.cg{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:7px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font-size:11px;cursor:pointer;transition:all .2s;font-family:inherit}.chip:hover{border-color:var(--mint);color:var(--mint);background:rgba(52,211,153,.05)}.chip.ov{border-color:rgba(34,211,238,.3);color:var(--cyan)}
+.ia{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--brd)}.ia input{flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--t1);font-size:12px;font-family:inherit;outline:none}.ia input:focus{border-color:var(--mint)}.ia button{background:var(--mint);color:#000;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit}
+.td{display:flex;gap:4px;padding:8px 0}.tt{width:6px;height:6px;border-radius:50%;background:var(--tm);animation:tb 1.4s infinite}.tt:nth-child(2){animation-delay:.2s}.tt:nth-child(3){animation-delay:.4s}@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="mp">
+<div id="viewDiv"></div>
+<div class="ot"><div class="br"><div class="bi">N</div><div><div class="bt">Rebirth Nexus</div><div class="bs">DOE Consumption Analytics · Abu Dhabi</div></div></div></div>
+<div class="sb">
+<div class="sc"><div class="sl">Monthly Consumption</div><div class="sv" style="color:var(--cyan)">4.8 TWh</div><div class="sd">+8.2% YoY</div></div>
+<div class="sc"><div class="sl">Anomalies</div><div class="sv" style="color:var(--red)">147</div><div class="sd">89 buildings flagged</div></div>
+<div class="sc"><div class="sl">Revenue at Risk</div><div class="sv" style="color:var(--amb)">AED 23M</div><div class="sd">Tariff misclassification</div></div>
+<div class="sc"><div class="sl">Retrofit Savings</div><div class="sv" style="color:var(--mint)">AED 156M</div><div class="sd">Annual potential</div></div>
+</div>
+<div class="lg">
+<div class="lt">Consumption Zones</div>
+<div class="li"><div class="ld" style="background:var(--red)"></div> Extreme (>3× avg)</div>
+<div class="li"><div class="ld" style="background:var(--amb)"></div> High (2-3× avg)</div>
+<div class="li"><div class="ld" style="background:var(--mint)"></div> Normal</div>
+<div class="li"><div class="ld" style="background:var(--purp)"></div> Government/Industrial</div>
+</div>
+</div>
+<div class="cp">
+<div class="ch"><div class="ci">N</div><div><div class="bt">NexusEnergy Analytics</div><div class="bs">Department of Energy · Consumption Intelligence</div></div></div>
+<div class="ib"><div class="id"></div><div class="it">DOE REGULATORY VIEW — Building-Level Analytics</div></div>
+<div class="kr">
+<div class="ki"><div class="kl">Total</div><div class="kv" style="color:var(--cyan)">4.8 TWh</div></div>
+<div class="ki"><div class="kl">Anomalies</div><div class="kv" style="color:var(--red)">147</div></div>
+<div class="ki"><div class="kl">Savings</div><div class="kv" style="color:var(--mint)">AED 156M</div></div>
+<div class="ki"><div class="kl">Buildings</div><div class="kv" style="color:var(--purp)">12,847</div></div>
+</div>
+<div class="ms" id="chatMessages"></div>
+<div class="ca"><div class="cl">Suggested Queries</div><div class="cg" id="chipsGrid"></div></div>
+<div class="ia"><input type="text" id="chatInput" placeholder="Ask about consumption, anomalies, tariffs..."><button onclick="handleSend()">Send</button></div>
+</div>
+</div>
+<script>
+require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point"],function(Map,MapView,Graphic,GraphicsLayer,Point){
+const map=new Map({basemap:"dark-gray-vector"});const view=new MapView({container:"viewDiv",map,center:[54.50,24.44],zoom:12});view.ui.remove(["zoom","attribution"]);window._view=view;
+const lyr=new GraphicsLayer();map.add(lyr);
+[{n:"Al Noor Tower",la:24.49,lo:54.37,c:[248,113,113],s:14},{n:"ADNOC HQ",la:24.45,lo:54.38,c:[167,139,250],s:12},{n:"Etihad Towers",la:24.46,lo:54.33,c:[251,191,36],s:12},{n:"Al Bateen Villas",la:24.44,lo:54.34,c:[248,113,113],s:13},{n:"Mussafah Industrial",la:24.36,lo:54.50,c:[167,139,250],s:14},{n:"Al Reem Cluster",la:24.50,lo:54.40,c:[52,211,153],s:10},{n:"Khalifa City Mall",la:24.42,lo:54.58,c:[248,113,113],s:13},{n:"Yas Mall",la:24.49,lo:54.61,c:[251,191,36],s:12},{n:"Saadiyat Villas",la:24.55,lo:54.43,c:[52,211,153],s:10},{n:"Corniche Residential",la:24.47,lo:54.35,c:[52,211,153],s:10},{n:"Marina Mall",la:24.48,lo:54.33,c:[251,191,36],s:11}].forEach(b=>{
+lyr.add(new Graphic({geometry:new Point({longitude:b.lo,latitude:b.la}),symbol:{type:"simple-marker",color:b.c,size:b.s,outline:{color:[255,255,255,60],width:1}}}))});
+});
+
+const CS={
+i:["📊 Consumption by building type","🔍 Show all anomalies detected","🏢 Drill into Al Noor Tower","💰 Tariff misclassification report","🔋 Retrofit prioritization"],
+b:["📊 Consumption by building type","🔍 Show all anomalies detected","💰 Tariff misclassification report","↩️ Return to overview"],
+a:["Crypto mining detection details","💰 Tariff misclassification report","🔋 Retrofit prioritization","↩️ Return to overview"],
+t:["What-if: 10% rate increase","🔍 Show all anomalies detected","🏢 Drill into Al Noor Tower","↩️ Return to overview"],
+r:["📊 Consumption by building type","🔍 Show all anomalies detected","💰 Tariff misclassification report","↩️ Return to overview"]
+};
+
+const R={
+"consumption by building type":{c:`<p><strong>📊 CONSUMPTION BY BUILDING TYPE — Abu Dhabi Emirate</strong></p>
+<div class="vb"><div class="vt">Consumption by Building Type (Metered Accounts)</div>
+<table class="tb"><tr><th>Building Type</th><th>Accounts</th><th>Avg kWh/mo</th><th>Total GWh/mo</th><th>%</th></tr>
+<tr><td class="h">Villa — Type A</td><td>42,300</td><td>4,567</td><td>193.2</td><td>4.0%</td></tr>
+<tr><td class="h">Villa — Type B</td><td>28,700</td><td>3,456</td><td>99.2</td><td>2.1%</td></tr>
+<tr><td class="h">Residential Tower</td><td>8,450</td><td>2,345</td><td>19.8</td><td>0.4%</td></tr>
+<tr><td class="h">Commercial</td><td>6,780</td><td>8,901</td><td>60.3</td><td>1.3%</td></tr>
+<tr><td class="h" style="color:var(--purp)">Government</td><td>1,234</td><td>12,345</td><td>15.2</td><td>0.3%</td></tr>
+<tr><td class="h" style="color:var(--purp)">Industrial</td><td>567</td><td>45,678</td><td>25.9</td><td>0.5%</td></tr></table></div>
+<p><strong>Key insight:</strong> Type A villas consume 32% more than Type B villas on average (4,567 vs 3,456 kWh/mo), driven by larger property sizes (avg 680m² vs 420m²). When normalized per square meter, consumption is actually 12% lower.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Smart Meter AMI</span><span class="pt">CIS Billing</span><span class="pt">Building Registry</span></div></div>`,x:CS.i},
+
+"show all anomalies detected":{c:`<p><strong>🔍 ANOMALY DETECTION — 147 Flags Across 89 Buildings</strong></p>
+<div class="vb"><div class="vt">Anomaly Categories</div>
+<table class="tb"><tr><th>Type</th><th>Count</th><th>Revenue Impact</th><th>Conf.</th></tr>
+<tr><td class="h" style="color:var(--red)">Suspected Crypto Mining</td><td>12</td><td style="color:var(--red)">AED 8.4M/yr</td><td>94%</td></tr>
+<tr><td class="h" style="color:var(--red)">Meter Tampering</td><td>23</td><td style="color:var(--red)">AED 5.2M/yr</td><td>87%</td></tr>
+<tr><td class="h" style="color:var(--amb)">Tariff Misclassification</td><td>45</td><td style="color:var(--amb)">AED 23M/yr</td><td>92%</td></tr>
+<tr><td class="h">Unusual Seasonal Pattern</td><td>34</td><td>AED 2.1M/yr</td><td>78%</td></tr>
+<tr><td>Equipment Malfunction</td><td>18</td><td>AED 1.8M/yr</td><td>85%</td></tr>
+<tr><td>Unauthorized Sub-metering</td><td>15</td><td>AED 3.6M/yr</td><td>81%</td></tr>
+<tr style="border-top:1px solid var(--brd)"><td class="h">TOTAL</td><td class="h">147</td><td class="h" style="color:var(--red)">AED 44.1M/yr</td><td></td></tr></table></div>
+<div class="an"><div class="ah">🚨 TOP FLAG: Crypto Mining — Al Noor Tower Unit 3305</div>
+<div class="ab2">Consumption: 18,456 kWh/mo — <strong>7.4× floor average</strong> (2,340 kWh). Constant 24/7 load, no diurnal pattern. 94% confidence: cryptocurrency mining. At residential tariff = AED 680K/yr under-billed (should be commercial rate).</div></div>
+<p>147 anomalies = <strong>AED 44.1M annual revenue at risk</strong>. Tariff misclassification alone is >50%.</p>`,x:CS.a},
+
+"villa consumption by household type":{c:`<p><strong>🏠 VILLA CONSUMPTION BY HOUSEHOLD TYPE</strong></p>
+<p style="font-size:10px;color:var(--tm)">Household types anonymized for regulatory presentation.</p>
+<div class="vb"><div class="vt">Side-by-Side Comparison</div>
+<table class="tb"><tr><th>Metric</th><th>Type A (Larger)</th><th>Type B (Standard)</th><th>Diff</th></tr>
+<tr><td class="h">Avg Monthly kWh</td><td>4,567</td><td>3,456</td><td style="color:var(--amb)">+32%</td></tr>
+<tr><td>Avg Property Size</td><td>680 m²</td><td>420 m²</td><td>+62%</td></tr>
+<tr><td>kWh per m²</td><td>6.7</td><td>8.2</td><td style="color:var(--mint)">-18%</td></tr>
+<tr><td>Avg Occupants</td><td>8.4</td><td>4.2</td><td>+100%</td></tr>
+<tr><td>kWh per Capita</td><td>544</td><td>823</td><td style="color:var(--mint)">-34%</td></tr>
+<tr><td>Peak Cooling</td><td>28 kW</td><td>18 kW</td><td>+56%</td></tr>
+<tr><td>Solar Penetration</td><td>2.1%</td><td>0.4%</td><td>—</td></tr>
+<tr><td>Total Count</td><td>42,300</td><td>28,700</td><td>—</td></tr></table></div>
+<p><strong>Key finding:</strong> Type A villas are <strong>more efficient per capita</strong> (-34%) due to larger household sizes. Higher absolute consumption is driven by property size and cooling. Retrofit programs targeting cooling efficiency yield est. <strong>AED 45M/yr</strong> savings across Type A villa stock.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Smart Meter AMI</span><span class="pt">CIS Billing</span><span class="pt">Building Registry</span><span class="pt">Census/Survey</span></div></div>`,x:CS.i},
+
+"drill into al noor tower":{c:`<p><strong>🏢 AL NOOR TOWER — Building Deep Dive</strong></p>
+<p style="font-size:10px;color:var(--tm)">Drilling down: Abu Dhabi Emirate → Downtown District → Al Noor Tower</p>
+<div class="vb"><div class="vt">Building Profile</div>
+<div class="vr"><span class="l">Address</span><span class="v">Corniche Rd, Abu Dhabi</span></div>
+<div class="vr"><span class="l">Type</span><span class="v">Mixed Residential/Commercial</span></div>
+<div class="vr"><span class="l">Floors</span><span class="v">86 (B4 to 82)</span></div>
+<div class="vr"><span class="l">Units</span><span class="v">422 (356 residential, 66 commercial)</span></div>
+<div class="vr"><span class="l">Monthly Consumption</span><span class="v">2,890,000 kWh</span></div>
+<div class="vr"><span class="l">Anomalies</span><span class="v" style="color:var(--red)">3 units flagged</span></div></div>
+<div class="vb"><div class="vt">Floor-Level Summary (Floors 30-35)</div>
+<table class="tb"><tr><th>Floor</th><th>Units</th><th>Avg kWh</th><th>Total</th><th>Status</th></tr>
+<tr><td>30</td><td>6</td><td>2,280</td><td>13,680</td><td style="color:var(--mint)">Normal</td></tr>
+<tr><td>31</td><td>6</td><td>2,410</td><td>14,460</td><td style="color:var(--mint)">Normal</td></tr>
+<tr><td>32</td><td>6</td><td>2,190</td><td>13,140</td><td style="color:var(--mint)">Normal</td></tr>
+<tr><td class="h" style="color:var(--red)">33</td><td>6</td><td>5,120</td><td style="color:var(--red)">30,720</td><td style="color:var(--red)">⚠️ ANOMALY</td></tr>
+<tr><td>34</td><td>6</td><td>2,340</td><td>14,040</td><td style="color:var(--mint)">Normal</td></tr>
+<tr><td>35</td><td>6</td><td>2,560</td><td>15,360</td><td style="color:var(--mint)">Normal</td></tr></table></div>
+<div class="an"><div class="ah">⚠️ Floor 33 — Unit 3305</div>
+<div class="ab2">Consumption: <strong>18,456 kWh/mo</strong> (floor avg: 2,340 kWh) = <strong>7.4× average</strong>
+Load profile: Flat 24/7, no diurnal variation, no weekend dip
+Pattern match: 94% — cryptocurrency mining
+Revenue gap: AED 56,800/mo (residential) vs AED 124,500/mo (commercial rate)</div></div>`,x:CS.b},
+
+"tariff misclassification report":{c:`<p><strong>💰 TARIFF MISCLASSIFICATION — AED 23M Revenue Recovery</strong></p>
+<div class="vb"><div class="vt">Misclassified Accounts (45 identified)</div>
+<table class="tb"><tr><th>Current Tariff</th><th>Should Be</th><th>Count</th><th>Under-billing/yr</th></tr>
+<tr><td class="h">Residential</td><td style="color:var(--amb)">Commercial</td><td>23</td><td style="color:var(--red)">AED 12.4M</td></tr>
+<tr><td class="h">Residential</td><td style="color:var(--amb)">Industrial</td><td>8</td><td style="color:var(--red)">AED 6.8M</td></tr>
+<tr><td class="h">Commercial</td><td style="color:var(--amb)">Industrial</td><td>6</td><td style="color:var(--red)">AED 2.1M</td></tr>
+<tr><td class="h">Government</td><td style="color:var(--amb)">Commercial</td><td>5</td><td style="color:var(--red)">AED 1.2M</td></tr>
+<tr><td>Type A (subsidized)</td><td style="color:var(--amb)">Type B/Commercial</td><td>3</td><td style="color:var(--red)">AED 0.5M</td></tr>
+<tr style="border-top:1px solid var(--brd)"><td class="h" colspan="2">TOTAL</td><td class="h">45</td><td class="h" style="color:var(--red)">AED 23.0M/yr</td></tr></table></div>
+<p><strong>Method:</strong> Cross-references consumption patterns (load profile, magnitude, diurnal variation) against tariff class. A residential unit at 18,000+ kWh/mo with flat 24/7 profile isn't residential usage.</p>
+<p><strong>Revenue recovery:</strong> Reclassifying 45 accounts = <strong>AED 23M/yr</strong> with zero infrastructure investment.</p>`,x:CS.t},
+
+"retrofit prioritization":{c:`<p><strong>🔋 RETROFIT PRIORITIZATION — Top Opportunities</strong></p>
+<div class="vb"><div class="vt">Top 8 Buildings by ROI</div>
+<table class="tb"><tr><th>#</th><th>Building</th><th>Savings/yr</th><th>Cost</th><th>Payback</th></tr>
+<tr><td>1</td><td class="h">Mussafah Industrial</td><td style="color:var(--mint)">AED 12.4M</td><td>AED 18M</td><td>1.5 yr</td></tr>
+<tr><td>2</td><td class="h">Yas Mall</td><td style="color:var(--mint)">AED 8.2M</td><td>AED 14M</td><td>1.7 yr</td></tr>
+<tr><td>3</td><td class="h">Marina Mall</td><td style="color:var(--mint)">AED 6.1M</td><td>AED 12M</td><td>2.0 yr</td></tr>
+<tr><td>4</td><td>Etihad Towers</td><td style="color:var(--mint)">AED 4.8M</td><td>AED 11M</td><td>2.3 yr</td></tr>
+<tr><td>5</td><td>ADNOC HQ</td><td style="color:var(--mint)">AED 3.9M</td><td>AED 8M</td><td>2.1 yr</td></tr>
+<tr><td>6</td><td>Al Reem Cluster</td><td>AED 3.2M</td><td>AED 9M</td><td>2.8 yr</td></tr>
+<tr><td>7</td><td>Khalifa City Mall</td><td>AED 2.8M</td><td>AED 7M</td><td>2.5 yr</td></tr>
+<tr><td>8</td><td>Al Noor Tower</td><td>AED 2.1M</td><td>AED 6M</td><td>2.9 yr</td></tr></table></div>
+<div class="vb"><div class="vt">Savings by Category</div>
+<div class="vr"><span class="l">HVAC/Cooling Optimization</span><span class="v" style="color:var(--mint)">AED 89M (57%)</span></div>
+<div class="vr"><span class="l">LED Lighting Replacement</span><span class="v" style="color:var(--mint)">AED 28M (18%)</span></div>
+<div class="vr"><span class="l">Building Envelope</span><span class="v">AED 24M (15%)</span></div>
+<div class="vr"><span class="l">Smart Controls & BMS</span><span class="v">AED 15M (10%)</span></div>
+<div class="vr" style="border-top:1px solid var(--brd);padding-top:4px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--t1)">TOTAL ANNUAL SAVINGS</span><span class="v" style="color:var(--mint);font-size:13px">AED 156M</span></div></div>
+<p>HVAC dominates — Abu Dhabi's cooling load is 60-70% of total building energy. District cooling retrofits in the top 8 buildings alone yield <strong>AED 43.5M/yr</strong> with avg 2.0 year payback.</p>`,x:CS.r},
+
+"crypto mining detection details":{c:`<p><strong>⛏️ CRYPTO MINING DETECTION — 12 Suspected Locations</strong></p>
+<div class="vb"><div class="vt">Detection Algorithm</div>
+<div class="vr"><span class="l">Signal 1</span><span class="v">Flat 24/7 load profile (no diurnal variation)</span></div>
+<div class="vr"><span class="l">Signal 2</span><span class="v">Consumption >5× unit average</span></div>
+<div class="vr"><span class="l">Signal 3</span><span class="v">No seasonal variation (immune to weather)</span></div>
+<div class="vr"><span class="l">Signal 4</span><span class="v">Power factor anomaly (GPU/ASIC signature)</span></div></div>
+<div class="vb"><div class="vt">Top 5 Suspected Locations</div>
+<table class="tb"><tr><th>Location</th><th>kWh/mo</th><th>× Avg</th><th>Conf.</th><th>Revenue Gap</th></tr>
+<tr><td class="h" style="color:var(--red)">Al Noor Tower 3305</td><td>18,456</td><td style="color:var(--red)">7.4×</td><td>94%</td><td>AED 67K/mo</td></tr>
+<tr><td class="h" style="color:var(--red)">Al Reem T2-1804</td><td>14,230</td><td style="color:var(--red)">5.8×</td><td>91%</td><td>AED 52K/mo</td></tr>
+<tr><td class="h" style="color:var(--amb)">Khalifa Res 908</td><td>12,100</td><td style="color:var(--amb)">4.9×</td><td>88%</td><td>AED 44K/mo</td></tr>
+<tr><td class="h">Marina Apt 2203</td><td>11,450</td><td>4.6×</td><td>85%</td><td>AED 41K/mo</td></tr>
+<tr><td>Corniche Tower 1505</td><td>9,870</td><td>4.0×</td><td>82%</td><td>AED 36K/mo</td></tr></table></div>
+<p><strong>Total mining revenue gap:</strong> AED 8.4M/yr. These units consume at industrial scale but pay residential tariff. Beyond revenue, crypto mining loads stress distribution transformers and increase fire risk from heat dissipation in residential spaces.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Smart Meter AMI (15-min)</span><span class="pt">Load Profile Analytics</span><span class="pt">Power Factor Logs</span><span class="pt">Tariff Classification DB</span></div></div>`,x:CS.a},
+
+"whatif 10 rate increase":{c:`<p><strong>📈 WHAT-IF: 10% Tariff Increase — Revenue & Demand Impact</strong></p>
+<div class="vb"><div class="vt">Revenue Impact by Segment</div>
+<table class="tb"><tr><th>Segment</th><th>Current Rev</th><th>+10%</th><th>Elasticity</th><th>Net Impact</th></tr>
+<tr><td class="h">Residential (Type A)</td><td>AED 840M</td><td>AED 924M</td><td>-0.15</td><td style="color:var(--mint)">+AED 71M</td></tr>
+<tr><td class="h">Residential (Type B)</td><td>AED 420M</td><td>AED 462M</td><td>-0.22</td><td style="color:var(--mint)">+AED 33M</td></tr>
+<tr><td class="h">Commercial</td><td>AED 1,200M</td><td>AED 1,320M</td><td>-0.18</td><td style="color:var(--mint)">+AED 98M</td></tr>
+<tr><td>Industrial</td><td>AED 890M</td><td>AED 979M</td><td>-0.25</td><td style="color:var(--mint)">+AED 67M</td></tr>
+<tr><td>Government</td><td>AED 340M</td><td>AED 374M</td><td>-0.08</td><td style="color:var(--mint)">+AED 31M</td></tr>
+<tr style="border-top:1px solid var(--brd)"><td class="h" colspan="3">NET REVENUE INCREASE</td><td></td><td class="h" style="color:var(--mint)">+AED 300M/yr</td></tr></table></div>
+<div class="vb"><div class="vt">Demand Reduction Effect</div>
+<div class="vr"><span class="l">Estimated demand reduction</span><span class="v" style="color:var(--mint)">-3.2% (153 GWh/yr)</span></div>
+<div class="vr"><span class="l">Peak demand reduction</span><span class="v" style="color:var(--mint)">-280 MW</span></div>
+<div class="vr"><span class="l">Deferred generation capacity</span><span class="v" style="color:var(--mint)">AED 1.4B capex savings</span></div></div>
+<p>10% increase yields AED 300M net revenue while reducing demand 3.2%. The deferred generation capacity investment of AED 1.4B is the hidden win — this is the demand-side management value.</p>`,x:CS.t},
+
+"return to overview":{c:`<p>Back to the main analytics dashboard. Current highlights:</p>
+<div class="vb"><div class="vt">Summary</div>
+<div class="vr"><span class="l">Monthly Consumption</span><span class="v" style="color:var(--cyan)">4.8 TWh (+8.2% YoY)</span></div>
+<div class="vr"><span class="l">Active Anomalies</span><span class="v" style="color:var(--red)">147 across 89 buildings</span></div>
+<div class="vr"><span class="l">Revenue at Risk</span><span class="v" style="color:var(--amb)">AED 44.1M/yr</span></div>
+<div class="vr"><span class="l">Retrofit Opportunity</span><span class="v" style="color:var(--mint)">AED 156M/yr savings</span></div></div>
+<p>What would you like to analyze?</p>`,x:CS.i}
+};
+
+let isP=false;
+function norm(t){return t.toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim()}
+function find(t){const n=norm(t);for(const[k,v]of Object.entries(R)){if(n===k||n.includes(k)||k.includes(n))return v}
+if(n.includes('building type')||n.includes('by type'))return R['consumption by building type'];
+if(n.includes('anomal')||n.includes('detect'))return R['show all anomalies detected'];
+if(n.includes('villa')||n.includes('household type')||n.includes('type a')||n.includes('type b'))return R['villa consumption by household type'];
+if(n.includes('al noor')||n.includes('tower')||n.includes('drill'))return R['drill into al noor tower'];
+if(n.includes('tariff')||n.includes('misclass'))return R['tariff misclassification report'];
+if(n.includes('retrofit')||n.includes('prioriti'))return R['retrofit prioritization'];
+if(n.includes('crypto')||n.includes('mining'))return R['crypto mining detection details'];
+if(n.includes('rate increase')||(n.includes('what if')&&n.includes('10'))||(n.includes('what if')&&n.includes('tariff')))return R['whatif 10 rate increase'];
+if(n.includes('overview')||n.includes('return')||n.includes('back'))return R['return to overview'];
+return null}
+function scroll(){setTimeout(()=>{document.getElementById('chatMessages').scrollTop=document.getElementById('chatMessages').scrollHeight},10)}
+function addMsg(c,u=false){const el=document.getElementById('chatMessages'),m=document.createElement('div');m.className=`mg ${u?'u':'a'}`;m.innerHTML=`<div class="mb">${u?DOMPurify.sanitize(c):DOMPurify.sanitize(c,{ALLOWED_TAGS:['div','span','strong','em','br','p','b','i','table','tr','td','th','thead','tbody'],ALLOWED_ATTR:['class','style','colspan']})}</div>`;el.appendChild(m);scroll()}
+function showT(){const el=document.getElementById('chatMessages'),m=document.createElement('div');m.className='mg a';m.id='typ';m.innerHTML='<div class="mb"><div class="td"><div class="tt"></div><div class="tt"></div><div class="tt"></div></div></div>';el.appendChild(m);scroll()}
+function hideT(){const e=document.getElementById('typ');if(e)e.remove()}
+function updC(chips){const g=document.getElementById('chipsGrid');g.innerHTML='';chips.forEach(c=>{const b=document.createElement('button');b.className='chip';if(c.includes('↩️'))b.className+=' ov';b.textContent=c;b.onclick=()=>handle(c);g.appendChild(b)})}
+async function handle(t){if(isP)return;isP=true;addMsg(t,true);showT();await new Promise(r=>setTimeout(r,400+Math.random()*400));const resp=find(t);hideT();if(resp){addMsg(resp.c);updC(resp.x||CS.i);
+const nl=t.toLowerCase();
+if(nl.includes('al noor')||nl.includes('tower')||nl.includes('drill'))window._view&&window._view.goTo({center:[54.37,24.49],zoom:15},{duration:800});
+else if(nl.includes('overview')||nl.includes('return'))window._view&&window._view.goTo({center:[54.50,24.44],zoom:12},{duration:800});
+}else{addMsg('<p>I can analyze that further. The DOE analytics platform monitors 90,371 metered accounts across 12,847 buildings with 147 active anomalies representing AED 44.1M in annual revenue at risk. Try a suggested query.</p>');updC(CS.i)}isP=false}
+function handleSend(){const i=document.getElementById('chatInput'),t=i.value.trim();if(!t)return;i.value='';handle(t)}
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}});
+updC(CS.i);
+addMsg(`<p><strong>📊 DOE CONSUMPTION ANALYTICS — Abu Dhabi Emirate</strong></p>
+<p>NexusEnergy monitors 90,371 metered accounts across 12,847 buildings in Abu Dhabi. Key findings:</p>
+<div class="vb">
+<div class="vr"><span class="l">Monthly Consumption</span><span class="v" style="color:var(--cyan)">4.8 TWh (+8.2% YoY)</span></div>
+<div class="vr"><span class="l">Anomalies Detected</span><span class="v" style="color:var(--red)">147 across 89 buildings</span></div>
+<div class="vr"><span class="l">Revenue at Risk</span><span class="v" style="color:var(--amb)">AED 44.1M/yr (tariff misclass. + theft)</span></div>
+<div class="vr"><span class="l">Retrofit Savings Potential</span><span class="v" style="color:var(--mint)">AED 156M/yr</span></div>
+<div class="vr"><span class="l">Top Anomaly</span><span class="v" style="color:var(--red)">Al Noor Tower Unit 3305 — 7.4× avg (crypto mining?)</span></div></div>
+<p>This is not a dashboard — it's an enforcement and revenue recovery workflow with explainable anomaly detection. Drill down: Region → Building Type → Building → Floor → Unit → Meter.</p>`);
+</script>
+<script>
+(function(){
+  var PW = "gridpulse";
+  document.body.style.display="none";
+  var o=document.createElement("div");o.id="pw-gate";
+  o.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0e1a;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,sans-serif"><div style="text-align:center;max-width:380px;padding:40px"><div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px">NEXUS <span style=\'color:#00d4aa\'>INTELLIGENCE</span></div><div style="font-size:13px;color:#64748b;margin-bottom:32px">Authorized access only</div><input id="pw-input" type="password" placeholder="Enter access code" style="width:100%;padding:14px 18px;background:#111827;border:1px solid #1e293b;border-radius:8px;color:#fff;font-size:15px;outline:none;margin-bottom:16px;box-sizing:border-box" autofocus><button id="pw-btn" style="width:100%;padding:14px;background:#00d4aa;color:#0a0e1a;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer">Access Demo</button><div id="pw-err" style="color:#ef4444;font-size:13px;margin-top:12px;display:none">Invalid access code</div><div style="font-size:11px;color:#334155;margin-top:24px">&copy; 2026 Rebirth Nexus Inc.</div></div></div>';
+  document.documentElement.appendChild(o);
+  var s=document.createElement("style");s.textContent="@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}";document.head.appendChild(s);
+  function go(){if(document.getElementById("pw-input").value===PW){o.remove();document.body.style.display=""}else{var e=document.getElementById("pw-err");e.style.display="block";var i=document.getElementById("pw-input");i.style.borderColor="#ef4444";i.style.animation="shake 0.5s";setTimeout(function(){i.style.animation="";i.style.borderColor="#1e293b";e.style.display="none"},2000)}}
+  document.getElementById("pw-btn").addEventListener("click",go);
+  document.getElementById("pw-input").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
+})();
+</script>
+</body>
+</html>
