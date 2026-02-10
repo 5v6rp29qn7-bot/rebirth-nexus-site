@@ -3,77 +3,626 @@
 <head>
 <meta name="robots" content="noindex, nofollow">
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nexus Intelligence — DOE Consumption Analytics</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📊</text></svg>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rebirth Nexus — DOE Consumption Analytics</title>
 <link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
-<script src="https://js.arcgis.com/4.28/"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
 <style>
-:root{--bg:#0b0f18;--bg2:#131b2e;--bg3:#1a2540;--brd:rgba(255,255,255,.06);--t1:#edf0f7;--t2:#98a6c4;--tm:#5f718f;--mint:#34d399;--red:#f87171;--amb:#fbbf24;--cyan:#22d3ee;--purp:#a78bfa}
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--t1);height:100vh;overflow:hidden}
-.app{display:grid;grid-template-columns:1fr 420px;height:100vh}
-.mp{position:relative;overflow:hidden}#viewDiv{width:100%;height:100%}
-.ot{position:absolute;top:16px;left:16px;z-index:10}.br{display:flex;align-items:center;gap:10px;background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:10px 16px;border-radius:10px;border:1px solid var(--brd)}.bi{width:32px;height:32px;background:linear-gradient(135deg,var(--mint),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#000}.bt{font-size:14px;font-weight:600}.bs{font-size:10px;color:var(--tm);letter-spacing:1px;text-transform:uppercase}
-.sb{position:absolute;top:16px;right:436px;z-index:10;display:flex;flex-direction:column;gap:8px}.sc{background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:12px 16px;border-radius:10px;border:1px solid var(--brd);min-width:180px}.sl{font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm)}.sv{font-size:22px;font-weight:700;margin-top:2px}.sd{font-size:10px;color:var(--tm);margin-top:2px}
-.lg{position:absolute;bottom:16px;left:16px;z-index:10;background:rgba(11,15,24,.92);backdrop-filter:blur(12px);padding:14px 18px;border-radius:10px;border:1px solid var(--brd)}.lt{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--tm);margin-bottom:10px}.li{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px;color:var(--t2)}.ld{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.cp{display:flex;flex-direction:column;background:var(--bg2);border-left:1px solid var(--brd);height:100vh}
-.ch{padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:12px}.ci{width:36px;height:36px;background:linear-gradient(135deg,var(--mint),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:#000}
-.ib{display:flex;align-items:center;gap:8px;padding:8px 18px;background:rgba(52,211,153,.06);border-bottom:1px solid rgba(52,211,153,.12)}.id{width:8px;height:8px;border-radius:50%;background:var(--mint)}.it{font-size:11px;font-weight:500;color:var(--mint);flex:1}
-.kr{display:flex;gap:6px;padding:10px 18px;border-bottom:1px solid var(--brd);overflow-x:auto}.ki{background:var(--bg3);padding:8px 10px;border-radius:8px;text-align:center;flex:1;min-width:70px}.kl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm)}.kv{font-size:13px;font-weight:700;margin-top:2px}
-.ms{flex:1;overflow-y:auto;padding:14px 18px;scroll-behavior:smooth}.mg{margin-bottom:14px}.mg.u{text-align:right}.mb{display:inline-block;max-width:92%;padding:10px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;text-align:left}.mg.a .mb{background:var(--bg3);border:1px solid var(--brd)}.mg.u .mb{background:var(--mint);color:#000;font-weight:500}
-.vb{margin:10px 0;padding:10px;background:rgba(0,0,0,.2);border-radius:8px;border:1px solid var(--brd)}.vt{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cyan);margin-bottom:8px}.vr{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:11px}.vr:last-child{border:none}.vr .l{color:var(--t2)}.vr .v{font-weight:600}
-.tb{width:100%;border-collapse:collapse;font-size:10.5px;margin-top:6px}.tb th{text-align:left;padding:4px 6px;color:var(--tm);font-weight:500;border-bottom:1px solid var(--brd);font-size:9px;text-transform:uppercase}.tb td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.03);color:var(--t2)}.tb td.h{color:var(--t1);font-weight:600}
-.an{padding:10px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:6px;margin:8px 0}.ah{font-size:10px;font-weight:600;color:var(--red);margin-bottom:4px}.ab2{font-size:11px;color:var(--t2);line-height:1.4}
-.pv{margin-top:10px;padding-top:8px;border-top:1px solid var(--brd)}.pl{font-size:8px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:4px}.pg{display:flex;gap:4px;flex-wrap:wrap}.pt{font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(255,255,255,.04);color:var(--tm)}.pt::before{content:"✓";color:var(--mint);margin-right:3px;font-size:8px}
-.ca{padding:12px 18px;background:var(--bg3);border-top:1px solid var(--brd)}.cl{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--tm);margin-bottom:8px}.cg{display:flex;flex-wrap:wrap;gap:6px}
-.chip{padding:7px 12px;border-radius:8px;border:1px solid var(--brd);background:var(--bg2);color:var(--t2);font-size:11px;cursor:pointer;transition:all .2s;font-family:inherit}.chip:hover{border-color:var(--mint);color:var(--mint);background:rgba(52,211,153,.05)}.chip.ov{border-color:rgba(34,211,238,.3);color:var(--cyan)}
-.ia{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--brd)}.ia input{flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:10px 14px;color:var(--t1);font-size:12px;font-family:inherit;outline:none}.ia input:focus{border-color:var(--mint)}.ia button{background:var(--mint);color:#000;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:12px;cursor:pointer;font-family:inherit}
-.td{display:flex;gap:4px;padding:8px 0}.tt{width:6px;height:6px;border-radius:50%;background:var(--tm);animation:tb 1.4s infinite}.tt:nth-child(2){animation-delay:.2s}.tt:nth-child(3){animation-delay:.4s}@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px}
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --bg-card-hover: #262636;
+  --border: #2a2a3a;
+  --border-accent: #3a3a50;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-muted: #606072;
+  --accent-gold: #d4af37;
+  --accent-gold-dim: rgba(212,175,55,0.12);
+  --accent-emerald: #10b981;
+  --accent-emerald-dim: rgba(16,185,129,0.12);
+  --accent-cyan: #22d3ee;
+  --accent-cyan-dim: rgba(34,211,238,0.10);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.10);
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245,158,11,0.10);
+  --accent-purple: #a855f7;
+  --accent-purple-dim: rgba(168,85,247,0.10);
+  --gradient-brand: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #ef4444 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(245,158,11,0.05) 100%);
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* TOP BAR */
+.top-bar {
+  height: 48px; min-height: 48px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon { width: 28px; height: 28px; background: transparent; border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.brand-icon img { width: 100%; height: 100%; object-fit: contain; }
+.brand-name { font-size: 14px; font-weight: 600; background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-sub { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
+.brand-tag { font-size: 9px; color: var(--accent-gold); background: var(--accent-gold-dim); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+.top-right { display: flex; align-items: center; gap: 14px; }
+.kpi-ticker { display: flex; align-items: center; gap: 10px; }
+.kpi-pill { display: flex; align-items: center; gap: 6px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; font-size: 10px; }
+.kpi-pill-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
+.kpi-pill-val { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-weight: 700; font-size: 11px; }
+.kpi-pill-val.r { color: var(--accent-red); }
+.kpi-pill-val.a { color: var(--accent-amber); }
+.kpi-pill-val.g { color: var(--accent-emerald); }
+.kpi-pill-delta { font-size: 9px; font-family: monospace; }
+.kpi-pill-delta.up { color: var(--accent-red); }
+.kpi-pill-delta.dn { color: var(--accent-emerald); }
+
+.live-dot-wrap { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+.live-dot { width: 5px; height: 5px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+.demo-mode-indicator { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-amber); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; background: var(--accent-amber-dim); padding: 3px 8px; border-radius: 4px; }
+.demo-dot { width: 5px; height: 5px; background: var(--accent-amber); border-radius: 50%; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.3)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(239,68,68,0)} }
+.tour-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: all .2s; }
+.tour-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+/* MAIN */
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* ===== INTEL SIDEBAR ===== */
+.sidebar {
+  width: 260px; min-width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--accent-red); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-live .live-dot { width: 4px; height: 4px; }
+
+/* Feed */
+.feed { flex: 1; overflow-y: auto; padding: 8px 10px; }
+.feed::-webkit-scrollbar { width: 2px; } .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 1px; }
+.feed-item {
+  background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 11px; margin-bottom: 6px; cursor: pointer; transition: all .2s;
+  border-left: 3px solid var(--accent-cyan);
+}
+.feed-item:hover { background: var(--bg-card); transform: translateX(2px); }
+.feed-item.crit { border-left-color: var(--accent-red); }
+.feed-item.warn { border-left-color: var(--accent-amber); }
+.feed-item.info { border-left-color: var(--accent-cyan); }
+.feed-time { font-size: 9px; color: var(--text-muted); font-family: monospace; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.feed-sev { font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+.feed-sev.critical { background: var(--accent-red-dim); color: var(--accent-red); }
+.feed-sev.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.feed-sev.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.feed-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.feed-text strong { color: var(--text-primary); font-weight: 600; }
+.feed-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+.ftag { font-size: 8px; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
+.ftag.thermal { background: var(--accent-red-dim); color: var(--accent-red); }
+.ftag.grid { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.ftag.water { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.ftag.power { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.ftag.supply { background: var(--accent-purple-dim); color: var(--accent-purple); }
+.ftag.weather { background: var(--accent-gold-dim); color: var(--accent-gold); }
+
+/* ===== MAP PANEL ===== */
+.map-panel {
+  flex: 1; position: relative; min-width: 0;
+  border-right: 1px solid var(--border);
+}
+#mapView { width: 100%; height: 100%; }
+.map-legend {
+  position: absolute; bottom: 12px; left: 12px;
+  background: rgba(10,10,15,0.92); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 10px; z-index: 10; backdrop-filter: blur(8px);
+}
+.map-legend-title { font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; }
+.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: var(--text-muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-line { width: 16px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+
+/* ===== CHAT PANEL ===== */
+.chat-panel {
+  width: 380px; min-width: 380px;
+  display: flex; flex-direction: column;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+.chat-header {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-secondary);
+}
+.chat-avatar { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
+.chat-avatar img { width: 100%; height: 100%; object-fit: contain; }
+.chat-header-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+/* Messages */
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; scroll-behavior: smooth; }
+.chat-messages::-webkit-scrollbar { width: 3px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.message { margin-bottom: 16px; animation: fadeIn .35s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.msg-av { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.msg-av.ai { overflow: hidden; }
+.msg-av.ai img { width: 100%; height: 100%; object-fit: contain; }
+.msg-av.user { background: var(--bg-card); border: 1px solid var(--border); }
+.msg-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.msg-time { font-size: 9px; color: var(--text-muted); font-family: monospace; }
+.msg-body { margin-left: 29px; font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.msg-body strong { color: #fff; font-weight: 600; }
+.msg-body em { color: var(--text-secondary); }
+.msg-body p { margin-bottom: 8px; }
+.msg-body ul, .msg-body ol { margin: 6px 0 6px 20px; }
+.msg-body li { margin-bottom: 3px; font-size: 12px; color: var(--text-secondary); }
+
+/* Viz components inside messages */
+.viz-alert { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-alert-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.viz-alert-header.critical, .viz-alert-header:not(.warning):not(.info):not(.success) { background: var(--accent-red-dim); color: var(--accent-red); }
+.viz-alert-header.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.viz-alert-header.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.viz-alert-header.success { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-alert-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.4); }
+.viz-alert-row:last-child { border-bottom: none; }
+.viz-alert-row span:first-child { color: var(--text-secondary); }
+.viz-alert-row span:last-child { color: var(--text-primary); font-family: monospace; font-weight: 500; }
+
+.viz-roi { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-roi-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-roi-total { text-align: center; font-size: 24px; font-weight: 700; font-family: monospace; color: var(--accent-emerald); padding: 12px; }
+.viz-roi-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-top: 1px solid rgba(42,42,58,0.4); }
+.viz-roi-label { color: var(--text-secondary); } .viz-roi-value { color: var(--text-primary); font-family: monospace; }
+
+.viz-timeline { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-timeline-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.timeline-track { padding: 10px 12px; position: relative; }
+.timeline-line { position: absolute; left: 17px; top: 10px; bottom: 10px; width: 2px; background: var(--border); }
+.timeline-item { display: flex; align-items: flex-start; gap: 10px; padding: 4px 0; position: relative; }
+.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); flex-shrink: 0; margin-top: 4px; z-index: 1; }
+.timeline-dot.active { background: var(--accent-emerald); box-shadow: 0 0 6px rgba(16,185,129,0.4); }
+.timeline-dot.warning { background: var(--accent-amber); }
+.timeline-dot.danger { background: var(--accent-red); }
+.timeline-time { font-size: 9px; color: var(--text-muted); font-family: monospace; min-width: 44px; }
+.timeline-label { font-size: 11px; color: var(--text-secondary); line-height: 1.3; }
+
+.viz-asset { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-asset-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid var(--border); }
+.viz-asset-id { font-family: monospace; font-size: 12px; font-weight: 600; color: var(--accent-gold); }
+.viz-asset-status { font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 600; text-transform: uppercase; }
+.viz-asset-status.ok { background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.viz-asset-status.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.viz-asset-status.critical { background: var(--accent-red-dim); color: var(--accent-red); }
+.viz-asset-body { padding: 8px 12px; }
+.viz-asset-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 11px; }
+.viz-asset-row span:first-child { color: var(--text-muted); }
+.viz-asset-row span:last-child { color: var(--text-primary); font-family: monospace; }
+
+.temp-gauge { display: flex; align-items: center; gap: 6px; margin: 6px 0; }
+.temp-bar { flex: 1; height: 6px; background: var(--bg-tertiary); border-radius: 3px; overflow: hidden; }
+.temp-bar-fill { height: 100%; border-radius: 3px; transition: width .5s; }
+.temp-bar-fill.ok { background: var(--accent-emerald); }
+.temp-bar-fill.warning { background: var(--accent-amber); }
+.temp-bar-fill.danger { background: var(--accent-red); }
+.temp-value { font-size: 11px; font-family: monospace; font-weight: 600; min-width: 36px; text-align: right; }
+
+/* Network Trace Visualization */
+.viz-trace { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-trace-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-purple-dim); color: var(--accent-purple); }
+.trace-diagram { display: flex; align-items: center; padding: 12px; gap: 4px; overflow-x: auto; }
+.trace-node { padding: 6px 10px; border-radius: 4px; font-size: 10px; font-family: monospace; font-weight: 600; text-align: center; white-space: nowrap; }
+.trace-node.transformer { background: var(--accent-red-dim); color: var(--accent-red); border: 1px solid var(--accent-red); }
+.trace-node.busbar { background: var(--accent-amber-dim); color: var(--accent-amber); border: 1px solid var(--accent-amber); }
+.trace-node.switch { background: var(--accent-cyan-dim); color: var(--accent-cyan); border: 1px solid var(--accent-cyan); }
+.trace-node.fuse { background: var(--accent-purple-dim); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+.trace-node.service-point { background: var(--accent-emerald-dim); color: var(--accent-emerald); border: 1px solid var(--accent-emerald); }
+.trace-connector { color: var(--text-muted); font-size: 12px; }
+.trace-summary { padding: 8px 12px; font-size: 11px; color: var(--text-secondary); border-top: 1px solid var(--border); background: var(--bg-tertiary); }
+.trace-summary strong { color: var(--text-primary); }
+
+/* Work Order Visualization */
+.viz-workorder { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-workorder-header { padding: 10px 12px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-gold-dim); color: var(--accent-gold); }
+.workorder-field { display: flex; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); }
+.wo-label { color: var(--text-muted); width: 130px; flex-shrink: 0; }
+.wo-value { color: var(--text-primary); font-family: monospace; }
+.wo-value.priority-P1 { color: var(--accent-red); font-weight: 700; }
+.wo-value.priority-P2 { color: var(--accent-amber); font-weight: 700; }
+.wo-value.priority-P3 { color: var(--accent-cyan); }
+.wo-value.priority-P4 { color: var(--text-secondary); }
+.workorder-actions { display: flex; gap: 8px; padding: 10px 12px; background: var(--bg-tertiary); }
+.wo-btn { padding: 6px 12px; font-size: 10px; border-radius: 4px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-secondary); cursor: pointer; transition: all .2s; }
+.wo-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+/* Enhanced Data Table with Header */
+.viz-data-table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-data-table-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.viz-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.viz-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
+.viz-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); }
+.viz-table td.highlight { color: var(--accent-amber); font-weight: 600; }
+.viz-table td.vip { color: var(--accent-red); font-weight: 600; }
+.viz-table td.normal { color: var(--accent-emerald); }
+
+/* Notification Preview */
+.viz-notification { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-notification-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--accent-emerald-dim); color: var(--accent-emerald); }
+.notification-preview { padding: 10px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; font-style: italic; background: var(--bg-tertiary); border-left: 3px solid var(--accent-gold); margin: 8px 12px; border-radius: 0 4px 4px 0; }
+.notification-meta { padding: 6px 12px; font-size: 10px; color: var(--text-muted); display: flex; gap: 16px; }
+
+/* Data table */
+.viz-data-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+.viz-data-table th { text-align: left; padding: 6px 8px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+.viz-data-table td { padding: 5px 8px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); font-family: monospace; }
+
+/* Compact response components */
+.vb { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; padding: 0; }
+.vt { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); color: var(--accent-cyan); }
+.vr { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); gap: 12px; }
+.vr:last-child { border-bottom: none; }
+.vr .l { color: var(--text-muted); flex-shrink: 0; min-width: 120px; }
+.vr .v { color: var(--text-primary); font-family: monospace; font-weight: 500; text-align: right; }
+.vr .v.red { color: var(--accent-red); }
+.vr .v.amb { color: var(--accent-amber); }
+.vr .v.grn, .vr .v.mint { color: var(--accent-emerald); }
+.tb { width: 100%; border-collapse: collapse; font-size: 11px; margin: 0; }
+.tb th { text-align: left; padding: 6px 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
+.tb td { padding: 5px 10px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); }
+.tb td.h, .tb td.hl { color: var(--text-primary); font-weight: 600; }
+.pv { margin: 10px 0 4px; }
+.pl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.pg { display: flex; flex-wrap: wrap; gap: 4px; }
+.pt { font-size: 9px; padding: 2px 8px; border-radius: 3px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-muted); }
+.an { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.ah { padding: 8px 12px; font-size: 12px; font-weight: 600; background: var(--accent-red-dim); color: var(--accent-red); }
+.ab, .ab2 { padding: 8px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+/* Chips */
+.chips-section { padding: 8px 16px; border-top: 1px solid var(--border); }
+.chips-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font-size: 10px; padding: 5px 10px; border-radius: 4px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer; transition: all .2s;
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim); }
+
+/* Input */
+.chat-input-area { padding: 10px 16px; border-top: 1px solid var(--border); }
+.input-wrap { display: flex; gap: 8px; }
+.chat-input {
+  flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; color: var(--text-primary); font-size: 12px; outline: none; transition: border .2s;
+  font-family: inherit;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.chat-input:focus { border-color: var(--accent-gold); }
+.send-btn {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 11px;
+  transition: opacity .2s; font-family: inherit;
+}
+.send-btn:hover { opacity: 0.9; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chat-footer { padding: 6px 16px 10px; font-size: 9px; color: var(--text-muted); text-align: center; }
+.chat-footer a { color: var(--accent-gold); text-decoration: none; }
+
+/* Typing indicator */
+.typing-indicator { display: flex; gap: 4px; padding: 8px 0; margin-left: 29px; }
+.typing-dot { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.2s ease-in-out infinite; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+/* ===== TOUR ===== */
+.tour-overlay {
+  display: none; position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(2px);
+}
+.tour-overlay.active { display: block; }
+.tour-tooltip {
+  position: absolute; background: var(--bg-secondary); border: 1px solid var(--accent-gold);
+  border-radius: var(--radius); padding: 16px 18px; max-width: 320px; box-shadow: var(--shadow);
+}
+.tour-title { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px; }
+.tour-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
+.tour-btns { display: flex; justify-content: space-between; align-items: center; }
+.tour-step-count { font-size: 10px; color: var(--text-muted); font-family: monospace; }
+.tour-skip { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; padding: 4px 8px; }
+.tour-skip:hover { color: var(--text-secondary); }
+.tour-next {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px;
+}
+.tour-next:hover { opacity: 0.9; }
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .sidebar { width: 220px; min-width: 220px; }
+  .chat-panel { width: 340px; min-width: 340px; }
+  .kpi-ticker { display: none; }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .chat-panel { width: 300px; min-width: 300px; }
+}
+/* === PASSWORD GATE === */
+.password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
+.password-gate.hidden { display: none; }
+.password-box { background: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; width: 90%; }
+.pw-logo { width: 64px; height: 64px; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; overflow: hidden; }
+.pw-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pw-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9; }
+.pw-subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+.pw-input { width: 100%; padding: 12px 16px; background: #0a0e17; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f1f5f9; font-size: 14px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; box-sizing: border-box; }
+.pw-input:focus { border-color: #fbbf24; }
+.pw-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; border-radius: 8px; color: #000; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.pw-btn:hover { opacity: 0.9; }
+.pw-error { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
+.pw-error.show { display: block; }
+.pw-footer { font-size: 11px; color: #475569; margin-top: 20px; }
+@keyframes pwShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+.pw-shake { animation: pwShake 0.4s ease; }
+
 </style>
 </head>
 <body>
-<div class="app">
-<div class="mp">
-<div id="viewDiv"></div>
-<div class="ot"><div class="br"><div class="bi">N</div><div><div class="bt">Rebirth Nexus</div><div class="bs">DOE Consumption Analytics · Abu Dhabi</div></div></div></div>
-<div class="sb">
-<div class="sc"><div class="sl">Monthly Consumption</div><div class="sv" style="color:var(--cyan)">4.8 TWh</div><div class="sd">+8.2% YoY</div></div>
-<div class="sc"><div class="sl">Anomalies</div><div class="sv" style="color:var(--red)">147</div><div class="sd">89 buildings flagged</div></div>
-<div class="sc"><div class="sl">Revenue at Risk</div><div class="sv" style="color:var(--amb)">AED 23M</div><div class="sd">Tariff misclassification</div></div>
-<div class="sc"><div class="sl">Retrofit Savings</div><div class="sv" style="color:var(--mint)">AED 156M</div><div class="sd">Annual potential</div></div>
-</div>
-<div class="lg">
-<div class="lt">Consumption Zones</div>
-<div class="li"><div class="ld" style="background:var(--red)"></div> Extreme (>3× avg)</div>
-<div class="li"><div class="ld" style="background:var(--amb)"></div> High (2-3× avg)</div>
-<div class="li"><div class="ld" style="background:var(--mint)"></div> Normal</div>
-<div class="li"><div class="ld" style="background:var(--purp)"></div> Government/Industrial</div>
-</div>
-</div>
-<div class="cp">
-<div class="ch"><div class="ci">N</div><div><div class="bt">NexusEnergy Analytics</div><div class="bs">Department of Energy · Consumption Intelligence</div></div></div>
-<div class="ib"><div class="id"></div><div class="it">DOE REGULATORY VIEW — Building-Level Analytics</div></div>
-<div class="kr">
-<div class="ki"><div class="kl">Total</div><div class="kv" style="color:var(--cyan)">4.8 TWh</div></div>
-<div class="ki"><div class="kl">Anomalies</div><div class="kv" style="color:var(--red)">147</div></div>
-<div class="ki"><div class="kl">Savings</div><div class="kv" style="color:var(--mint)">AED 156M</div></div>
-<div class="ki"><div class="kl">Buildings</div><div class="kv" style="color:var(--purp)">12,847</div></div>
-</div>
-<div class="ms" id="chatMessages"></div>
-<div class="ca"><div class="cl">Suggested Queries</div><div class="cg" id="chipsGrid"></div></div>
-<div class="ia"><input type="text" id="chatInput" placeholder="Ask about consumption, anomalies, tariffs..."><button onclick="handleSend()">Send</button></div>
-</div>
+<!-- PASSWORD GATE -->
+<div class="password-gate" id="pwGate">
+  <div class="password-box">
+    <div class="pw-logo"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='⚡'"></div>
+    <div class="pw-title">Nexus Demo Access</div>
+    <div class="pw-subtitle">DOE Consumption Intelligence</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="Enter access code" autocomplete="off">
+    <button class="pw-btn" id="pwBtn">Access Demo</button>
+    <div class="pw-error" id="pwError">Incorrect access code</div>
+    <div class="pw-footer">Rebirth Nexus Inc. · Confidential</div>
+  </div>
 </div>
 <script>
-require(["esri/Map","esri/views/MapView","esri/Graphic","esri/layers/GraphicsLayer","esri/geometry/Point"],function(Map,MapView,Graphic,GraphicsLayer,Point){
-const map=new Map({basemap:"dark-gray-vector"});const view=new MapView({container:"viewDiv",map,center:[54.50,24.44],zoom:12});view.ui.remove(["zoom","attribution"]);window._view=view;
-const lyr=new GraphicsLayer();map.add(lyr);
-[{n:"Al Noor Tower",la:24.49,lo:54.37,c:[248,113,113],s:14},{n:"ADNOC HQ",la:24.45,lo:54.38,c:[167,139,250],s:12},{n:"Etihad Towers",la:24.46,lo:54.33,c:[251,191,36],s:12},{n:"Al Bateen Villas",la:24.44,lo:54.34,c:[248,113,113],s:13},{n:"Mussafah Industrial",la:24.36,lo:54.50,c:[167,139,250],s:14},{n:"Al Reem Cluster",la:24.50,lo:54.40,c:[52,211,153],s:10},{n:"Khalifa City Mall",la:24.42,lo:54.58,c:[248,113,113],s:13},{n:"Yas Mall",la:24.49,lo:54.61,c:[251,191,36],s:12},{n:"Saadiyat Villas",la:24.55,lo:54.43,c:[52,211,153],s:10},{n:"Corniche Residential",la:24.47,lo:54.35,c:[52,211,153],s:10},{n:"Marina Mall",la:24.48,lo:54.33,c:[251,191,36],s:11}].forEach(b=>{
-lyr.add(new Graphic({geometry:new Point({longitude:b.lo,latitude:b.la}),symbol:{type:"simple-marker",color:b.c,size:b.s,outline:{color:[255,255,255,60],width:1}}}))});
+(function(){
+  var k='nexus_taqa_doe';
+  if(sessionStorage.getItem(k)==='granted'){document.getElementById('pwGate').classList.add('hidden');}
+  document.getElementById('pwBtn').onclick=check;
+  document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+  function check(){
+    if(document.getElementById('pwInput').value==='deserthawk'){
+      sessionStorage.setItem(k,'granted');
+      document.getElementById('pwGate').classList.add('hidden');
+    } else {
+      var e=document.getElementById('pwError');e.classList.add('show');
+      var b=document.querySelector('.password-box');b.classList.add('pw-shake');
+      setTimeout(function(){b.classList.remove('pw-shake');},400);
+    }
+  }
+})();
+</script>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-icon"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='⚡'"></div>
+      <span class="brand-name">Rebirth Nexus</span>
+      <span class="brand-sub">DOE Consumption Analytics · Abu Dhabi</span>
+      <span class="brand-tag">Live Intelligence</span>
+    </div>
+    <div class="top-right">
+      <div class="kpi-ticker">
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Monthly</span>
+          <span class="kpi-pill-val a">4.8 TWh</span>
+          <span class="kpi-pill-delta up">↑ 8.2%</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Anomalies</span>
+          <span class="kpi-pill-val r">147</span>
+          <span class="kpi-pill-delta up">↑ 23</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Revenue Risk</span>
+          <span class="kpi-pill-val r">AED 44M</span>
+          <span class="kpi-pill-delta up">↑ AED 12M</span>
+        </div>
+        <div class="kpi-pill">
+          <span class="kpi-pill-label">Savings</span>
+          <span class="kpi-pill-val a">AED 156M</span>
+          <span class="kpi-pill-delta">Annual</span>
+        </div>
+      </div>
+      <div class="live-dot-wrap"><div class="live-dot"></div> LIVE</div>
+      <div class="demo-mode-indicator" id="demoModeIndicator" style="display:none"><div class="demo-dot"></div> OFFLINE</div>
+      <button class="tour-btn" onclick="startTour()">Tour</button>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- INTEL SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Energy Intelligence</span>
+        <span class="sidebar-live"><div class="live-dot"></div> Live</span>
+      </div>
+      <div class="feed" id="intelFeed">
+        <div class="feed-item crit" onclick="handle('Show all anomalies detected')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 09:15 GST</div>
+          <div class="feed-text"><strong>147 anomalies detected</strong> across 89 buildings. AED 44.1M annual revenue at risk.</div>
+          <div class="feed-tags"><span class="ftag thermal">Revenue</span><span class="ftag grid">Anomaly</span></div>
+        </div>
+        <div class="feed-item crit" onclick="handle('Tariff misclassification report')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 09:12 GST</div>
+          <div class="feed-text"><strong>45 accounts on wrong tariff.</strong> AED 23M/yr recovery — zero infrastructure spend.</div>
+          <div class="feed-tags"><span class="ftag thermal">Tariff</span><span class="ftag power">Recovery</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('Drill into Al Noor Tower')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 09:08 GST</div>
+          <div class="feed-text"><strong>Al Noor Tower Unit 3305:</strong> 7.4× floor average. Flat 24/7 load. Suspected crypto mining.</div>
+          <div class="feed-tags"><span class="ftag grid">Crypto</span><span class="ftag thermal">Theft</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('Consumption by building type')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 09:02 GST</div>
+          <div class="feed-text"><strong>UAE National villas: 47% of tracked building consumption.</strong> Cooling efficiency below Estidama benchmarks in 3 districts.</div>
+          <div class="feed-tags"><span class="ftag grid">Consumption</span><span class="ftag water">Efficiency</span></div>
+        </div>
+        <div class="feed-item info" onclick="handle('Retrofit prioritization')">
+          <div class="feed-time"><span class="feed-sev info">Info</span> 08:55 GST</div>
+          <div class="feed-text"><strong>Top 8 retrofit candidates.</strong> AED 156M/yr savings. HVAC upgrades: 57% of opportunity.</div>
+          <div class="feed-tags"><span class="ftag water">Retrofit</span><span class="ftag power">Savings</span></div>
+        </div>
+        <div class="feed-item info" onclick="handle('Consumption by building type')">
+          <div class="feed-time"><span class="feed-sev info">Info</span> 08:48 GST</div>
+          <div class="feed-text"><strong>90,371 accounts monitored</strong> across 12,847 buildings. Monthly consumption: 4.8 TWh (+8.2% YoY).</div>
+          <div class="feed-tags"><span class="ftag water">Portfolio</span><span class="ftag power">Monitoring</span></div>
+        </div>
+      </div>
+    </div>
+    <!-- MAP PANEL -->
+    <div class="map-panel">
+      <div id="mapView"></div>
+      <div class="map-legend">
+        <div class="map-legend-title">Consumption Zones</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Extreme (&gt;3× avg)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-amber)"></div> High (2-3× avg)</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-emerald)"></div> Normal</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-purple)"></div> Government/Industrial</div>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-avatar"><img src="/logo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
+        <span class="chat-header-text">NexusEnergy Analytics</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="message">
+          <div class="msg-head">
+            <div class="msg-av ai"><img src="/logo.png" alt="R" style="width:100%;height:100%;object-fit:contain;border-radius:50%" onerror="this.outerHTML='⚡'"></div>
+            <span class="msg-name">NexusEnergy Analytics</span>
+            <span class="msg-time">Just now</span>
+          </div>
+          <div class="msg-body">
+            <strong>📊 DOE CONSUMPTION ANALYTICS — Abu Dhabi Emirate</strong><br><br>
+            NexusEnergy monitors <strong>90,371 metered accounts</strong> across <strong>12,847 buildings</strong> in Abu Dhabi. Key findings:<br><br>
+            <div class="viz-alert">
+              <div class="viz-alert-header critical">🔍 ANOMALY REPORT — 147 Flags Across 89 Buildings</div>
+              <div class="viz-alert-row"><span>Monthly Consumption</span><span style="color:var(--accent-cyan)">4.8 TWh (+8.2% YoY)</span></div>
+              <div class="viz-alert-row"><span>Anomalies Detected</span><span style="color:var(--accent-red)">147 across 89 buildings</span></div>
+              <div class="viz-alert-row"><span>Revenue at Risk</span><span style="color:var(--accent-amber)">AED 44.1M/yr (tariff + theft)</span></div>
+              <div class="viz-alert-row"><span>Top Anomaly</span><span style="color:var(--accent-red)">Al Noor Unit 3305 — 7.4× avg</span></div>
+            </div>
+            This is not a dashboard — it's an enforcement and revenue recovery workflow with explainable anomaly detection. Drill down: Region → Building Type → Building → Floor → Unit → Meter.<br><br>
+            Retrofit savings potential: <strong>AED 156M/yr</strong>. What would you like to analyze?
+          </div>
+        </div>
+      </div>
+
+      <div class="chips-section">
+        <div class="chips-grid" id="chipsGrid">
+          <div class="chip" onclick="handle('Consumption by building type')">📊 Consumption by type</div>
+          <div class="chip" onclick="handle('Show all anomalies detected')">🔍 All anomalies</div>
+          <div class="chip" onclick="handle('Drill into Al Noor Tower')">🏢 Al Noor Tower</div>
+          <div class="chip" onclick="handle('Tariff misclassification report')">💰 Tariff recovery</div>
+          <div class="chip" onclick="handle('Retrofit prioritization')">🔋 Retrofit priorities</div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-wrap">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about consumption, anomalies, tariffs, retrofits..." />
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send</button>
+        </div>
+      </div>
+      <div class="chat-footer">Demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> • Fictional scenario; parameters are illustrative</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOUR -->
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-tooltip" id="tourTooltip">
+    <div class="tour-title" id="tourTitle"></div>
+    <div class="tour-text" id="tourText"></div>
+    <div class="tour-btns">
+      <span class="tour-step-count" id="tourStepCount"></span>
+      <div>
+        <button class="tour-skip" onclick="endTour()">Skip</button>
+        <button class="tour-next" id="tourNext" onclick="nextTourStep()">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ESRI MAP -->
+<script src="https://js.arcgis.com/4.28/"></script>
+<script>
+require([
+  "esri/Map", "esri/views/MapView",
+  "esri/Graphic", "esri/layers/GraphicsLayer"
+], function(Map, MapView, Graphic, GraphicsLayer) {
+  const map = new Map({ basemap: "dark-gray-vector" });
+  const view = new MapView({
+    container: "mapView", map: map,
+    center: [54.50, 24.44], zoom: 12,
+    constraints: { minZoom: 9 },
+    ui: { components: [] }
+  });
+  window._view = view;
+  const lyr = new GraphicsLayer();
+  map.add(lyr);
+  [
+    {n:"Al Noor Tower",la:24.49,lo:54.37,c:[248,113,113],s:14},
+    {n:"ADNOC HQ",la:24.45,lo:54.38,c:[168,85,247],s:12},
+    {n:"Etihad Towers",la:24.46,lo:54.33,c:[251,191,36],s:12},
+    {n:"Al Bateen Villas",la:24.44,lo:54.34,c:[248,113,113],s:13},
+    {n:"Mussafah Industrial",la:24.36,lo:54.50,c:[168,85,247],s:14},
+    {n:"Al Reem Cluster",la:24.50,lo:54.40,c:[52,211,153],s:10},
+    {n:"Khalifa City Mall",la:24.42,lo:54.58,c:[248,113,113],s:13},
+    {n:"Yas Mall",la:24.49,lo:54.61,c:[251,191,36],s:12},
+    {n:"Saadiyat Villas",la:24.55,lo:54.43,c:[52,211,153],s:10},
+    {n:"Corniche Residential",la:24.47,lo:54.35,c:[52,211,153],s:10},
+    {n:"Marina Mall",la:24.48,lo:54.33,c:[251,191,36],s:11}
+  ].forEach(b => {
+    lyr.add(new Graphic({
+      geometry: { type:"point", longitude:b.lo, latitude:b.la },
+      symbol: { type:"simple-marker", color:b.c, size:b.s, outline:{ color:[255,255,255,60], width:1 } },
+      popupTemplate: { title: b.n }
+    }));
+  });
 });
+
+
+const SYSTEM_PROMPT = `You are NexusEnergy Analytics, the AI engine for DOE consumption analytics in Abu Dhabi. You monitor 90,371 accounts across 12,847 buildings.`;
+const API_ENDPOINT = '/api/chat';
+let conversationHistory = [];
+let isProcessing = false;
+let demoMode = true;
 
 const CS={
 i:["📊 Consumption by building type","🔍 Show all anomalies detected","🏢 Drill into Al Noor Tower","💰 Tariff misclassification report","🔋 Retrofit prioritization"],
@@ -87,14 +636,14 @@ const R={
 "consumption by building type":{c:`<p><strong>📊 CONSUMPTION BY BUILDING TYPE — Abu Dhabi Emirate</strong></p>
 <div class="vb"><div class="vt">Consumption by Building Type (Metered Accounts)</div>
 <table class="tb"><tr><th>Building Type</th><th>Accounts</th><th>Avg kWh/mo</th><th>Total GWh/mo</th><th>%</th></tr>
-<tr><td class="h">Villa — Type A</td><td>42,300</td><td>4,567</td><td>193.2</td><td>4.0%</td></tr>
-<tr><td class="h">Villa — Type B</td><td>28,700</td><td>3,456</td><td>99.2</td><td>2.1%</td></tr>
+<tr><td class="h">Villa — UAE National</td><td>42,300</td><td>4,567</td><td>193.2</td><td>4.0%</td></tr>
+<tr><td class="h">Villa — Expatriate</td><td>28,700</td><td>3,456</td><td>99.2</td><td>2.1%</td></tr>
 <tr><td class="h">Residential Tower</td><td>8,450</td><td>2,345</td><td>19.8</td><td>0.4%</td></tr>
 <tr><td class="h">Commercial</td><td>6,780</td><td>8,901</td><td>60.3</td><td>1.3%</td></tr>
 <tr><td class="h" style="color:var(--purp)">Government</td><td>1,234</td><td>12,345</td><td>15.2</td><td>0.3%</td></tr>
 <tr><td class="h" style="color:var(--purp)">Industrial</td><td>567</td><td>45,678</td><td>25.9</td><td>0.5%</td></tr></table></div>
-<p><strong>Key insight:</strong> Type A villas consume 32% more than Type B villas on average (4,567 vs 3,456 kWh/mo), driven by larger property sizes (avg 680m² vs 420m²). When normalized per square meter, consumption is actually 12% lower.</p>
-<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Smart Meter AMI</span><span class="pt">CIS Billing</span><span class="pt">Building Registry</span></div></div>`,x:CS.i},
+<p><strong>Key insight:</strong> UAE National villas consume 32% more than Expatriate villas on average (4,567 vs 3,456 kWh/mo), driven by larger property sizes (avg 680m² vs 420m²). When normalized per square meter, consumption is actually 18% lower.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">ADDC/TAQA Distribution</span><span class="pt">Smart Meter AMI</span><span class="pt">CIS Billing</span><span class="pt">Building Registry</span></div></div>`,x:CS.i},
 
 "show all anomalies detected":{c:`<p><strong>🔍 ANOMALY DETECTION — 147 Flags Across 89 Buildings</strong></p>
 <div class="vb"><div class="vt">Anomaly Categories</div>
@@ -111,9 +660,9 @@ const R={
 <p>147 anomalies = <strong>AED 44.1M annual revenue at risk</strong>. Tariff misclassification alone is >50%.</p>`,x:CS.a},
 
 "villa consumption by household type":{c:`<p><strong>🏠 VILLA CONSUMPTION BY HOUSEHOLD TYPE</strong></p>
-<p style="font-size:10px;color:var(--tm)">Household types anonymized for regulatory presentation.</p>
+<p style="font-size:10px;color:var(--tm)">Segmentation follows ADDC/TAQA Distribution tariff categories. Green/red band thresholds: National 400 kWh/day, Expatriate 200 kWh/day.</p>
 <div class="vb"><div class="vt">Side-by-Side Comparison</div>
-<table class="tb"><tr><th>Metric</th><th>Type A (Larger)</th><th>Type B (Standard)</th><th>Diff</th></tr>
+<table class="tb"><tr><th>Metric</th><th>UAE National (Larger)</th><th>Expatriate (Standard)</th><th>Diff</th></tr>
 <tr><td class="h">Avg Monthly kWh</td><td>4,567</td><td>3,456</td><td style="color:var(--amb)">+32%</td></tr>
 <tr><td>Avg Property Size</td><td>680 m²</td><td>420 m²</td><td>+62%</td></tr>
 <tr><td>kWh per m²</td><td>6.7</td><td>8.2</td><td style="color:var(--mint)">-18%</td></tr>
@@ -122,7 +671,7 @@ const R={
 <tr><td>Peak Cooling</td><td>28 kW</td><td>18 kW</td><td>+56%</td></tr>
 <tr><td>Solar Penetration</td><td>2.1%</td><td>0.4%</td><td>—</td></tr>
 <tr><td>Total Count</td><td>42,300</td><td>28,700</td><td>—</td></tr></table></div>
-<p><strong>Key finding:</strong> Type A villas are <strong>more efficient per capita</strong> (-34%) due to larger household sizes. Higher absolute consumption is driven by property size and cooling. Retrofit programs targeting cooling efficiency yield est. <strong>AED 45M/yr</strong> savings across Type A villa stock.</p>
+<p><strong>Key finding:</strong> UAE National villas are <strong>more efficient per capita</strong> (-34%) due to larger household sizes. Higher absolute consumption is driven by property size and cooling. Retrofit programs targeting cooling efficiency yield est. <strong>AED 45M/yr</strong> savings across UAE National villa stock.</p>
 <div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Smart Meter AMI</span><span class="pt">CIS Billing</span><span class="pt">Building Registry</span><span class="pt">Census/Survey</span></div></div>`,x:CS.i},
 
 "drill into al noor tower":{c:`<p><strong>🏢 AL NOOR TOWER — Building Deep Dive</strong></p>
@@ -155,7 +704,7 @@ Revenue gap: AED 56,800/mo (residential) vs AED 124,500/mo (commercial rate)</di
 <tr><td class="h">Residential</td><td style="color:var(--amb)">Industrial</td><td>8</td><td style="color:var(--red)">AED 6.8M</td></tr>
 <tr><td class="h">Commercial</td><td style="color:var(--amb)">Industrial</td><td>6</td><td style="color:var(--red)">AED 2.1M</td></tr>
 <tr><td class="h">Government</td><td style="color:var(--amb)">Commercial</td><td>5</td><td style="color:var(--red)">AED 1.2M</td></tr>
-<tr><td>Type A (subsidized)</td><td style="color:var(--amb)">Type B/Commercial</td><td>3</td><td style="color:var(--red)">AED 0.5M</td></tr>
+<tr><td>UAE National (subsidized)</td><td style="color:var(--amb)">Expatriate/Commercial</td><td>3</td><td style="color:var(--red)">AED 0.5M</td></tr>
 <tr style="border-top:1px solid var(--brd)"><td class="h" colspan="2">TOTAL</td><td class="h">45</td><td class="h" style="color:var(--red)">AED 23.0M/yr</td></tr></table></div>
 <p><strong>Method:</strong> Cross-references consumption patterns (load profile, magnitude, diurnal variation) against tariff class. A residential unit at 18,000+ kWh/mo with flat 24/7 profile isn't residential usage.</p>
 <p><strong>Revenue recovery:</strong> Reclassifying 45 accounts = <strong>AED 23M/yr</strong> with zero infrastructure investment.</p>`,x:CS.t},
@@ -177,7 +726,7 @@ Revenue gap: AED 56,800/mo (residential) vs AED 124,500/mo (commercial rate)</di
 <div class="vr"><span class="l">Building Envelope</span><span class="v">AED 24M (15%)</span></div>
 <div class="vr"><span class="l">Smart Controls & BMS</span><span class="v">AED 15M (10%)</span></div>
 <div class="vr" style="border-top:1px solid var(--brd);padding-top:4px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--t1)">TOTAL ANNUAL SAVINGS</span><span class="v" style="color:var(--mint);font-size:13px">AED 156M</span></div></div>
-<p>HVAC dominates — Abu Dhabi's cooling load is 60-70% of total building energy. District cooling retrofits in the top 8 buildings alone yield <strong>AED 43.5M/yr</strong> with avg 2.0 year payback.</p>`,x:CS.r},
+<p>HVAC dominates — Abu Dhabi's cooling load is 60-70% of total building energy. District cooling retrofits in the top 8 buildings alone yield <strong>AED 43.5M/yr</strong> with avg 2.0 year payback. Savings benchmarked against <strong>Estidama Pearl Rating</strong> (1-Pearl → 2-Pearl upgrade pathway) and aligned with the DOE <strong>Tarsheed</strong> demand-side management program.</p>`,x:CS.r},
 
 "crypto mining detection details":{c:`<p><strong>⛏️ CRYPTO MINING DETECTION — 12 Suspected Locations</strong></p>
 <div class="vb"><div class="vt">Detection Algorithm</div>
@@ -198,8 +747,8 @@ Revenue gap: AED 56,800/mo (residential) vs AED 124,500/mo (commercial rate)</di
 "whatif 10 rate increase":{c:`<p><strong>📈 WHAT-IF: 10% Tariff Increase — Revenue & Demand Impact</strong></p>
 <div class="vb"><div class="vt">Revenue Impact by Segment</div>
 <table class="tb"><tr><th>Segment</th><th>Current Rev</th><th>+10%</th><th>Elasticity</th><th>Net Impact</th></tr>
-<tr><td class="h">Residential (Type A)</td><td>AED 840M</td><td>AED 924M</td><td>-0.15</td><td style="color:var(--mint)">+AED 71M</td></tr>
-<tr><td class="h">Residential (Type B)</td><td>AED 420M</td><td>AED 462M</td><td>-0.22</td><td style="color:var(--mint)">+AED 33M</td></tr>
+<tr><td class="h">Residential (National)</td><td>AED 840M</td><td>AED 924M</td><td>-0.15</td><td style="color:var(--mint)">+AED 71M</td></tr>
+<tr><td class="h">Residential (Expatriate)</td><td>AED 420M</td><td>AED 462M</td><td>-0.22</td><td style="color:var(--mint)">+AED 33M</td></tr>
 <tr><td class="h">Commercial</td><td>AED 1,200M</td><td>AED 1,320M</td><td>-0.18</td><td style="color:var(--mint)">+AED 98M</td></tr>
 <tr><td>Industrial</td><td>AED 890M</td><td>AED 979M</td><td>-0.25</td><td style="color:var(--mint)">+AED 67M</td></tr>
 <tr><td>Government</td><td>AED 340M</td><td>AED 374M</td><td>-0.08</td><td style="color:var(--mint)">+AED 31M</td></tr>
@@ -224,7 +773,7 @@ function norm(t){return t.toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' 
 function find(t){const n=norm(t);for(const[k,v]of Object.entries(R)){if(n===k||n.includes(k)||k.includes(n))return v}
 if(n.includes('building type')||n.includes('by type'))return R['consumption by building type'];
 if(n.includes('anomal')||n.includes('detect'))return R['show all anomalies detected'];
-if(n.includes('villa')||n.includes('household type')||n.includes('type a')||n.includes('type b'))return R['villa consumption by household type'];
+if(n.includes('villa')||n.includes('household type')||n.includes('national')||n.includes('expatriate')||n.includes('expat'))return R['villa consumption by household type'];
 if(n.includes('al noor')||n.includes('tower')||n.includes('drill'))return R['drill into al noor tower'];
 if(n.includes('tariff')||n.includes('misclass'))return R['tariff misclassification report'];
 if(n.includes('retrofit')||n.includes('prioriti'))return R['retrofit prioritization'];
@@ -254,19 +803,8 @@ addMsg(`<p><strong>📊 DOE CONSUMPTION ANALYTICS — Abu Dhabi Emirate</strong>
 <div class="vr"><span class="l">Retrofit Savings Potential</span><span class="v" style="color:var(--mint)">AED 156M/yr</span></div>
 <div class="vr"><span class="l">Top Anomaly</span><span class="v" style="color:var(--red)">Al Noor Tower Unit 3305 — 7.4× avg (crypto mining?)</span></div></div>
 <p>This is not a dashboard — it's an enforcement and revenue recovery workflow with explainable anomaly detection. Drill down: Region → Building Type → Building → Floor → Unit → Meter.</p>`);
-</script>
-<script>
-(function(){
-  var PW = "gridpulse";
-  document.body.style.display="none";
-  var o=document.createElement("div");o.id="pw-gate";
-  o.innerHTML='<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0e1a;display:flex;align-items:center;justify-content:center;z-index:99999;font-family:-apple-system,BlinkMacSystemFont,sans-serif"><div style="text-align:center;max-width:380px;padding:40px"><div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:8px">NEXUS <span style=\'color:#00d4aa\'>INTELLIGENCE</span></div><div style="font-size:13px;color:#64748b;margin-bottom:32px">Authorized access only</div><input id="pw-input" type="password" placeholder="Enter access code" style="width:100%;padding:14px 18px;background:#111827;border:1px solid #1e293b;border-radius:8px;color:#fff;font-size:15px;outline:none;margin-bottom:16px;box-sizing:border-box" autofocus><button id="pw-btn" style="width:100%;padding:14px;background:#00d4aa;color:#0a0e1a;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer">Access Demo</button><div id="pw-err" style="color:#ef4444;font-size:13px;margin-top:12px;display:none">Invalid access code</div><div style="font-size:11px;color:#334155;margin-top:24px">&copy; 2026 Rebirth Nexus Inc.</div></div></div>';
-  document.documentElement.appendChild(o);
-  var s=document.createElement("style");s.textContent="@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}";document.head.appendChild(s);
-  function go(){if(document.getElementById("pw-input").value===PW){o.remove();document.body.style.display=""}else{var e=document.getElementById("pw-err");e.style.display="block";var i=document.getElementById("pw-input");i.style.borderColor="#ef4444";i.style.animation="shake 0.5s";setTimeout(function(){i.style.animation="";i.style.borderColor="#1e293b";e.style.display="none"},2000)}}
-  document.getElementById("pw-btn").addEventListener("click",go);
-  document.getElementById("pw-input").addEventListener("keydown",function(e){if(e.key==="Enter")go()});
-})();
+
+function sendMessage(t) { handle(t); }
 </script>
 </body>
 </html>
