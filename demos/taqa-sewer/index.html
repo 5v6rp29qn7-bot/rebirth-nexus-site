@@ -974,16 +974,6 @@ function handleSend(){const i=document.getElementById('chatInput'),t=i.value.tri
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}});
 
 updChips(chipSets.initial);
-addMsg(`<p><strong>🌊 FLOOD EVENT ALERT — Houston Metro Area Under Extreme Rainfall</strong></p>
-<p>Nexus has detected cascading sewer and stormwater failures across southern Harris County:</p>
-<div class="vb">
-<div class="vr"><span class="l">Rainfall Intensity</span><span class="v red">3.2 in/hr (100-year return period)</span></div>
-<div class="vr"><span class="l">Manholes Surcharged</span><span class="v red">3 critical (MH-101, MH-204, MH-312)</span></div>
-<div class="vr"><span class="l">SSO Risk Points</span><span class="v amb">4 locations — 1 active overflow</span></div>
-<div class="vr"><span class="l">Total Exposure</span><span class="v red">$15.0M (direct + regulatory)</span></div>
-<div class="vr"><span class="l">Residents at Risk</span><span class="v">83,800 across 5 neighborhoods</span></div>
-</div>
-<p>This pattern was detected <strong>45 minutes before</strong> level sensors triggered — when diversion to the Westpark detention basin was still feasible. What would you like to investigate?</p>`);
 
 function sendMessage(t) { handle(t); }
 </script>
