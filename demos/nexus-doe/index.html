@@ -529,16 +529,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
           </div>
           <div class="msg-body">
             <strong>📊 DOE CONSUMPTION ANALYTICS — Abu Dhabi Emirate</strong><br><br>
-            NexusEnergy monitors <strong>90,371 metered accounts</strong> across <strong>12,847 buildings</strong> in Abu Dhabi. Key findings:<br><br>
+            NexusEnergy monitors <strong>90,371 metered accounts</strong> across <strong>12,847 buildings</strong> in Abu Dhabi.<br><br>
             <div class="viz-alert">
-              <div class="viz-alert-header critical">🔍 ANOMALY REPORT — 147 Flags Across 89 Buildings</div>
+              <div class="viz-alert-header critical">Portfolio Summary</div>
               <div class="viz-alert-row"><span>Monthly Consumption</span><span style="color:var(--accent-cyan)">4.8 TWh (+8.2% YoY)</span></div>
               <div class="viz-alert-row"><span>Anomalies Detected</span><span style="color:var(--accent-red)">147 across 89 buildings</span></div>
-              <div class="viz-alert-row"><span>Revenue at Risk</span><span style="color:var(--accent-amber)">AED 44.1M/yr (tariff + theft)</span></div>
-              <div class="viz-alert-row"><span>Top Anomaly</span><span style="color:var(--accent-red)">Al Noor Unit 3305 — 7.4× avg</span></div>
+              <div class="viz-alert-row"><span>Revenue at Risk</span><span style="color:var(--accent-amber)">AED 44.1M/yr</span></div>
+              <div class="viz-alert-row"><span>Retrofit Savings Potential</span><span style="color:var(--accent-emerald)">AED 156M/yr</span></div>
+              <div class="viz-alert-row"><span>Top Anomaly</span><span style="color:var(--accent-red)">Al Noor Tower Unit 3305 — 7.4× avg (crypto mining?)</span></div>
             </div>
             This is not a dashboard — it's an enforcement and revenue recovery workflow with explainable anomaly detection. Drill down: Region → Building Type → Building → Floor → Unit → Meter.<br><br>
-            Retrofit savings potential: <strong>AED 156M/yr</strong>. What would you like to analyze?
+            What would you like to analyze?
           </div>
         </div>
       </div>
@@ -589,7 +590,7 @@ require([
   const map = new Map({ basemap: "dark-gray-vector" });
   const view = new MapView({
     container: "mapView", map: map,
-    center: [54.50, 24.44], zoom: 12,
+    center: [54.45, 24.46], zoom: 11,
     constraints: { minZoom: 9 },
     ui: { components: [] }
   });
@@ -789,20 +790,11 @@ function updC(chips){const g=document.getElementById('chipsGrid');g.innerHTML=''
 async function handle(t){if(isP)return;isP=true;addMsg(t,true);showT();await new Promise(r=>setTimeout(r,400+Math.random()*400));const resp=find(t);hideT();if(resp){addMsg(resp.c);updC(resp.x||CS.i);
 const nl=t.toLowerCase();
 if(nl.includes('al noor')||nl.includes('tower')||nl.includes('drill'))window._view&&window._view.goTo({center:[54.37,24.49],zoom:15},{duration:800});
-else if(nl.includes('overview')||nl.includes('return'))window._view&&window._view.goTo({center:[54.50,24.44],zoom:12},{duration:800});
+else if(nl.includes('overview')||nl.includes('return'))window._view&&window._view.goTo({center:[54.45,24.46],zoom:11},{duration:800});
 }else{addMsg('<p>I can analyze that further. The DOE analytics platform monitors 90,371 metered accounts across 12,847 buildings with 147 active anomalies representing AED 44.1M in annual revenue at risk. Try a suggested query.</p>');updC(CS.i)}isP=false}
 function handleSend(){const i=document.getElementById('chatInput'),t=i.value.trim();if(!t)return;i.value='';handle(t)}
 document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();handleSend()}});
 updC(CS.i);
-addMsg(`<p><strong>📊 DOE CONSUMPTION ANALYTICS — Abu Dhabi Emirate</strong></p>
-<p>NexusEnergy monitors 90,371 metered accounts across 12,847 buildings in Abu Dhabi. Key findings:</p>
-<div class="vb">
-<div class="vr"><span class="l">Monthly Consumption</span><span class="v" style="color:var(--cyan)">4.8 TWh (+8.2% YoY)</span></div>
-<div class="vr"><span class="l">Anomalies Detected</span><span class="v" style="color:var(--red)">147 across 89 buildings</span></div>
-<div class="vr"><span class="l">Revenue at Risk</span><span class="v" style="color:var(--amb)">AED 44.1M/yr (tariff misclass. + theft)</span></div>
-<div class="vr"><span class="l">Retrofit Savings Potential</span><span class="v" style="color:var(--mint)">AED 156M/yr</span></div>
-<div class="vr"><span class="l">Top Anomaly</span><span class="v" style="color:var(--red)">Al Noor Tower Unit 3305 — 7.4× avg (crypto mining?)</span></div></div>
-<p>This is not a dashboard — it's an enforcement and revenue recovery workflow with explainable anomaly detection. Drill down: Region → Building Type → Building → Floor → Unit → Meter.</p>`);
 
 function sendMessage(t) { handle(t); }
 </script>
