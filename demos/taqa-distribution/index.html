@@ -102,14 +102,14 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 .schematic-label-val { font-size: 8px; fill: var(--accent-red); font-family: var(--font-mono); font-weight: 600; }
 
 /* ===== ANALYTICS SIDEBAR ===== */
-.analytics-sidebar { position: absolute; top: 16px; right: 436px; z-index: 10; display: flex; flex-direction: column; gap: 8px; }
-.stat-card { background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border-subtle); min-width: 180px; }
-.stat-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
-.stat-value { font-size: 22px; font-weight: 700; margin-top: 2px; }
+.analytics-sidebar { position: absolute; top: 16px; right: 16px; z-index: 10; display: flex; flex-direction: row; gap: 6px; }
+.stat-card { background: rgba(10,14,23,0.92); backdrop-filter: blur(12px); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-subtle); min-width: 0; text-align: center; }
+.stat-label { font-size: 8px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+.stat-value { font-size: 15px; font-weight: 700; margin-top: 1px; }
+.stat-detail { font-size: 9px; color: var(--text-muted); margin-top: 1px; }
 .stat-value.red { color: var(--accent-red); }
 .stat-value.amber { color: var(--accent-amber); }
 .stat-value.green { color: var(--accent-emerald); }
-.stat-detail { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
 /* ===== CHAT PANEL ===== */
 .chat-panel { width: 420px; min-width: 420px; display: flex; flex-direction: column; background: var(--bg-secondary); border-left: 1px solid var(--border-subtle); height: 100vh; }
