@@ -737,7 +737,7 @@ const chipSets = {
 const scriptedResponses = {
   // ===== INITIAL / CASCADE =====
   "investigate substation 7 cascade": {
-    content: `<p><strong>⚡ SUBSTATION 7 — AL QUOZ INDUSTRIAL: CRITICAL CASCADE RISK</strong></p>
+    content: `<p><strong>⚡ SUBSTATION 7 — MUSSAFAH INDUSTRIAL: CRITICAL CASCADE RISK</strong></p>
 <div class="viz-block">
 <div class="viz-title">Thermal Status — TR-7A</div>
 <div class="viz-row"><span class="label">Current Oil Temperature</span><span class="value red">92°C</span></div>
@@ -954,6 +954,28 @@ const scriptedResponses = {
 
   "send maintenance sms to all affected": {
     content: `<p><strong>📱 NOTIFICATION TEMPLATES GENERATED</strong></p>
+<div class="viz-notification">
+<div class="notif-header">📱 SMS — Standard Customers (844 recipients)</div>
+<div class="notif-body">TAQA Distribution Alert: Planned maintenance in Mussafah Industrial area. Power may be interrupted [DATE] [TIME]-[TIME]. We apologize for the inconvenience. For updates: 800-TAQA (8272)</div>
+</div>
+<div class="viz-notification" style="margin-top:8px;border-color:rgba(239,68,68,0.15);background:rgba(239,68,68,0.05)">
+<div class="notif-header" style="color:var(--accent-red)">🚨 VIP Protocol — 3 Recipients (Email + SMS + Call)</div>
+<div class="notif-body">URGENT — TAQA Distribution
+Priority Notification for: Abu Dhabi Steel Works
+Asset: Substation 7 / TR-7A
+Issue: Thermal stress requiring emergency intervention
+Expected Impact: Potential power interruption 2-4 hours
+Action: Emergency mobile cooling deployment in progress
+VIP Liaison: Ahmed Al-Rashid, +971-XX-XXX-XXXX
+Next Update: Within 60 minutes</div>
+</div>
+<p>Standard SMS queued for dispatch. VIP notifications require manual confirmation before sending — <strong>3 VIP accounts flagged for Customer Relations personal call.</strong></p>`,
+    chips: chipSets.operations
+  },
+
+  // ===== NOTIFY VIP (alias for SMS response) =====
+  "notify vip customers": {
+    content: `<p><strong>📱 VIP NOTIFICATION PROTOCOL ACTIVATED</strong></p>
 <div class="viz-notification">
 <div class="notif-header">📱 SMS — Standard Customers (844 recipients)</div>
 <div class="notif-body">TAQA Distribution Alert: Planned maintenance in Mussafah Industrial area. Power may be interrupted [DATE] [TIME]-[TIME]. We apologize for the inconvenience. For updates: 800-TAQA (8272)</div>
