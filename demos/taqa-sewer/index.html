@@ -718,7 +718,7 @@ content:`<p><strong>🌊 BRAYS BAYOU TRUNK — CRITICAL CASCADE OVERFLOW</strong
 <div class="vr"><span class="l">T+4 hrs</span><span class="v red">EPA Consent Decree escalation threshold reached — enforcement risk elevated</span></div>
 </div>
 <p>Nexus detected the upstream flow acceleration pattern <strong>45 minutes before</strong> traditional level sensors would alarm — when diversion to the detention basin was still feasible.</p>
-<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">SCADA Level Sensors</span><span class="pt">USGS Stream Gauges</span><span class="pt">NWS QPE Radar</span><span class="pt">HCFCD Flood Warning</span><span class="pt">Esri Sewer GIS</span></div></div>`,
+<div class="prov"><div class="prov-l">Data Sources</div><div class="prov-t"><span class="pt">SCADA Level Sensors</span><span class="pt">USGS Stream Gauges</span><span class="pt">NWS QPE Radar</span><span class="pt">HCFCD Flood Warning</span><span class="pt">IBM Maximo EAM</span><span class="pt">Esri Sewer GIS</span></div></div>`,
 chips:chipSets.cascade},
 
 "which neighborhoods flood first":{
@@ -823,7 +823,7 @@ content:`<p><strong>🏗️ SEWER ASSET INVENTORY — Harris County District</st
 <div class="vr"><span class="l">Grade 4 (Poor)</span><span class="v amb">18% — 174 mi</span></div>
 <div class="vr"><span class="l">Grade 5 (Immediate attention)</span><span class="v red">8% — 78 mi ⚠️</span></div>
 </div>
-<p>78 miles of sewer main require immediate rehabilitation or replacement. These Grade 5 segments are the primary I&I contributors driving today's SSO events.</p>`,
+<p>78 miles of sewer main require immediate rehabilitation or replacement. These Grade 5 segments are the primary I&I contributors driving today's SSO events. Maximo backlog: 342 deferred rehab work orders across Grade 4-5 segments, oldest from 2021.</p>`,
 chips:chipSets.assets},
 
 "lift station status across network":{
@@ -838,7 +838,7 @@ content:`<p><strong>⚙️ LIFT STATION STATUS — All 22 Stations</strong></p>
 <tr><td>LS-05 Spring Branch</td><td>58%</td><td>1/2 running</td><td style="color:var(--grn)">NORMAL</td><td>Normal</td></tr>
 </table></div>
 <p><strong>Key risk:</strong> LS-01 (Westpark) is running all 3 pumps at 92% — no redundancy. If any pump fails during this event, immediate overflow via the 16-inch force main to 69th St WWTP. LS-02 similar risk — its 12-inch force main is already at maximum hydraulic grade. Both stations serve the highest-impact trunk lines feeding the Brays Bayou overflow area.</p>
-<p>Remaining 17 stations operating normally (45-75% capacity). Emergency bypass pumps (6-inch diesel) staged at LS-01.</p>`,
+<p>Maximo asset history: LS-01 Pump C last overhauled 14 months ago (WO-2024-PM-3341), LS-02 has 1 deferred bearing replacement (WO-2024-PM-4102, overdue 6 months). Remaining 17 stations operating normally (45-75% capacity). Emergency bypass pumps (6-inch diesel) staged at LS-01.</p>`,
 chips:chipSets.operations},
 
 "generate emergency work order":{
@@ -853,7 +853,7 @@ content:`<p><strong>📋 WORK ORDER GENERATED</strong></p>
 <div class="wo-f"><span class="wl">Regulatory</span><span class="wv">TCEQ 24-hr SSO notification required for all SSOs regardless of volume</span></div>
 <div class="wo-f"><span class="wl">Est. Duration</span><span class="wv">8-12 hours (weather dependent)</span></div>
 </div>
-<p>Work order synced to Cityworks. TCEQ notification template pre-populated and ready for supervisor approval.</p>`,
+<p>Work order synced to Maximo EAM (MXWO: WO-2025-STORM-1847) and Cityworks. TCEQ notification template pre-populated and ready for supervisor approval.</p>`,
 chips:chipSets.operations},
 
 "regulatory notification tceq":{
