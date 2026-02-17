@@ -745,6 +745,8 @@ const scriptedResponses = {
 <div class="viz-row"><span class="label">Rate of Rise</span><span class="value amber">+1.2°C/hour</span></div>
 <div class="viz-row"><span class="label">Time to Trip</span><span class="value red">~2.5 hours</span></div>
 <div class="viz-row"><span class="label">Transformer Age</span><span class="value">12 years (Fuji, 2013)</span></div>
+<div class="viz-row"><span class="label">Maximo Health Score</span><span class="value red">34/100 (Critical)</span></div>
+<div class="viz-row"><span class="label">Last PM (Maximo)</span><span class="value amber">847 days ago — 2 deferred WOs</span></div>
 <div class="viz-row"><span class="label">Rated KVA</span><span class="value">50,000 kVA</span></div>
 <div class="viz-row"><span class="label">Replacement Cost</span><span class="value">AED 4.2M</span></div>
 <div class="viz-row"><span class="label">Lead Time</span><span class="value red">18 weeks — no spare until Q3</span></div>
@@ -759,7 +761,7 @@ const scriptedResponses = {
 <div class="viz-row"><span class="label">T+18 hrs</span><span class="value red">340,000 residents lose water in 52°C heat</span></div>
 </div>
 <p>Standard SCADA alarms trigger at static thresholds — <strong>after</strong> the trip, when 45,000 customers are already dark. Nexus identified this thermal acceleration pattern and cascade trajectory at 86°C, <strong>six hours earlier</strong>, when load redistribution across adjacent feeders was still viable.</p>
-<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA/ADMS</span><span class="prov-tag">Esri GIS</span><span class="prov-tag">DGA History</span><span class="prov-tag">Weather API</span></div></div>`,
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA/ADMS</span><span class="prov-tag">Esri GIS</span><span class="prov-tag">DGA History</span><span class="prov-tag">IBM Maximo EAM</span><span class="prov-tag">Weather API</span></div></div>`,
     chips: chipSets.cascade,
     updateMetrics: false
   },
@@ -789,7 +791,7 @@ const scriptedResponses = {
 </table>
 </div>
 <p><strong>Summary:</strong> 847 total service points at risk. 13 industrial, 45 commercial, 789 residential. 3 VIP accounts require priority notification. Monthly revenue at risk: <strong>AED 4.2M</strong>.</p>
-<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">Esri GIS Trace</span><span class="prov-tag">CIS/Billing</span><span class="prov-tag">VIP Registry</span></div></div>`,
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">Esri GIS Trace</span><span class="prov-tag">CIS/Billing</span><span class="prov-tag">IBM Maximo EAM</span><span class="prov-tag">VIP Registry</span></div></div>`,
     chips: chipSets.trace
   },
 
@@ -892,7 +894,7 @@ const scriptedResponses = {
 </div>
 <p>These three pumping stations lost grid feed when feeder F7-09 tripped during the initial Sub-7 stress event. Desalination output is stable, but <strong>distribution</strong> is the bottleneck — the pumps can't push water without power.</p>
 <p><strong>Cascade logic:</strong> If Sub-7 fully trips → feeder F7-09 is permanently lost → diesel runs out in 8-14 hours → 340,000 residents lose water in 52°C heat. This transforms an electrical outage into a <strong>public health emergency</strong>.</p>
-<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA (Pumping)</span><span class="prov-tag">Fuel Monitoring</span><span class="prov-tag">Population GIS</span></div></div>`,
+<div class="provenance"><div class="prov-label">Data Sources</div><div class="prov-tags"><span class="prov-tag">SCADA (Pumping)</span><span class="prov-tag">IBM Maximo EAM</span><span class="prov-tag">Fuel Monitoring</span><span class="prov-tag">Population GIS</span></div></div>`,
     chips: chipSets.water
   },
 
