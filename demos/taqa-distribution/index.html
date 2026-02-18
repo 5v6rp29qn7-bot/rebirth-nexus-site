@@ -234,6 +234,15 @@ body { font-family: var(--font-display); background: var(--bg-primary); color: v
 @keyframes pwShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
 .pw-shake { animation: pwShake 0.4s ease; }
 
+/* Esri popup dark theme override */
+.esri-popup__main-container { background: #1a1a2e !important; color: #e0e0e0 !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 8px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important; }
+.esri-popup__header-title { color: #e0e0e0 !important; font-family: Inter, system-ui, sans-serif !important; font-size: 13px !important; font-weight: 600 !important; }
+.esri-popup__header-container--button { background: transparent !important; }
+.esri-popup__button { color: #94a3b8 !important; }
+.esri-popup__button:hover { color: #e0e0e0 !important; }
+.esri-popup__content { margin: 0 !important; padding: 0 !important; }
+.esri-popup__footer, .esri-popup__pagination-previous, .esri-popup__pagination-next { background: #1a1a2e !important; color: #94a3b8 !important; }
+.esri-popup__pointer-direction { background: #1a1a2e !important; }
 </style>
 </head>
 <body>
@@ -516,16 +525,16 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline, Color) {
 
   // Substations with real TAQA-style data
   const subs = [
-    { id: "S7", name: "Mussafah Industrial (PRY 33/11)", lat: 24.35, lon: 54.50, temp: 92, status: "CRITICAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 45200, transformers: 3, load_mva: 285 },
-    { id: "S12", name: "Downtown Core (S/S)", lat: 24.49, lon: 54.37, temp: 89, status: "HIGH", type: "S/S", dms: "Yes", kv: "33/11", customers: 34100, transformers: 2, load_mva: 192 },
-    { id: "S15", name: "Mussafah Port (PRY 33/11)", lat: 24.36, lon: 54.48, temp: 87, status: "HIGH", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 28500, transformers: 2, load_mva: 210 },
-    { id: "S18", name: "Corniche Residential (GMTs)", lat: 24.47, lon: 54.35, temp: 85, status: "MODERATE", type: "GMT", dms: "Partly", kv: "33/11", customers: 52800, transformers: 4, load_mva: 145 },
-    { id: "S3", name: "Khalifa City (SW/S)", lat: 24.42, lon: 54.58, temp: 78, status: "NORMAL", type: "SW/S", dms: "Yes", kv: "33/11", customers: 38200, transformers: 2, load_mva: 165 },
-    { id: "S9", name: "Yas Island (QRM)", lat: 24.50, lon: 54.60, temp: 76, status: "NORMAL", type: "QRM", dms: "Partly", kv: "33/11", customers: 24600, transformers: 2, load_mva: 120 },
-    { id: "S21", name: "Saadiyat Cultural (TRM)", lat: 24.54, lon: 54.43, temp: 74, status: "NORMAL", type: "TRM", dms: "No", kv: "33/11", customers: 18900, transformers: 1, load_mva: 88 },
-    { id: "S6", name: "Al Reem Island (S/S)", lat: 24.50, lon: 54.40, temp: 82, status: "MODERATE", type: "S/S", dms: "Yes", kv: "33/11", customers: 42100, transformers: 3, load_mva: 178 },
-    { id: "S1", name: "Main Grid Substation (PRY 33/11)", lat: 24.44, lon: 54.44, temp: 72, status: "NORMAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 0, transformers: 6, load_mva: 450 },
-    { id: "WP1", name: "Southern Water Corridor PS", lat: 24.33, lon: 54.52, temp: 0, status: "BACKUP", type: "P/U", dms: "No", kv: "11/0.415", customers: 340000, transformers: 0, load_mva: 12 },
+    { id: "S7", name: "Mussafah Industrial (PRY 33/11)", lat: 24.35, lon: 54.50, temp: 92, status: "CRITICAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 45200, transformers: 3, load_mva: 285, rated_mva: 300, age: "12 yr (2013)", maximo_health: "34/100", last_pm: "847 days ago", maximo_wo: "2 deferred — oil filtration + bushing test", dga: "H₂ rising — 142 ppm (limit 150)" },
+    { id: "S12", name: "Downtown Core (S/S)", lat: 24.49, lon: 54.37, temp: 89, status: "HIGH", type: "S/S", dms: "Yes", kv: "33/11", customers: 34100, transformers: 2, load_mva: 192, rated_mva: 220, age: "8 yr (2017)", maximo_health: "52/100", last_pm: "214 days ago", maximo_wo: "1 open — cooling fan replacement", dga: "Normal — 68 ppm" },
+    { id: "S15", name: "Mussafah Port (PRY 33/11)", lat: 24.36, lon: 54.48, temp: 87, status: "HIGH", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 28500, transformers: 2, load_mva: 210, rated_mva: 240, age: "15 yr (2010)", maximo_health: "48/100", last_pm: "392 days ago", maximo_wo: "1 deferred — tap changer service", dga: "Acetylene trace — 12 ppm (monitor)" },
+    { id: "S18", name: "Corniche Residential (GMTs)", lat: 24.47, lon: 54.35, temp: 85, status: "MODERATE", type: "GMT", dms: "Partly", kv: "33/11", customers: 52800, transformers: 4, load_mva: 145, rated_mva: 200, age: "6 yr (2019)", maximo_health: "71/100", last_pm: "89 days ago", maximo_wo: "No open WOs", dga: "Normal — 34 ppm" },
+    { id: "S3", name: "Khalifa City (SW/S)", lat: 24.42, lon: 54.58, temp: 78, status: "NORMAL", type: "SW/S", dms: "Yes", kv: "33/11", customers: 38200, transformers: 2, load_mva: 165, rated_mva: 220, age: "4 yr (2021)", maximo_health: "88/100", last_pm: "45 days ago", maximo_wo: "No open WOs", dga: "Normal — 22 ppm" },
+    { id: "S9", name: "Yas Island (QRM)", lat: 24.50, lon: 54.60, temp: 76, status: "NORMAL", type: "QRM", dms: "Partly", kv: "33/11", customers: 24600, transformers: 2, load_mva: 120, rated_mva: 180, age: "7 yr (2018)", maximo_health: "82/100", last_pm: "112 days ago", maximo_wo: "No open WOs", dga: "Normal — 28 ppm" },
+    { id: "S21", name: "Saadiyat Cultural (TRM)", lat: 24.54, lon: 54.43, temp: 74, status: "NORMAL", type: "TRM", dms: "No", kv: "33/11", customers: 18900, transformers: 1, load_mva: 88, rated_mva: 120, age: "3 yr (2022)", maximo_health: "94/100", last_pm: "28 days ago", maximo_wo: "No open WOs", dga: "Normal — 14 ppm" },
+    { id: "S6", name: "Al Reem Island (S/S)", lat: 24.50, lon: 54.40, temp: 82, status: "MODERATE", type: "S/S", dms: "Yes", kv: "33/11", customers: 42100, transformers: 3, load_mva: 178, rated_mva: 220, age: "9 yr (2016)", maximo_health: "67/100", last_pm: "156 days ago", maximo_wo: "1 scheduled — insulation resistance test", dga: "Normal — 52 ppm" },
+    { id: "S1", name: "Main Grid Substation (PRY 33/11)", lat: 24.44, lon: 54.44, temp: 72, status: "NORMAL", type: "PRY 33/11", dms: "Yes", kv: "132/33", customers: 0, transformers: 6, load_mva: 450, rated_mva: 600, age: "10 yr (2015)", maximo_health: "79/100", last_pm: "62 days ago", maximo_wo: "No open WOs", dga: "Normal — 38 ppm" },
+    { id: "WP1", name: "Southern Water Corridor PS", lat: 24.33, lon: 54.52, temp: 0, status: "BACKUP", type: "P/U", dms: "No", kv: "11/0.415", customers: 340000, transformers: 0, load_mva: 12, rated_mva: 15, age: "5 yr (2020)", maximo_health: "86/100", last_pm: "34 days ago", maximo_wo: "No open WOs", dga: "N/A — diesel backup" },
   ];
 
   const colorMap = { CRITICAL: [239,68,68], HIGH: [249,115,22], MODERATE: [251,191,36], NORMAL: [16,185,129], BACKUP: [139,92,246] };
@@ -537,7 +546,31 @@ function(Map, MapView, Graphic, GraphicsLayer, Point, Polyline, Color) {
       geometry: new Point({ longitude: s.lon, latitude: s.lat }),
       symbol: { type: "simple-marker", color: c, size: size, outline: { color: [255,255,255,80], width: 1.5 } },
       attributes: s,
-      popupTemplate: { title: "{name}", content: "Status: {status} | Temp: {temp}°C | Type: {type}" }
+      popupTemplate: { title: "{name}", content: function(f){
+        var a = f.graphic.attributes;
+        var sc = a.status==='CRITICAL'?'#ef4444':a.status==='HIGH'?'#f97316':a.status==='MODERATE'?'#fbbf24':a.status==='BACKUP'?'#8b5cf6':'#10b981';
+        var loadPct = a.rated_mva>0?Math.round(a.load_mva/a.rated_mva*100):0;
+        var h = '<div style="font-family:Inter,system-ui,sans-serif;font-size:12px;color:#e0e0e0;background:#1a1a2e;padding:10px;border-radius:6px;min-width:280px;max-width:340px;">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:10px;color:#94a3b8;">'+a.type+' · '+a.kv+' kV</span><span style="background:'+sc+';color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;">'+a.status+'</span></div>';
+        h += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:8px;">';
+        h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;text-align:center;"><div style="font-size:9px;color:#64748b;">Temp</div><div style="font-size:14px;font-weight:700;color:'+(a.temp>=90?'#ef4444':a.temp>=85?'#f97316':'#10b981')+';">'+a.temp+'°C</div></div>';
+        h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;text-align:center;"><div style="font-size:9px;color:#64748b;">Load</div><div style="font-size:14px;font-weight:700;color:'+(loadPct>=90?'#ef4444':loadPct>=75?'#f97316':'#10b981')+';">'+loadPct+'%</div></div>';
+        h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;text-align:center;"><div style="font-size:9px;color:#64748b;">Health</div><div style="font-size:14px;font-weight:700;color:'+(parseInt(a.maximo_health)<50?'#ef4444':parseInt(a.maximo_health)<70?'#f59e0b':'#10b981')+';">'+a.maximo_health+'</div></div>';
+        h += '</div>';
+        h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Load / Rated</td><td style="text-align:right;color:#e0e0e0;">'+a.load_mva+' / '+a.rated_mva+' MVA</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Transformers</td><td style="text-align:right;color:#e0e0e0;">'+a.transformers+'</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Customers</td><td style="text-align:right;color:#e0e0e0;">'+a.customers.toLocaleString()+'</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Age</td><td style="text-align:right;color:#e0e0e0;">'+a.age+'</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">DMS</td><td style="text-align:right;color:#e0e0e0;">'+a.dms+'</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">DGA</td><td style="text-align:right;color:'+(a.dga.indexOf('rising')>-1||a.dga.indexOf('trace')>-1?'#f59e0b':'#e0e0e0')+';">'+a.dga+'</td></tr>';
+        h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Last PM</td><td style="text-align:right;color:'+(parseInt(a.last_pm)>365?'#ef4444':parseInt(a.last_pm)>180?'#f59e0b':'#e0e0e0')+';">'+a.last_pm+'</td></tr>';
+        h += '<tr><td style="color:#64748b;padding:3px 0;">Maximo WOs</td><td style="text-align:right;color:#38bdf8;font-size:9px;">'+a.maximo_wo+'</td></tr>';
+        h += '</table>';
+        h += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:8px;color:#64748b;">Sources: SCADA/ADMS · Esri GIS · IBM Maximo EAM · DGA Lab</div>';
+        h += '</div>';
+        return h;
+      }}
     }));
   });
 
