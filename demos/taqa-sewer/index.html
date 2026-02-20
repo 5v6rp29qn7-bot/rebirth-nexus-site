@@ -339,6 +339,15 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 
 .chat-footer { padding: 6px 16px 10px; font-size: 9px; color: var(--text-muted); text-align: center; }
 .chat-footer a { color: var(--accent-gold); text-decoration: none; }
+/* Esri popup dark theme override */
+.esri-popup__main-container { background: #1a1a2e !important; color: #e0e0e0 !important; border: 1px solid rgba(255,255,255,0.08) !important; border-radius: 8px !important; box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important; }
+.esri-popup__header-title { color: #e0e0e0 !important; font-family: Inter, system-ui, sans-serif !important; font-size: 13px !important; font-weight: 600 !important; }
+.esri-popup__header-container--button { background: transparent !important; }
+.esri-popup__button { color: #94a3b8 !important; }
+.esri-popup__button:hover { color: #e0e0e0 !important; }
+.esri-popup__content { margin: 0 !important; padding: 0 !important; }
+.esri-popup__footer, .esri-popup__pagination-previous, .esri-popup__pagination-next { background: #1a1a2e !important; color: #94a3b8 !important; }
+.esri-popup__pointer-direction { background: #1a1a2e !important; }
 
 /* Typing indicator */
 .typing-indicator { display: flex; gap: 4px; padding: 8px 0; margin-left: 29px; }
@@ -444,23 +453,28 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
       <div class="kpi-ticker">
         <div class="kpi-pill">
           <span class="kpi-pill-label">Rain Rate</span>
-          <span class="kpi-pill-val r">3.2 in/hr</span>
+          <span class="kpi-pill-val r" id="kpiRain">3.2 in/hr</span>
           <span class="kpi-pill-delta up">↑ 100-yr</span>
         </div>
         <div class="kpi-pill">
           <span class="kpi-pill-label">System Load</span>
-          <span class="kpi-pill-val r">127%</span>
+          <span class="kpi-pill-val r" id="kpiLoad">127%</span>
           <span class="kpi-pill-delta up">↑ 42%</span>
         </div>
         <div class="kpi-pill">
           <span class="kpi-pill-label">SSO Risk</span>
-          <span class="kpi-pill-val a">4 Sites</span>
+          <span class="kpi-pill-val a" id="kpiSSO">4 Sites</span>
           <span class="kpi-pill-delta up">↑ 3</span>
         </div>
         <div class="kpi-pill">
           <span class="kpi-pill-label">Exposure</span>
-          <span class="kpi-pill-val r">$15.0M</span>
-          <span class="kpi-pill-delta up">↑ $8.2M</span>
+          <span class="kpi-pill-val r" id="kpiExposure">$15.0M</span>
+          <span class="kpi-pill-delta up" id="kpiExposureDelta">↑ $8.2M</span>
+        </div>
+        <div class="kpi-pill" id="kpiProtectedPill" style="display:none;opacity:0;transition:opacity 0.6s ease;">
+          <span class="kpi-pill-label">Protected</span>
+          <span class="kpi-pill-val g" id="kpiProtected">$0</span>
+          <span class="kpi-pill-delta" id="kpiProtectedDelta" style="color:var(--accent-emerald);">—</span>
         </div>
       </div>
       <div class="live-dot-wrap"><div class="live-dot"></div> LIVE</div>
@@ -616,22 +630,22 @@ require([
   map.addMany([lineLyr, ptLyr]);
 
   const nodes = [
-    { id:"MH-101", name:"Brays Bayou Trunk MH-101", lat:29.70, lon:-95.40, status:"OVERFLOW", type:"Manhole" },
-    { id:"MH-204", name:"Sims Bayou Interceptor MH-204", lat:29.66, lon:-95.35, status:"OVERFLOW", type:"Manhole" },
-    { id:"MH-312", name:"Buffalo Bayou Junction MH-312", lat:29.76, lon:-95.37, status:"OVERFLOW", type:"Junction" },
-    { id:"LS-01", name:"Westpark Lift Station LS-01", lat:29.72, lon:-95.44, status:"STRESSED", type:"Lift Station" },
-    { id:"LS-02", name:"Almeda Lift Station LS-02", lat:29.68, lon:-95.38, status:"STRESSED", type:"Lift Station" },
-    { id:"LS-03", name:"Hobby Airport Lift Station", lat:29.64, lon:-95.28, status:"NORMAL", type:"Lift Station" },
-    { id:"MH-156", name:"Meyerland Trunk MH-156", lat:29.68, lon:-95.44, status:"STRESSED", type:"Manhole" },
-    { id:"WWTP", name:"69th St WWTP Headworks", lat:29.72, lon:-95.30, status:"STRESSED", type:"WWTP" },
-    { id:"MH-420", name:"Galleria Area MH-420", lat:29.74, lon:-95.46, status:"NORMAL", type:"Manhole" },
+    { id:"MH-101", name:"Brays Bayou Trunk MH-101", lat:29.70, lon:-95.40, status:"OVERFLOW", type:"Manhole", pipe:"96\" RCP", depth:"18.4 ft", rim_elev:"42.1 ft", invert:"23.7 ft", capacity:"127%", install:"1987", age:"38 yr", condition:"Grade 3 — root intrusion, joint separation", cctv:"2023 — 47 defects / 12,000 LF", maximo:"WO-2023-RH-4201 (deferred rehab)", flow:"84 MGD (design: 66 MGD)", catchment:"Brays Bayou Upper — 42 sq mi" },
+    { id:"MH-204", name:"Sims Bayou Interceptor MH-204", lat:29.66, lon:-95.35, status:"OVERFLOW", type:"Manhole", pipe:"72\" RCP", depth:"14.2 ft", rim_elev:"38.6 ft", invert:"24.4 ft", capacity:"134%", install:"1991", age:"34 yr", condition:"Grade 4 — structural crack, offset joint", cctv:"2022 — 31 defects / 8,400 LF", maximo:"WO-2024-RH-1187 (scheduled Q2)", flow:"52 MGD (design: 39 MGD)", catchment:"Sims Bayou Central — 28 sq mi" },
+    { id:"MH-312", name:"Buffalo Bayou Junction MH-312", lat:29.76, lon:-95.37, status:"OVERFLOW", type:"Junction", pipe:"108\" RCP (confluence)", depth:"22.1 ft", rim_elev:"36.8 ft", invert:"14.7 ft", capacity:"145%", install:"1984", age:"41 yr", condition:"Grade 3 — moderate I&I at joints", cctv:"2024 — 18 defects / 6,200 LF", maximo:"2 open WOs (rehab + grout injection)", flow:"118 MGD (design: 81 MGD)", catchment:"Buffalo Bayou Junction — 18 sq mi" },
+    { id:"LS-01", name:"Westpark Lift Station LS-01", lat:29.72, lon:-95.44, status:"STRESSED", type:"Lift Station", pumps:"3/3 running", capacity:"92%", wet_well:"HIGH ALARM", force_main:"16\" HDPE to 69th St WWTP", install:"2004", age:"21 yr", maximo:"Pump C overhauled 14 mo ago (WO-2024-PM-3341)", runtime:"Pump A: 14,200 hrs | B: 12,800 hrs | C: 8,400 hrs", flow:"8.2 MGD (firm capacity: 8.9 MGD)" },
+    { id:"LS-02", name:"Almeda Lift Station LS-02", lat:29.68, lon:-95.38, status:"STRESSED", type:"Lift Station", pumps:"2/2 running", capacity:"88%", wet_well:"HIGH ALARM", force_main:"12\" HDPE to 69th St WWTP", install:"2001", age:"24 yr", maximo:"1 deferred bearing replacement (WO-2024-PM-4102, overdue 6 mo)", runtime:"Pump A: 18,100 hrs | B: 16,400 hrs", flow:"4.8 MGD (firm capacity: 5.4 MGD)" },
+    { id:"LS-03", name:"Hobby Airport Lift Station", lat:29.64, lon:-95.28, status:"NORMAL", type:"Lift Station", pumps:"2/3 running", capacity:"64%", wet_well:"Normal", force_main:"12\" HDPE", install:"2012", age:"13 yr", maximo:"No open WOs — last PM 3 mo ago", runtime:"Pump A: 6,200 hrs | B: 5,800 hrs", flow:"2.8 MGD (firm capacity: 4.4 MGD)" },
+    { id:"MH-156", name:"Meyerland Trunk MH-156", lat:29.68, lon:-95.44, status:"STRESSED", type:"Manhole", pipe:"48\" VCP", depth:"12.8 ft", rim_elev:"44.2 ft", invert:"31.4 ft", capacity:"87%", install:"1992", age:"33 yr", condition:"Grade 2 — minor joint separation", cctv:"2024 — 8 defects / 4,100 LF", maximo:"No open WOs", flow:"22 MGD (design: 25 MGD)", catchment:"Meyerland — 8 sq mi" },
+    { id:"WWTP", name:"69th St WWTP Headworks", lat:29.72, lon:-95.30, status:"STRESSED", type:"WWTP", capacity:"89%", design_cap:"120 MGD", current_flow:"107 MGD", install:"1978 (expanded 2008)", age:"47 yr (headworks)", maximo:"12 open WOs across plant", permit:"TPDES TX0028070 — daily max 120 MGD" },
+    { id:"MH-420", name:"Galleria Area MH-420", lat:29.74, lon:-95.46, status:"NORMAL", type:"Manhole", pipe:"24\" PVC", depth:"9.6 ft", rim_elev:"52.1 ft", invert:"42.5 ft", capacity:"55%", install:"2008", age:"17 yr", condition:"Grade 1 — excellent", cctv:"2024 — 0 defects", maximo:"No open WOs", flow:"6.2 MGD (design: 11 MGD)", catchment:"Galleria — 6 sq mi" },
     { id:"OUT-01", name:"Buffalo Bayou Outfall", lat:29.77, lon:-95.33, status:"NORMAL", type:"Outfall" },
-    { id:"SSO-1", name:"SSO Risk - Bellaire Blvd", lat:29.70, lon:-95.46, status:"SSO_RISK", type:"SSO Point" },
-    { id:"SSO-2", name:"SSO Risk - South Main", lat:29.67, lon:-95.37, status:"SSO_RISK", type:"SSO Point" },
-    { id:"SSO-3", name:"SSO Risk - Telephone Rd", lat:29.69, lon:-95.32, status:"SSO_RISK", type:"SSO Point" },
-    { id:"SSO-4", name:"SSO Risk - Navigation Blvd", lat:29.75, lon:-95.34, status:"SSO_RISK", type:"SSO Point" },
-    { id:"DET-1", name:"Westpark Detention Basin", lat:29.71, lon:-95.46, status:"STRESSED", type:"Detention" },
-    { id:"DET-2", name:"Brays Bayou Detention (HCFCD)", lat:29.69, lon:-95.42, status:"STRESSED", type:"Detention" },
+    { id:"SSO-1", name:"SSO Risk - Bellaire Blvd", lat:29.70, lon:-95.46, status:"SSO_RISK", type:"SSO Point", est_vol:"340,000 gal", receiving:"Brays Bayou", cause:"Surcharge from MH-101 backwater" },
+    { id:"SSO-2", name:"SSO Risk - South Main", lat:29.67, lon:-95.37, status:"SSO_RISK", type:"SSO Point", est_vol:"285,000 gal", receiving:"Sims Bayou", cause:"LS-02 bypass threshold" },
+    { id:"SSO-3", name:"SSO Risk - Telephone Rd", lat:29.69, lon:-95.32, status:"SSO_RISK", type:"SSO Point", est_vol:"210,000 gal", receiving:"Sims Bayou tributary", cause:"Trunk surcharge + I&I" },
+    { id:"SSO-4", name:"SSO Risk - Navigation Blvd", lat:29.75, lon:-95.34, status:"SSO_RISK", type:"SSO Point", est_vol:"300,000 gal", receiving:"Buffalo Bayou", cause:"Junction overflow from MH-312" },
+    { id:"DET-1", name:"Westpark Detention Basin", lat:29.71, lon:-95.46, status:"STRESSED", type:"Detention", capacity:"78%", volume:"12.4 MG (design: 15.9 MG)", inflow:"Currently receiving diverted flow" },
+    { id:"DET-2", name:"Brays Bayou Detention (HCFCD)", lat:29.69, lon:-95.42, status:"STRESSED", type:"Detention", capacity:"71%", volume:"28.2 MG (design: 39.7 MG)", inflow:"HCFCD-managed, coordinating overflow" },
   ];
   const colors = { OVERFLOW:[239,68,68], STRESSED:[245,158,11], NORMAL:[16,185,129], SSO_RISK:[168,85,247], DETENTION:[34,211,238] };
   nodes.forEach(n => {
@@ -645,7 +659,66 @@ require([
     ptLyr.add(new Graphic({
       geometry: { type:"point", longitude:n.lon, latitude:n.lat },
       symbol: sym, attributes: n,
-      popupTemplate: { title:"{name}", content:"Status: {status} | Type: {type}" }
+      popupTemplate: { title:"{name}", content: function(f){
+        var a = f.graphic.attributes;
+        var sc = a.status==='OVERFLOW'?'#ef4444':a.status==='STRESSED'||a.status==='SSO_RISK'?'#f59e0b':'#22c55e';
+        var h = '<div style="font-family:Inter,system-ui,sans-serif;font-size:12px;color:#e0e0e0;background:#1a1a2e;padding:10px;border-radius:6px;min-width:260px;max-width:320px;">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span style="font-size:10px;color:#94a3b8;">'+a.type+'</span><span style="background:'+sc+';color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;">'+a.status.replace('_',' ')+'</span></div>';
+        if(a.type==='Manhole'||a.type==='Junction'){
+          h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;">';
+          h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;"><div style="font-size:9px;color:#64748b;">Capacity</div><div style="font-size:14px;font-weight:700;color:'+sc+';">'+a.capacity+'</div></div>';
+          h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;"><div style="font-size:9px;color:#64748b;">Flow</div><div style="font-size:11px;font-weight:600;color:#e0e0e0;">'+a.flow.split('(')[0]+'</div></div>';
+          h += '</div>';
+          h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Pipe</td><td style="text-align:right;color:#e0e0e0;">'+a.pipe+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Depth / Rim / Invert</td><td style="text-align:right;color:#e0e0e0;">'+a.depth+' / '+a.rim_elev+' / '+a.invert+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Installed</td><td style="text-align:right;color:#e0e0e0;">'+a.install+' ('+a.age+')</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Condition</td><td style="text-align:right;color:'+(a.condition.indexOf('4')>-1||a.condition.indexOf('5')>-1?'#ef4444':a.condition.indexOf('3')>-1?'#f59e0b':'#22c55e')+';">'+a.condition+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">CCTV</td><td style="text-align:right;color:#e0e0e0;">'+a.cctv+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Catchment</td><td style="text-align:right;color:#e0e0e0;">'+a.catchment+'</td></tr>';
+          h += '<tr><td style="color:#64748b;padding:3px 0;">Maximo</td><td style="text-align:right;color:#38bdf8;">'+a.maximo+'</td></tr>';
+          h += '</table>';
+        } else if(a.type==='Lift Station'){
+          h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px;">';
+          h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;"><div style="font-size:9px;color:#64748b;">Capacity</div><div style="font-size:14px;font-weight:700;color:'+sc+';">'+a.capacity+'</div></div>';
+          h += '<div style="background:rgba(255,255,255,0.04);padding:6px;border-radius:4px;"><div style="font-size:9px;color:#64748b;">Wet Well</div><div style="font-size:11px;font-weight:600;color:'+(a.wet_well==='HIGH ALARM'?'#ef4444':'#22c55e')+';">'+a.wet_well+'</div></div>';
+          h += '</div>';
+          h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Pumps</td><td style="text-align:right;color:#e0e0e0;">'+a.pumps+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Flow</td><td style="text-align:right;color:#e0e0e0;">'+a.flow+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Force Main</td><td style="text-align:right;color:#e0e0e0;">'+a.force_main+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Installed</td><td style="text-align:right;color:#e0e0e0;">'+a.install+' ('+a.age+')</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Runtime</td><td style="text-align:right;color:#e0e0e0;font-size:9px;">'+a.runtime+'</td></tr>';
+          h += '<tr><td style="color:#64748b;padding:3px 0;">Maximo</td><td style="text-align:right;color:#38bdf8;font-size:9px;">'+a.maximo+'</td></tr>';
+          h += '</table>';
+        } else if(a.type==='WWTP'){
+          h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Current Flow</td><td style="text-align:right;color:#f59e0b;font-weight:700;">'+a.current_flow+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Design Capacity</td><td style="text-align:right;color:#e0e0e0;">'+a.design_cap+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Utilization</td><td style="text-align:right;color:#f59e0b;font-weight:700;">'+a.capacity+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Permit</td><td style="text-align:right;color:#e0e0e0;font-size:9px;">'+a.permit+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Installed</td><td style="text-align:right;color:#e0e0e0;">'+a.install+'</td></tr>';
+          h += '<tr><td style="color:#64748b;padding:3px 0;">Maximo</td><td style="text-align:right;color:#38bdf8;">'+a.maximo+'</td></tr>';
+          h += '</table>';
+        } else if(a.type==='SSO Point'){
+          h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Est. Volume</td><td style="text-align:right;color:#ef4444;font-weight:700;">'+a.est_vol+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Receiving Water</td><td style="text-align:right;color:#e0e0e0;">'+a.receiving+'</td></tr>';
+          h += '<tr><td style="color:#64748b;padding:3px 0;">Cause</td><td style="text-align:right;color:#e0e0e0;">'+a.cause+'</td></tr>';
+          h += '</table>';
+        } else if(a.type==='Detention'){
+          h += '<table style="width:100%;border-collapse:collapse;font-size:10px;">';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Utilization</td><td style="text-align:right;color:#f59e0b;font-weight:700;">'+a.capacity+'</td></tr>';
+          h += '<tr style="border-bottom:1px solid rgba(255,255,255,0.06);"><td style="color:#64748b;padding:3px 0;">Volume</td><td style="text-align:right;color:#e0e0e0;">'+a.volume+'</td></tr>';
+          h += '<tr><td style="color:#64748b;padding:3px 0;">Status</td><td style="text-align:right;color:#e0e0e0;">'+a.inflow+'</td></tr>';
+          h += '</table>';
+        } else {
+          h += '<div style="font-size:10px;color:#94a3b8;">Status: '+a.status+' | Type: '+a.type+'</div>';
+        }
+        h += '<div style="margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,0.06);font-size:8px;color:#64748b;">Sources: Esri Sewer GIS · SCADA · IBM Maximo EAM</div>';
+        h += '</div>';
+        return h;
+      }}
     }));
   });
   const trunks = [
@@ -892,7 +965,22 @@ content:`<p><strong>📊 CATCHMENT CAPACITY — Ranked by Stress Level</strong><
 chips:chipSets.cascade},
 
 "return to overview":{
-content:`<p>Back to the main dashboard. Storm conditions remain active:</p>
+get content() {
+  if (mitigationActive) {
+    return `<p>Back to the main dashboard. Storm conditions remain active — <strong style="color:var(--accent-emerald)">mitigation measures deployed</strong>:</p>
+<div class="vb"><div class="vt">Current Status — Post-Mitigation</div>
+<div class="vr"><span class="l">Active Overflows</span><span class="v amb">1 manhole (MH-101 — controlled)</span></div>
+<div class="vr"><span class="l">SSO Risk Points</span><span class="v amb">1 location (down from 4)</span></div>
+<div class="vr"><span class="l">Residual Exposure</span><span class="v amb">$4.8M</span></div>
+<div class="vr"><span class="l">Protected</span><span class="v grn">$10.2M — ROI 38:1</span></div>
+<div class="vr"><span class="l">Bypass Pumps</span><span class="v grn">3 deployed at SSO-1 and SSO-2</span></div>
+<div class="vr"><span class="l">Detention Diversion</span><span class="v grn">Active — Westpark basin receiving flow</span></div>
+<div class="vr"><span class="l">Lift Stations</span><span class="v amb">LS-01 84% (down from 92%), LS-02 79%</span></div>
+<div class="vr"><span class="l">Residents at Risk</span><span class="v amb">12,400 (down from 83,800)</span></div>
+<div class="vr"><span class="l">Rainfall Forecast</span><span class="v">2.8 in/hr next 2 hours, then diminishing</span></div>
+</div><p>Mitigation reduced exposure by <strong>$10.2M</strong> and reduced at-risk population by <strong>85%</strong>. What would you like to investigate?</p>`;
+  }
+  return `<p>Back to the main dashboard. Storm conditions remain active:</p>
 <div class="vb"><div class="vt">Current Status</div>
 <div class="vr"><span class="l">Active Overflows</span><span class="v red">3 manholes</span></div>
 <div class="vr"><span class="l">SSO Risk Points</span><span class="v amb">4 locations (1 active, 3 imminent)</span></div>
@@ -901,7 +989,8 @@ content:`<p>Back to the main dashboard. Storm conditions remain active:</p>
 <div class="vr"><span class="l">Residents at Risk</span><span class="v red">83,800 across 5 neighborhoods</span></div>
 <div class="vr"><span class="l">Mitigation Window</span><span class="v amb">~45 min remaining</span></div>
 <div class="vr"><span class="l">Rainfall Forecast</span><span class="v">2.8 in/hr next 2 hours, then diminishing</span></div>
-</div><p>What would you like to investigate?</p>`,
+</div><p>What would you like to investigate?</p>`;
+},
 chips:chipSets.initial}
 };
 
@@ -954,6 +1043,71 @@ const zoomTargets = {
   "overview": { center: [-95.37, 29.72], zoom: 11 },
   "return": { center: [-95.37, 29.72], zoom: 11 },
 };
+var mitigationActive = false;
+var workOrderGenerated = false;
+
+function animateKpiValue(el, startText, endText, steps, interval) {
+  // For dollar values, animate numerically
+  var startMatch = startText.match(/([\d.]+)/);
+  var endMatch = endText.match(/([\d.]+)/);
+  if (startMatch && endMatch) {
+    var startNum = parseFloat(startMatch[1]);
+    var endNum = parseFloat(endMatch[1]);
+    var prefix = endText.substring(0, endText.indexOf(endMatch[1]));
+    var suffix = endText.substring(endText.indexOf(endMatch[1]) + endMatch[1].length);
+    var step = 0;
+    var timer = setInterval(function() {
+      step++;
+      var current = startNum + (endNum - startNum) * (step / steps);
+      el.textContent = prefix + current.toFixed(1) + suffix;
+      if (step >= steps) { clearInterval(timer); el.textContent = endText; }
+    }, interval);
+  } else {
+    el.textContent = endText;
+  }
+}
+
+function updateKpiMitigation() {
+  if (mitigationActive) return;
+  mitigationActive = true;
+  // Animate exposure down: $15.0M → $4.8M
+  var expEl = document.getElementById('kpiExposure');
+  var expDelta = document.getElementById('kpiExposureDelta');
+  animateKpiValue(expEl, '$15.0M', '$4.8M', 8, 150);
+  setTimeout(function() {
+    expEl.className = 'kpi-pill-val a'; // amber instead of red
+    expDelta.textContent = '↓ $10.2M';
+    expDelta.className = 'kpi-pill-delta';
+    expDelta.style.color = 'var(--accent-emerald)';
+  }, 1300);
+  // Show and animate Protected pill
+  var protPill = document.getElementById('kpiProtectedPill');
+  protPill.style.display = '';
+  setTimeout(function() { protPill.style.opacity = '1'; }, 50);
+  var protVal = document.getElementById('kpiProtected');
+  var protDelta = document.getElementById('kpiProtectedDelta');
+  setTimeout(function() {
+    animateKpiValue(protVal, '$0', '$10.2M', 8, 150);
+    protDelta.textContent = 'ROI 38:1';
+  }, 400);
+  // Reduce SSO risk sites
+  var ssoEl = document.getElementById('kpiSSO');
+  setTimeout(function() {
+    ssoEl.textContent = '1 Site';
+    ssoEl.className = 'kpi-pill-val a';
+  }, 800);
+}
+
+function pulseKpi(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  var pill = el.closest('.kpi-pill');
+  if (!pill) return;
+  pill.style.transition = 'box-shadow 0.3s ease';
+  pill.style.boxShadow = '0 0 12px rgba(34,197,94,0.5)';
+  setTimeout(function() { pill.style.boxShadow = 'none'; }, 1500);
+}
+
 function getZoom(text) {
   var t = text.toLowerCase();
   for (var key in zoomTargets) { if (t.indexOf(key) !== -1) return zoomTargets[key]; }
@@ -966,7 +1120,17 @@ var z=getZoom(t);
 if(z&&window._mapView){window._mapView.goTo({center:z.center,zoom:z.zoom},{duration:800,easing:"ease-in-out"});}
 await new Promise(r=>setTimeout(r,400+Math.random()*400));
 const resp=find(t);hideTyp();
-if(resp){addMsg(resp.content);updChips(resp.chips||chipSets.initial)}
+if(resp){addMsg(resp.content);updChips(resp.chips||chipSets.initial);
+  // Dynamic KPI updates
+  var tl = t.toLowerCase();
+  if(tl.indexOf('flood exposure')!==-1 || tl.indexOf('financial')!==-1) {
+    setTimeout(updateKpiMitigation, 800);
+  }
+  if(tl.indexOf('work order')!==-1 || tl.indexOf('emergency')!==-1) {
+    workOrderGenerated = true;
+    setTimeout(function(){ pulseKpi('kpiExposure'); }, 600);
+  }
+}
 else{addMsg('<p>I can investigate that area further. The current storm event has 3 active overflow points and 4 SSO risk locations. Try one of the suggested queries for detailed analysis.</p>');updChips(chipSets.initial)}
 isProc=false;
 }
