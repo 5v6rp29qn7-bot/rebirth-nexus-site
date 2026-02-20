@@ -537,7 +537,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Manhole — Overflow</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-amber)"></div> Manhole — Stressed</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-emerald)"></div> Manhole — Normal</div>
-        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-purple)"></div> SSO Risk Point</div>
+        <div class="legend-row"><div class="legend-dot" style="background:transparent;color:var(--accent-purple);font-weight:900;font-size:14px;line-height:10px;text-align:center;">✕</div> SSO Risk Point</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-cyan)"></div> Lift Station / WWTP</div>
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-cyan);border-radius:2px"></div> Detention Basin</div>
         <div class="legend-row"><div class="legend-line" style="background:var(--accent-cyan)"></div> Trunk Sewer Line</div>
@@ -655,6 +655,8 @@ require([
       ? { type:"simple-marker", color:c, size:sz, style:"diamond", outline:{ color:[255,255,255,80], width:1.5 } }
       : n.type==="Detention"
       ? { type:"simple-marker", color:c, size:14, style:"square", outline:{ color:[255,255,255,80], width:1.5 } }
+      : n.type==="SSO Point"
+      ? { type:"simple-marker", color:c, size:sz, style:"x", outline:{ color:[168,85,247,255], width:3 } }
       : { type:"simple-marker", color:c, size:sz, outline:{ color:[255,255,255,60], width:1 } };
     ptLyr.add(new Graphic({
       geometry: { type:"point", longitude:n.lon, latitude:n.lat },
@@ -728,10 +730,28 @@ require([
     [[-95.35,29.66],[-95.32,29.69],[-95.30,29.72]],
     [[-95.37,29.76],[-95.37,29.72],[-95.33,29.77]],
   ];
+  // Lateral / connector lines to ensure all nodes visually connect to the network
+  const laterals = [
+    [[-95.44,29.70],[-95.44,29.72]], // MH-415 Greens Bayou connector to trunk
+    [[-95.38,29.68],[-95.40,29.70]], // MH-508 Hunting Bayou connector
+    [[-95.30,29.72],[-95.28,29.64]], // WWTP 69th St connector from LS-02 trunk
+    [[-95.46,29.74],[-95.46,29.70]], // Outfall connector to SSO-1/trunk
+    [[-95.37,29.67],[-95.37,29.68]], // SSO-2 South Main connector to trunk vertex
+    [[-95.34,29.75],[-95.33,29.77]], // SSO-4 Navigation connector to trunk end
+    [[-95.46,29.71],[-95.46,29.70]], // DET-1 Westpark connector
+    [[-95.42,29.69],[-95.40,29.70]], // DET-2 Brays Bayou connector
+  ];
   trunks.forEach((t,i) => {
     lineLyr.add(new Graphic({
       geometry: { type:"polyline", paths:[t] },
       symbol: { type:"simple-line", color: i<2 ? [34,211,238,160] : [168,85,247,120], width: i<2 ? 2.5 : 1.5 }
+    }));
+  });
+  // Render lateral connectors (thinner, dimmer)
+  laterals.forEach(t => {
+    lineLyr.add(new Graphic({
+      geometry: { type:"polyline", paths:[t] },
+      symbol: { type:"simple-line", color: [100,140,180,80], width: 1, style: "dash" }
     }));
   });
   ptLyr.add(new Graphic({
