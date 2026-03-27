@@ -245,18 +245,6 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
 
-.tour-overlay { display: none; position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); }
-.tour-overlay.active { display: block; }
-.tour-tooltip { position: absolute; background: var(--bg-secondary); border: 1px solid var(--accent-gold); border-radius: var(--radius); padding: 16px 18px; max-width: 320px; box-shadow: var(--shadow); }
-.tour-title { font-size: 14px; font-weight: 700; color: var(--accent-gold); margin-bottom: 8px; }
-.tour-text { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px; }
-.tour-btns { display: flex; justify-content: space-between; align-items: center; }
-.tour-step-count { font-size: 10px; color: var(--text-muted); font-family: monospace; }
-.tour-skip { background: none; border: none; color: var(--text-muted); font-size: 11px; cursor: pointer; padding: 4px 8px; }
-.tour-skip:hover { color: var(--text-secondary); }
-.tour-next { background: var(--gradient-brand); border: none; color: #000; font-weight: 600; padding: 6px 14px; border-radius: 4px; cursor: pointer; font-size: 11px; }
-.tour-next:hover { opacity: 0.9; }
-
 @media (max-width: 1200px) {
   .sidebar { width: 220px; min-width: 220px; }
   .chat-panel { width: 340px; min-width: 340px; }
@@ -266,6 +254,166 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
   .sidebar { display: none; }
   .chat-panel { width: 300px; min-width: 300px; }
 }
+
+/* Narration Bar */
+.narration-bar {
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--accent-gold);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  position: relative;
+  z-index: 50;
+}
+.narration-step {
+  font-size: 11px; font-family: monospace; color: var(--accent-gold);
+  background: var(--accent-gold-dim); padding: 4px 10px; border-radius: 3px;
+  font-weight: 700; white-space: nowrap;
+}
+.narration-label { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.narration-label strong { color: var(--text-primary); }
+.narr-btn {
+  background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary);
+  font-size: 12px; padding: 8px 18px; border-radius: 4px; cursor: pointer;
+  transition: all .2s; font-family: inherit; white-space: nowrap;
+}
+.narr-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.narr-btn.primary {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  font-size: 13px; padding: 10px 24px;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+.narr-btn.primary:hover { opacity: 0.9; }
+.narr-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+@keyframes pulseGlow {
+  0%,100% { box-shadow: 0 0 8px rgba(212,175,55,0.3); }
+  50% { box-shadow: 0 0 20px rgba(212,175,55,0.6), 0 0 40px rgba(212,175,55,0.2); }
+}
+.narration-progress {
+  height: 4px; background: var(--bg-tertiary); border-radius: 2px;
+  position: relative; overflow: hidden;
+}
+.narration-progress-fill {
+  height: 100%; background: var(--gradient-brand); border-radius: 2px;
+  transition: width 0.5s ease;
+}
+/* Spotlight overlay - dims everything except narration bar between steps */
+.spotlight-overlay {
+  display: none; position: fixed; inset: 0; z-index: 40;
+  background: rgba(0,0,0,0.5);
+  pointer-events: none;
+}
+.spotlight-overlay.active { display: block; }
+
+/* Orientation overlay - "what you're looking at" */
+.orient-overlay {
+  display: none; position: fixed; inset: 0; z-index: 15000;
+  background: rgba(0,0,0,0.75); backdrop-filter: blur(2px);
+}
+.orient-overlay.active { display: flex; align-items: center; justify-content: center; }
+.orient-box {
+  background: #111827; border: 1px solid rgba(212,175,55,0.3);
+  border-radius: 16px; padding: 32px 36px; max-width: 560px; width: 90%;
+  text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.orient-title {
+  font-size: 22px; font-weight: 700; color: var(--accent-gold);
+  margin-bottom: 20px; font-family: Georgia, serif;
+}
+.orient-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  text-align: left; margin-bottom: 24px;
+}
+.orient-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 12px 14px;
+}
+.orient-item-label {
+  font-size: 11px; color: var(--accent-gold); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
+}
+.orient-item-text { font-size: 12px; color: #94a3b8; line-height: 1.4; }
+.orient-item.full { grid-column: 1 / -1; border-color: rgba(212,175,55,0.25); background: rgba(212,175,55,0.06); }
+.orient-item.full .orient-item-text { color: #e2e8f0; }
+.orient-btn {
+  padding: 12px 32px; background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border: none; border-radius: 8px; color: #000; font-weight: 600;
+  font-size: 14px; cursor: pointer; font-family: inherit;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+.orient-btn:hover { opacity: 0.9; }
+
+/* Intro Overlay */
+.intro-overlay {
+  position: fixed; inset: 0; z-index: 20000;
+  background: #0a0e17;
+  display: flex; align-items: center; justify-content: center;
+}
+.intro-overlay.hidden { display: none; }
+.intro-box {
+  max-width: 640px; width: 90%; text-align: center;
+}
+.intro-logo { width: 56px; height: 56px; margin: 0 auto 20px; overflow: hidden; }
+.intro-logo img { width: 100%; height: 100%; object-fit: contain; }
+.intro-step-indicator {
+  display: flex; gap: 8px; justify-content: center; margin-bottom: 24px;
+}
+.intro-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.15);
+  transition: all 0.3s;
+}
+.intro-dot.active { background: var(--accent-gold); width: 24px; border-radius: 4px; }
+.intro-dot.done { background: var(--accent-emerald); }
+.intro-heading {
+  font-size: 28px; font-weight: 700; color: #f1f5f9; margin-bottom: 16px;
+  font-family: Georgia, serif; line-height: 1.3;
+}
+.intro-text {
+  font-size: 15px; color: #94a3b8; line-height: 1.7; margin-bottom: 32px;
+}
+.intro-text strong { color: #e2e8f0; }
+.intro-highlight {
+  background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15);
+  border-radius: 12px; padding: 20px 24px; margin: 20px 0;
+  text-align: left;
+}
+.intro-highlight-row {
+  display: flex; gap: 16px; padding: 8px 0;
+  font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.intro-highlight-row:last-child { border-bottom: none; }
+.intro-highlight-row span:first-child { color: #e2e8f0; font-weight: 600; min-width: 140px; flex-shrink: 0; }
+.intro-highlight-row span:last-child { color: var(--accent-gold); font-family: monospace; font-size: 12px; line-height: 1.5; }
+.intro-signal-box {
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 14px 18px; margin: 8px 0; text-align: left;
+}
+.intro-signal-num {
+  display: inline-block; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(212,175,55,0.15); color: var(--accent-gold);
+  font-size: 11px; font-weight: 700; text-align: center; line-height: 22px;
+  margin-right: 8px;
+}
+.intro-signal-title { color: #e2e8f0; font-weight: 600; font-size: 14px; }
+.intro-signal-source { color: var(--accent-gold); font-size: 11px; font-family: monospace; }
+.intro-signal-text { color: #94a3b8; font-size: 13px; margin-top: 6px; line-height: 1.5; }
+.intro-signal-verdict {
+  background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 10px; padding: 14px 18px; margin: 16px 0 0; text-align: left;
+}
+.intro-signal-verdict strong { color: #10b981; }
+.intro-nav { display: flex; justify-content: center; gap: 12px; }
+.intro-btn {
+  padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.intro-btn.secondary {
+  background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8;
+}
+.intro-btn.secondary:hover { border-color: rgba(255,255,255,0.3); color: #e2e8f0; }
+.intro-btn.primary {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b); border: none; color: #000;
+}
+.intro-btn.primary:hover { opacity: 0.9; }
 
 .password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
 .password-gate.hidden { display: none; }
@@ -316,6 +464,59 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
   }
 })();
 </script>
+
+<!-- INTRO OVERLAY -->
+<div class="intro-overlay" id="introOverlay">
+  <div class="intro-box">
+    <div class="intro-logo"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='&#9889;'"></div>
+    <div class="intro-step-indicator" id="introIndicator">
+      <div class="intro-dot active"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+      <div class="intro-dot"></div>
+    </div>
+    <div class="intro-heading" id="introHeading">Rebirth Nexus</div>
+    <div class="intro-text" id="introText">
+      <strong>Conversational Predictive Intelligence.</strong><br><br>
+      Nexus is a connected intelligence layer that sits above your existing operational systems. It correlates data across multiple sources to deliver quantified, decision-ready answers through a single conversational interface.<br><br>
+      No dashboards to learn. No systems to replace. Ask a question, get an answer.
+    </div>
+    <div class="intro-nav">
+      <button class="intro-btn primary" id="introBtn" onclick="nextIntro()">Next &rarr;</button>
+    </div>
+  </div>
+</div>
+
+<!-- SPOTLIGHT OVERLAY -->
+<div class="spotlight-overlay" id="spotlightOverlay"></div>
+
+<!-- ORIENTATION OVERLAY -->
+<div class="orient-overlay" id="orientOverlay">
+  <div class="orient-box">
+    <div class="orient-title">What You're Looking At</div>
+    <div class="orient-grid">
+      <div class="orient-item">
+        <div class="orient-item-label">Left Panel</div>
+        <div class="orient-item-text">Live asset intelligence feed. System-detected events ranked by consequence.</div>
+      </div>
+      <div class="orient-item">
+        <div class="orient-item-label">Centre</div>
+        <div class="orient-item-text">Esri map of all 12 ADURA fields, pipelines, and shore terminals. Colour-coded by status.</div>
+      </div>
+      <div class="orient-item">
+        <div class="orient-item-label">Right Panel</div>
+        <div class="orient-item-text">Nexus conversational intelligence. Each step shows a question and the platform's response.</div>
+      </div>
+      <div class="orient-item full">
+        <div class="orient-item-label">How to Navigate</div>
+        <div class="orient-item-text">Click the pulsing gold <strong>Next</strong> button at the bottom right of the chat panel to advance through the 8-step walkthrough. Arrow keys also work.</div>
+      </div>
+    </div>
+    <button class="orient-btn" onclick="dismissOrient()">Got It &mdash; Start the Walkthrough</button>
+  </div>
+</div>
 
 <div class="app">
   <!-- TOP BAR -->
@@ -457,39 +658,14 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
         </div>
       </div>
 
-      <div class="chips-section">
-        <div class="chips-grid" id="chipsGrid">
-          <div class="chip" onclick="handle('Investigate PL-207 pipeline anomaly')">&#128308; Investigate PL-207 anomaly</div>
-          <div class="chip" onclick="handle('Field-by-field integrity status')">&#128738;&#65039; Field integrity status</div>
-          <div class="chip" onclick="handle('Total portfolio exposure')">&#128176; Total portfolio exposure</div>
-          <div class="chip" onclick="handle('Regulatory compliance status')">&#128203; Regulatory compliance</div>
-          <div class="chip" onclick="handle('Portfolio protection plan')">&#128295; Portfolio protection plan</div>
-          <div class="chip" onclick="handle('Production risk ranking')">&#128202; Production risk ranking</div>
-        </div>
+      <div class="narration-progress"><div class="narration-progress-fill" id="narrProgress" style="width:0%"></div></div>
+      <div class="narration-bar" id="narrBar">
+        <span class="narration-step" id="narrStep">1 / 8</span>
+        <span class="narration-label" id="narrLabel"><strong>Welcome.</strong> Click Next to begin the guided walkthrough.</span>
+        <button class="narr-btn" id="narrBack" onclick="prevStep()" disabled>&larr; Back</button>
+        <button class="narr-btn primary" id="narrNext" onclick="nextStep()">Begin Walkthrough &rarr;</button>
       </div>
-
-      <div class="chat-input-area">
-        <div class="input-wrap">
-          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about pipeline integrity, production risk, compliance, mitigation..." />
-          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send</button>
-        </div>
-      </div>
-      <div class="chat-footer">Demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> &bull; Synthetic scenario; ADURA parameters are illustrative</div>
-    </div>
-  </div>
-</div>
-
-<!-- TOUR -->
-<div class="tour-overlay" id="tourOverlay">
-  <div class="tour-tooltip" id="tourTooltip">
-    <div class="tour-title" id="tourTitle"></div>
-    <div class="tour-text" id="tourText"></div>
-    <div class="tour-btns">
-      <span class="tour-step-count" id="tourStepCount"></span>
-      <div>
-        <button class="tour-skip" onclick="endTour()">Skip</button>
-        <button class="tour-next" id="tourNext" onclick="nextTourStep()">Next</button>
-      </div>
+      <div class="chat-footer">Guided demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> &bull; Synthetic scenario; ADURA parameters are illustrative &bull; Use arrow keys or buttons to navigate</div>
     </div>
   </div>
 </div>
@@ -597,44 +773,23 @@ require([
 
 var SYSTEM_PROMPT = 'You are Nexus Offshore Intelligence, the AI engine of Rebirth Nexus, providing predictive asset intelligence for ADURA North Sea operations.';
 var API_ENDPOINT = '/api/chat';
-var isProcessing = false;
 var demoMode = true;
 
-var chipSets = {
-  initial: [
-    "\u{1F534} Investigate PL-207 anomaly",
-    "\u{1F6E2}\uFE0F Field integrity status",
-    "\u{1F4B0} Total portfolio exposure",
-    "\u{1F4CB} Regulatory compliance",
-    "\u{1F527} Portfolio protection plan",
-    "\u{1F4CA} Production risk ranking"
-  ],
-  pipeline: [
-    "Corrosion growth rate analysis",
-    "Weather window for intervention",
-    "Downstream cascade impact",
-    "Generate maintenance work order",
-    "\u21A9\uFE0F Return to overview"
-  ],
-  integrity: [
-    "Central North Sea fields",
-    "West of Shetland assets",
-    "Pipeline network summary",
-    "\u21A9\uFE0F Return to overview"
-  ],
-  compliance: [
-    "NSTA stewardship requirements",
-    "OPRED environmental permits",
-    "HSE safety case status",
-    "\u21A9\uFE0F Return to overview"
-  ],
-  protection: [
-    "Planned vs emergency shutdown ROI",
-    "12-month capital allocation",
-    "Vessel mobilisation timeline",
-    "\u21A9\uFE0F Return to overview"
-  ]
-};
+/* Dummy chipSets - R object references these but walkthrough ignores them */
+var chipSets = { initial:[], pipeline:[], integrity:[], compliance:[], protection:[] };
+
+/* ===== WALKTHROUGH STEPS ===== */
+var walkSteps = [
+  { label: "<strong>Step 1:</strong> What is ADURA's most critical risk right now?", query: "Investigate PL-207 pipeline anomaly", zoom: { center: [0.0, 57.75], zoom: 8 } },
+  { label: "<strong>Step 2:</strong> How fast is the corrosion progressing?", query: "Corrosion growth rate analysis", zoom: { center: [0.0, 57.75], zoom: 8 } },
+  { label: "<strong>Step 3:</strong> What happens if PL-207 fails? The cascade.", query: "Downstream cascade impact", zoom: { center: [0.2, 57.50], zoom: 7 } },
+  { label: "<strong>Step 4:</strong> What is the total financial exposure across all anomalies?", query: "Total portfolio exposure", zoom: { center: [-0.5, 59.0], zoom: 6 } },
+  { label: "<strong>Step 5:</strong> Where do we stand with NSTA, OPRED, and HSE?", query: "Regulatory compliance status", zoom: { center: [-0.5, 59.0], zoom: 6 } },
+  { label: "<strong>Step 6:</strong> What should Mark recommend to the board?", query: "Portfolio protection plan", zoom: { center: [-0.5, 59.0], zoom: 6 } },
+  { label: "<strong>Step 7:</strong> Planned intervention vs emergency shutdown.", query: "Planned vs emergency shutdown ROI", zoom: { center: [-0.5, 59.0], zoom: 6 } },
+  { label: "<strong>Step 8:</strong> The 12-month capital allocation programme.", query: "12-month capital allocation", zoom: { center: [-0.5, 59.0], zoom: 6 } }
+];
+var currentStep = -1;
 
 var R = {
 
@@ -1003,50 +1158,9 @@ chips: chipSets.initial
 
 };
 
-/* ===== ENGINE ===== */
-var isProc = false;
-function norm(t) { return t.toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim(); }
-
-function find(t) {
-  var n = norm(t);
-  /* Phase 1: Exact key match (chips always send full text) */
-  for (var k in R) { if (n === k || n.indexOf(k) !== -1 || k.indexOf(n) !== -1) return R[k]; }
-  /* Phase 2: Specific asset names first (prevents greedy generic matches) */
-  if (n.indexOf('pl207') !== -1 || n.indexOf('pl 207') !== -1 || (n.indexOf('buzzard') !== -1 && n.indexOf('pipeline') !== -1)) return R['investigate pl207 pipeline anomaly'];
-  if (n.indexOf('shearwater') !== -1 || n.indexOf('c201') !== -1 || n.indexOf('c-201') !== -1 || n.indexOf('compressor') !== -1) return R['field-by-field integrity status'];
-  if (n.indexOf('clair') !== -1 || n.indexOf('sv12') !== -1 || n.indexOf('sv-12') !== -1) return R['field-by-field integrity status'];
-  if (n.indexOf('mariner') !== -1 || n.indexOf('penguins') !== -1) return R['field-by-field integrity status'];
-  if (n.indexOf('buzzard') !== -1) return R['investigate pl207 pipeline anomaly'];
-  /* Phase 3: Multi-word phrases (more specific than single words) */
-  if (n.indexOf('work order') !== -1) return R['generate maintenance work order'];
-  if (n.indexOf('risk rank') !== -1) return R['production risk ranking'];
-  if (n.indexOf('pipeline network') !== -1) return R['pipeline network summary'];
-  if (n.indexOf('12 month') !== -1 || n.indexOf('12month') !== -1 || n.indexOf('capital allocation') !== -1) return R['12-month capital allocation'];
-  if (n.indexOf('safety case') !== -1) return R['hse safety case status'];
-  if (n.indexOf('weather window') !== -1) return R['weather window for intervention'];
-  if (n.indexOf('planned vs') !== -1 || n.indexOf('planned shutdown') !== -1 || n.indexOf('emergency shutdown') !== -1) return R['planned vs emergency shutdown roi'];
-  /* Phase 4: Domain-specific keywords (moderate specificity) */
-  if (n.indexOf('corrosion') !== -1 || n.indexOf('wall loss') !== -1 || n.indexOf('wall thickness') !== -1) return R['corrosion growth rate analysis'];
-  if (n.indexOf('cascade') !== -1 || n.indexOf('downstream') !== -1) return R['downstream cascade impact'];
-  if (n.indexOf('stewardship') !== -1) return R['nsta stewardship requirements'];
-  if (n.indexOf('nsta') !== -1 || n.indexOf('opred') !== -1 || n.indexOf('compliance') !== -1 || n.indexOf('regulat') !== -1) return R['regulatory compliance status'];
-  if (n.indexOf('hse') !== -1 || n.indexOf('safety') !== -1) return R['hse safety case status'];
-  if (n.indexOf('environ') !== -1 || n.indexOf('permit') !== -1) return R['opred environmental permits'];
-  if (n.indexOf('exposure') !== -1 || n.indexOf('financial') !== -1) return R['total portfolio exposure'];
-  if (n.indexOf('protect') !== -1 || n.indexOf('mitigat') !== -1 || n.indexOf('recommend') !== -1) return R['portfolio protection plan'];
-  if (n.indexOf('production') !== -1 || n.indexOf('ranking') !== -1) return R['production risk ranking'];
-  if (n.indexOf('weather') !== -1 || n.indexOf('mobilise') !== -1 || n.indexOf('mobilize') !== -1) return R['weather window for intervention'];
-  if (n.indexOf('vessel') !== -1) return R['vessel mobilisation timeline'];
-  if (n.indexOf('capital') !== -1 || n.indexOf('board') !== -1 || n.indexOf('allocation') !== -1) return R['12-month capital allocation'];
-  if (n.indexOf('integrity') !== -1) return R['field-by-field integrity status'];
-  if (n.indexOf('central') !== -1) return R['central north sea fields'];
-  if (n.indexOf('shetland') !== -1) return R['west of shetland assets'];
-  if (n.indexOf('maintenance') !== -1) return R['generate maintenance work order'];
-  if (n.indexOf('shutdown') !== -1) return R['planned vs emergency shutdown roi'];
-  /* Phase 5: Navigation */
-  if (n.indexOf('overview') !== -1 || n.indexOf('return') !== -1 || n.indexOf('back') !== -1) return R['return to overview'];
-  return null;
-}
+/* ===== WALKTHROUGH ENGINE ===== */
+/* Dummy handle for intel feed onclick - in guided mode, feed items don't navigate */
+function handle() {}
 
 function scroll() { document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; }
 
@@ -1069,106 +1183,176 @@ function showTyp() {
 }
 function hideTyp() { var e = document.getElementById('typ'); if (e) e.remove(); }
 
-function updChips(chips) {
-  var g = document.getElementById('chipsGrid'); g.innerHTML = '';
-  chips.forEach(function(c) {
-    var b = document.createElement('button');
-    b.className = 'chip'; b.textContent = c;
-    b.onclick = function() { handle(c); };
-    g.appendChild(b);
-  });
-}
+function norm(t) { return t.toLowerCase().replace(/[^\w\s]/g,'').replace(/\s+/g,' ').trim(); }
 
-var zoomTargets = {
-  "pl207": { center: [0.0, 57.75], zoom: 8 },
-  "pl-207": { center: [0.0, 57.75], zoom: 8 },
-  "buzzard": { center: [0.55, 57.85], zoom: 8 },
-  "corrosion": { center: [0.0, 57.75], zoom: 8 },
-  "cascade": { center: [0.2, 57.50], zoom: 7 },
-  "downstream": { center: [0.2, 57.50], zoom: 7 },
-  "weather": { center: [0.0, 57.75], zoom: 7 },
-  "vessel": { center: [-1.5, 57.40], zoom: 7 },
-  "shearwater": { center: [1.96, 57.03], zoom: 8 },
-  "clair": { center: [-2.54, 60.69], zoom: 7 },
-  "shetland": { center: [-3.0, 60.50], zoom: 6 },
-  "west": { center: [-3.0, 60.50], zoom: 6 },
-  "mariner": { center: [1.06, 59.59], zoom: 7 },
-  "central": { center: [1.2, 57.40], zoom: 7 },
-  "integrity": { center: [-0.5, 59.0], zoom: 6 },
-  "field": { center: [-0.5, 59.0], zoom: 6 },
-  "exposure": { center: [-0.5, 59.0], zoom: 6 },
-  "portfolio": { center: [-0.5, 59.0], zoom: 6 },
-  "protection": { center: [-0.5, 59.0], zoom: 6 },
-  "production": { center: [-0.5, 59.0], zoom: 6 },
-  "compliance": { center: [-0.5, 59.0], zoom: 6 },
-  "regulat": { center: [-0.5, 59.0], zoom: 6 },
-  "nsta": { center: [-0.5, 59.0], zoom: 6 },
-  "pipeline network": { center: [-0.5, 59.0], zoom: 6 },
-  "overview": { center: [-0.5, 59.0], zoom: 6 },
-  "return": { center: [-0.5, 59.0], zoom: 6 }
-};
-
-function getZoom(text) {
-  var t = text.toLowerCase();
-  for (var key in zoomTargets) { if (t.indexOf(key) !== -1) return zoomTargets[key]; }
+function findResponse(query) {
+  var n = norm(query);
+  for (var k in R) { if (n === k || n.indexOf(k) !== -1 || k.indexOf(n) !== -1) return R[k]; }
   return null;
 }
 
-async function handle(t) {
-  if (isProc) return; isProc = true;
-  addMsg(t, true); showTyp();
-  var z = getZoom(t);
-  if (z && window._mapView) { window._mapView.goTo({ center: z.center, zoom: z.zoom }, { duration: 800, easing: "ease-in-out" }); }
-  await new Promise(function(r) { setTimeout(r, 400 + Math.random() * 500); });
-  var resp = find(t); hideTyp();
-  if (resp) { addMsg(resp.content); updChips(resp.chips || chipSets.initial); }
-  else { addMsg('<p>I can investigate that area further. ADURA currently has 3 active anomalies across the North Sea portfolio with a total exposure of \u00A347M. Try one of the suggested queries for detailed analysis.</p>'); updChips(chipSets.initial); }
-  isProc = false;
+function updateNarration() {
+  var total = walkSteps.length;
+  var stepEl = document.getElementById('narrStep');
+  var labelEl = document.getElementById('narrLabel');
+  var backBtn = document.getElementById('narrBack');
+  var nextBtn = document.getElementById('narrNext');
+  var progressEl = document.getElementById('narrProgress');
+
+  if (currentStep < 0) {
+    stepEl.textContent = '0 / ' + total;
+    labelEl.innerHTML = '<strong>Welcome.</strong> Click Next to begin the guided walkthrough.';
+    backBtn.disabled = true;
+    nextBtn.textContent = 'Begin Walkthrough \u2192';
+    nextBtn.className = 'narr-btn primary';
+    progressEl.style.width = '0%';
+    return;
+  }
+
+  stepEl.textContent = (currentStep + 1) + ' / ' + total;
+  labelEl.innerHTML = walkSteps[currentStep].label;
+  backBtn.disabled = (currentStep <= 0);
+  progressEl.style.width = ((currentStep + 1) / total * 100) + '%';
+
+  if (currentStep >= total - 1) {
+    nextBtn.textContent = 'Restart \u21BB';
+    nextBtn.className = 'narr-btn';
+  } else {
+    nextBtn.textContent = 'Next \u2192';
+    nextBtn.className = 'narr-btn primary';
+  }
 }
 
-function handleSend() {
-  var i = document.getElementById('chatInput'), t = i.value.trim();
-  if (!t) return; i.value = ''; handle(t);
+async function goStep(idx) {
+  if (idx < 0 || idx >= walkSteps.length) return;
+  currentStep = idx;
+  var step = walkSteps[idx];
+  updateNarration();
+
+  /* Show user query */
+  addMsg(step.query, true);
+  showTyp();
+
+  /* Zoom map */
+  if (step.zoom && window._mapView) {
+    window._mapView.goTo({ center: step.zoom.center, zoom: step.zoom.zoom }, { duration: 800, easing: "ease-in-out" });
+  }
+
+  /* Typing delay */
+  await new Promise(function(r) { setTimeout(r, 500 + Math.random() * 400); });
+
+  /* Show response */
+  hideTyp();
+  var resp = findResponse(step.query);
+  if (resp) { addMsg(resp.content); }
 }
-document.getElementById('chatInput').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+
+function nextStep() {
+  if (currentStep >= walkSteps.length - 1) {
+    /* Restart */
+    currentStep = -1;
+    document.getElementById('chatMessages').innerHTML = '';
+    /* Re-add opening message */
+    addMsg('<strong>&#128308; INTEGRITY ALERT \u2014 ADURA North Sea Portfolio</strong><br><br>Monitoring <strong>12 producing fields</strong> and <strong>1,400 km</strong> of subsea pipeline across the UK Continental Shelf. Three active anomalies detected. One critical.<br><br><div class="vb"><div class="vt crit">CRITICAL \u2014 1 Pipeline Anomaly, 2 Equipment Warnings</div><div class="vr"><span class="l">PL-207 Buzzard Trunk</span><span class="v red">38% wall loss \u2014 failure window 8\u201314 weeks</span></div><div class="vr"><span class="l">Shearwater C-201</span><span class="v amb">Vibration trending \u2014 14\u201321 day window</span></div><div class="vr"><span class="l">Clair Ridge SV-12</span><span class="v amb">Valve delay 3.2s vs 0.8s spec</span></div><div class="vr"><span class="l">Production at Risk</span><span class="v red">12,400 BOEPD (\u00A3733K/day)</span></div></div>Nexus detected the PL-207 pressure differential trend <strong>3 weeks before</strong> the next scheduled inline inspection \u2014 by correlating SCADA flow data across both Shell and Equinor legacy systems. Intervention is still feasible within the current weather window.<br><br>Total portfolio exposure: <strong>\u00A347M</strong>. Recommended mitigation: <strong>\u00A34.4M</strong> (ROI: 10:1).');
+    if (window._mapView) { window._mapView.goTo({ center: [-0.5, 59.0], zoom: 6 }, { duration: 800 }); }
+    updateNarration();
+    return;
+  }
+  goStep(currentStep + 1);
+}
+
+function prevStep() {
+  if (currentStep <= 0) return;
+  /* Remove last 2 messages (user query + response) */
+  var msgs = document.getElementById('chatMessages');
+  if (msgs.lastChild) msgs.removeChild(msgs.lastChild);
+  if (msgs.lastChild) msgs.removeChild(msgs.lastChild);
+  currentStep -= 1;
+  updateNarration();
+  /* Re-zoom to current step */
+  var step = walkSteps[currentStep];
+  if (step.zoom && window._mapView) {
+    window._mapView.goTo({ center: step.zoom.center, zoom: step.zoom.zoom }, { duration: 800, easing: "ease-in-out" });
+  }
+  scroll();
+}
+
+/* Arrow key navigation */
+document.addEventListener('keydown', function(e) {
+  if (!document.getElementById('introOverlay').classList.contains('hidden')) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); nextStep(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevStep(); }
 });
 
-updChips(chipSets.initial);
+/* Initial state */
+updateNarration();
 
-/* Tour */
-var tourSteps = [
-  { title: "Welcome to Nexus Offshore Intelligence", text: "You are looking at ADURA\u2019s complete North Sea portfolio \u2014 12 producing fields, 1,400 km of subsea pipeline, 140,000 BOEPD. This is not a dashboard. It is a decision-making engine that correlates data across both Shell and Equinor legacy systems.", target: ".top-bar", pos: "bottom-left" },
-  { title: "Five Data Pillars", text: "Nexus synthesises five categories: \u{1F50C} Operational (SCADA, sensors, production data) \u2022 \u{1F30D} Geospatial (Esri pipeline GIS, field maps) \u2022 \u26C5 Third-Party (Met Office, market data, AIS) \u2022 \u{1F91D} Partner Ecosystem (NSTA, OPRED, HSE, insurers) \u2022 \u{1F4C8} Predictive (corrosion models, failure probability, digital twin).", target: ".top-bar", pos: "bottom-left" },
-  { title: "Asset Intelligence Feed", text: "System-detected events \u2014 prioritised by consequence, not just severity. The PL-207 corrosion anomaly was detected 3 weeks before the scheduled inspection. Click any alert to investigate.", target: ".sidebar", pos: "right" },
-  { title: "Esri North Sea Map", text: "All 12 ADURA fields with pipeline connections, colour-coded by integrity status. Red markers are critical. The highlighted pipeline is PL-207 \u2014 Buzzard\u2019s export trunk to the Forties Pipeline System.", target: ".map-panel", pos: "left" },
-  { title: "Conversational Intelligence", text: "Ask any question in natural language. Nexus correlates across all five data pillars to deliver a single, quantified answer \u2014 including financial exposure, regulatory implications, and recommended actions.", target: ".chat-panel", pos: "left" },
-  { title: "Start Here", text: "Context-aware prompts guide the investigation. Start with the critical item: PL-207 pipeline anomaly.", target: ".chips-section", pos: "top" }
+/* ===== INTRO OVERLAY ===== */
+var introIdx = 0;
+var introSlides = [
+  {
+    heading: "Rebirth Nexus",
+    text: '<strong>Conversational Predictive Intelligence.</strong><br><br>Nexus is a connected intelligence layer that sits above your existing operational systems. It correlates data across multiple sources to deliver quantified, decision-ready answers through a single conversational interface.<br><br>No dashboards to learn. No systems to replace. Ask a question, get an answer.',
+    btn: 'Next \u2192'
+  },
+  {
+    heading: "Built for ADURA",
+    text: '<strong>Your North Sea portfolio, connected.</strong><br><br>ADURA inherited two legacy technology estates \u2014 Shell\u2019s and Equinor\u2019s. Different SCADA systems, different inspection databases, different maintenance records. Today, a corrosion reading in one system and a pressure trend in the other sit in separate databases. No one connects them.<br><br><div class="intro-highlight"><div class="intro-highlight-row"><span>Fields monitored</span><span>12 producing assets</span></div><div class="intro-highlight-row"><span>Subsea pipeline</span><span>1,400 km</span></div><div class="intro-highlight-row"><span>Daily production</span><span>140,000 BOEPD</span></div><div class="intro-highlight-row"><span>Daily value</span><span>\u00A38.3M</span></div></div>',
+    btn: 'Next \u2192'
+  },
+  {
+    heading: "What Connection Unlocks",
+    text: '<strong>Three signals. Three systems. One conclusion none could reach alone.</strong><br><br><div class="intro-signal-box"><span class="intro-signal-num">1</span><span class="intro-signal-title">Pressure trend</span> <span class="intro-signal-source">Shell SCADA</span><div class="intro-signal-text">A subtle 0.12 bar differential across a pipeline segment. Below the alarm threshold. No one looks at it.</div></div><div class="intro-signal-box"><span class="intro-signal-num">2</span><span class="intro-signal-title">Inspection history</span> <span class="intro-signal-source">Equinor IMS</span><div class="intro-signal-text">Three inline inspections showing wall loss progressing: 8% \u2192 17% \u2192 26%. Concerning, but next inspection is scheduled. Standard interval.</div></div><div class="intro-signal-box"><span class="intro-signal-num">3</span><span class="intro-signal-title">Flow regime change</span> <span class="intro-signal-source">Shell Production</span><div class="intro-signal-text">A new field tie-in changed water cut from 12% to 18% at the anomaly location. Higher water cut accelerates corrosion. Nobody cross-references this with inspection data.</div></div><div class="intro-signal-verdict"><strong>Nexus connects all three</strong> and concludes: corrosion has accelerated. Wall loss is now projected at 38%, not the 26% from the last inspection. Failure window: 8\u201314 weeks. The next scheduled pig run may be too late.</div>',
+    btn: 'Next \u2192'
+  },
+  {
+    heading: "Beyond Detection",
+    text: '<strong>Connection doesn\u2019t just find anomalies. It changes how you operate.</strong><br><br><div class="intro-highlight"><div class="intro-highlight-row"><span>Cross-system detection</span><span>Anomalies identified weeks before scheduled inspections</span></div><div class="intro-highlight-row"><span>Cascading risk analysis</span><span>One pipeline failure \u2192 production curtailment across dependent fields</span></div><div class="intro-highlight-row"><span>Financial quantification</span><span>Every risk translated to \u00A3 exposure with ROI on intervention</span></div><div class="intro-highlight-row"><span>Unified compliance</span><span>NSTA + OPRED + HSE in one view, auto-populated</span></div><div class="intro-highlight-row"><span>Capital protection plans</span><span>Board-ready: what to spend, on what, in what order</span></div></div>',
+    btn: 'Next \u2192'
+  },
+  {
+    heading: "The Scenario",
+    text: '<strong>A corrosion anomaly has been detected on PL-207</strong> \u2014 the 24-inch subsea trunk pipeline connecting Buzzard to the Forties Pipeline System.<br><br>Nexus identified this <strong>3 weeks before the next scheduled inspection</strong> by correlating SCADA pressure data from Shell\u2019s systems with inspection records from Equinor\u2019s. Neither system alone would have flagged it.<br><br>This walkthrough shows what happens next: the anomaly investigation, the cascading financial exposure, the regulatory implications, and a board-ready capital protection plan.',
+    btn: 'Next \u2192'
+  },
+  {
+    heading: "How This Walkthrough Works",
+    text: 'This is a <strong>guided walkthrough</strong> with 8 steps. Each step shows a question an operator or executive would ask, and the intelligence Nexus delivers in response.<br><br><div class="intro-highlight"><div class="intro-highlight-row"><span>Navigation</span><span>Click the gold Next button (bottom right of chat)</span></div><div class="intro-highlight-row"><span>Keyboard</span><span>\u2190 \u2192 arrow keys also work</span></div><div class="intro-highlight-row"><span>Progress</span><span>Gold bar shows how far through</span></div><div class="intro-highlight-row"><span>Map</span><span>Zooms automatically to relevant area</span></div></div><br>The gold button will pulse to guide you. Just keep clicking Next.',
+    btn: 'Enter the Platform \u2192'
+  }
 ];
 
-var tourIdx = 0;
-function startTour() {
-  tourIdx = 0;
-  document.getElementById('tourOverlay').classList.add('active');
-  showTourStep();
+function nextIntro() {
+  introIdx++;
+  if (introIdx >= introSlides.length) {
+    document.getElementById('introOverlay').classList.add('hidden');
+    /* Show orientation overlay instead of just a spotlight */
+    document.getElementById('orientOverlay').classList.add('active');
+    return;
+  }
+  var s = introSlides[introIdx];
+  document.getElementById('introHeading').textContent = s.heading;
+  document.getElementById('introText').innerHTML = s.text;
+  document.getElementById('introBtn').innerHTML = s.btn;
+  /* Update dots */
+  var dots = document.getElementById('introIndicator').children;
+  for (var i = 0; i < dots.length; i++) {
+    dots[i].className = 'intro-dot';
+    if (i < introIdx) dots[i].className = 'intro-dot done';
+    if (i === introIdx) dots[i].className = 'intro-dot active';
+  }
 }
-function showTourStep() {
-  var s = tourSteps[tourIdx];
-  document.getElementById('tourTitle').textContent = s.title;
-  document.getElementById('tourText').textContent = s.text;
-  document.getElementById('tourStepCount').textContent = (tourIdx+1) + ' of ' + tourSteps.length;
-  document.getElementById('tourNext').textContent = tourIdx === tourSteps.length - 1 ? 'Investigate PL-207 \u2192' : 'Next';
-  var tt = document.getElementById('tourTooltip');
-  tt.style.top = '50%'; tt.style.left = '50%'; tt.style.transform = 'translate(-50%, -50%)';
-}
-function nextTourStep() {
-  tourIdx++;
-  if (tourIdx >= tourSteps.length) { endTour(); handle('Investigate PL-207 pipeline anomaly'); return; }
-  showTourStep();
-}
-function endTour() { document.getElementById('tourOverlay').classList.remove('active'); }
 
-setTimeout(startTour, 1500);
+function dismissOrient() {
+  document.getElementById('orientOverlay').classList.remove('active');
+}
+
+function showSpotlight() {
+  document.getElementById('spotlightOverlay').classList.add('active');
+  setTimeout(function() {
+    document.getElementById('spotlightOverlay').classList.remove('active');
+  }, 2500);
+}
 </script>
 </body>
 </html>
