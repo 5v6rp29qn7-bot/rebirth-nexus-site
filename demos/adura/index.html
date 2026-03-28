@@ -415,6 +415,27 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 }
 .intro-btn.primary:hover { opacity: 0.9; }
 
+/* Mobile Blocker - phones only, iPads allowed */
+.mobile-blocker {
+  display: none; position: fixed; inset: 0; z-index: 999999;
+  background: #0a0e17;
+  flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px; text-align: center;
+}
+.mobile-blocker-icon { font-size: 48px; margin-bottom: 24px; }
+.mobile-blocker-title {
+  font-size: 22px; font-weight: 700; color: #f1f5f9;
+  margin-bottom: 12px; font-family: Georgia, serif;
+}
+.mobile-blocker-text {
+  font-size: 14px; color: #94a3b8; line-height: 1.6; max-width: 320px;
+}
+.mobile-blocker-text strong { color: var(--accent-gold); }
+@media (max-width: 767px) {
+  .mobile-blocker { display: flex; }
+  .password-gate, .intro-overlay, .orient-overlay, .app { display: none !important; }
+}
+
 .password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
 .password-gate.hidden { display: none; }
 .password-box { background: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; width: 90%; }
@@ -434,6 +455,16 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 </style>
 </head>
 <body>
+<!-- MOBILE BLOCKER -->
+<div class="mobile-blocker">
+  <div class="mobile-blocker-icon">&#128187;</div>
+  <div class="mobile-blocker-title">Desktop or Tablet Required</div>
+  <div class="mobile-blocker-text">
+    This interactive platform demo is designed for a <strong>desktop or tablet screen</strong>. The three-panel layout with live Esri mapping requires a wider display to experience properly.<br><br>
+    Please open this link on a laptop, desktop, or iPad.
+  </div>
+</div>
+
 <!-- PASSWORD GATE -->
 <div class="password-gate" id="pwGate">
   <div class="password-box">
