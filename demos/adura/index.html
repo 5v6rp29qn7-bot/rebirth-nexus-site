@@ -767,9 +767,9 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
       <div class="narration-progress"><div class="narration-progress-fill" id="narrProgress" style="width:0%"></div></div>
       <div class="narration-bar" id="narrBar">
         <span class="narration-step" id="narrStep">1 / 8</span>
-        <span class="narration-label" id="narrLabel"><strong>Welcome.</strong> Click Next to begin the guided walkthrough.</span>
+        <span class="narration-label" id="narrLabel"><strong>Welcome.</strong> Begin the walkthrough to explore the scenario.</span>
         <button class="narr-btn" id="narrBack" onclick="prevStep()" disabled>&larr; Back</button>
-        <button class="narr-btn primary" id="narrNext" onclick="nextStep()">Begin Walkthrough &rarr;</button>
+        <button class="narr-btn primary" id="narrNext" onclick="nextStep()">START &rarr;</button>
       </div>
       <div class="chat-footer">Guided demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> &bull; Synthetic scenario; ADURA parameters are illustrative &bull; Use arrow keys or buttons to navigate</div>
     </div>
@@ -1315,9 +1315,9 @@ function updateNarration() {
 
   if (currentStep < 0) {
     stepEl.textContent = '0 / ' + total;
-    labelEl.innerHTML = '<strong>Welcome.</strong> Click Next to begin the guided walkthrough.';
+    labelEl.innerHTML = '<strong>Welcome.</strong> Begin the walkthrough to explore the scenario.';
     backBtn.disabled = true;
-    nextBtn.textContent = 'Begin Walkthrough \u2192';
+    nextBtn.textContent = 'START \u2192';
     nextBtn.className = 'narr-btn primary';
     progressEl.style.width = '0%';
     return;
