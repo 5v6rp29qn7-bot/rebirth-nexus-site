@@ -147,7 +147,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 .map-kpi-sub { font-size: 9px; color: var(--text-muted); }
 
 .chat-panel {
-  width: 380px; min-width: 380px;
+  width: 420px; min-width: 420px;
   display: flex; flex-direction: column;
   background: var(--bg-primary);
   overflow: hidden;
@@ -246,19 +246,20 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 @keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
 
 @media (max-width: 1200px) {
-  .sidebar { width: 220px; min-width: 220px; }
-  .chat-panel { width: 340px; min-width: 340px; }
+  .sidebar { width: 200px; min-width: 200px; }
+  .chat-panel { width: 380px; min-width: 380px; }
   .kpi-ticker { display: none; }
 }
 @media (max-width: 900px) {
   .sidebar { display: none; }
-  .chat-panel { width: 300px; min-width: 300px; }
+  .chat-panel { width: 340px; min-width: 340px; }
 }
 
 /* Narration Bar */
 .narration-bar {
-  background: var(--bg-secondary);
-  border-top: 2px solid var(--accent-gold);
+  background: linear-gradient(180deg, rgba(34,211,238,0.12) 0%, rgba(34,211,238,0.04) 100%);
+  border-top: 2px solid var(--accent-cyan);
+  border-bottom: 1px solid rgba(34,211,238,0.2);
   padding: 14px 16px;
   display: flex; align-items: center; gap: 12px;
   position: relative;
@@ -266,25 +267,31 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
   flex-shrink: 0;
 }
 .narration-step {
-  font-size: 11px; font-family: monospace; color: var(--accent-gold);
-  background: var(--accent-gold-dim); padding: 4px 10px; border-radius: 3px;
-  font-weight: 700; white-space: nowrap;
+  font-size: 12px; font-family: monospace; color: var(--accent-cyan);
+  background: var(--accent-cyan-dim); padding: 4px 10px; border-radius: 3px;
+  font-weight: 700; white-space: nowrap; border: 1px solid rgba(34,211,238,0.3);
 }
-.narration-label { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.narration-label { flex: 1; font-size: 13px; color: var(--text-secondary); line-height: 1.5; min-width: 0; }
 .narration-label strong { color: var(--text-primary); }
 .narr-btn {
   background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-secondary);
-  font-size: 12px; padding: 8px 18px; border-radius: 4px; cursor: pointer;
-  transition: all .2s; font-family: inherit; white-space: nowrap;
+  font-size: 12px; padding: 8px 14px; border-radius: 4px; cursor: pointer;
+  transition: all .2s; font-family: inherit; white-space: nowrap; flex-shrink: 0;
 }
 .narr-btn:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
 .narr-btn.primary {
-  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
-  font-size: 13px; padding: 10px 24px;
-  animation: pulseGlow 2s ease-in-out infinite;
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  border: none; color: #000; font-weight: 700;
+  font-size: 12px; padding: 10px 20px;
+  animation: cyanPulse 2s ease-in-out infinite;
+  text-transform: uppercase; letter-spacing: 0.5px;
 }
 .narr-btn.primary:hover { opacity: 0.9; }
 .narr-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+@keyframes cyanPulse {
+  0%,100% { box-shadow: 0 0 8px rgba(34,211,238,0.4); }
+  50% { box-shadow: 0 0 20px rgba(34,211,238,0.7), 0 0 40px rgba(34,211,238,0.3); }
+}
 @keyframes pulseGlow {
   0%,100% { box-shadow: 0 0 8px rgba(212,175,55,0.3); }
   50% { box-shadow: 0 0 20px rgba(212,175,55,0.6), 0 0 40px rgba(212,175,55,0.2); }
@@ -294,7 +301,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
   position: relative; overflow: hidden; flex-shrink: 0;
 }
 .narration-progress-fill {
-  height: 100%; background: var(--gradient-brand); border-radius: 2px;
+  height: 100%; background: linear-gradient(90deg, #22d3ee, #06b6d4); border-radius: 2px;
   transition: width 0.5s ease;
 }
 /* Spotlight overlay - dims everything except narration bar between steps */
@@ -342,6 +349,50 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
   animation: pulseGlow 2s ease-in-out infinite;
 }
 .orient-btn:hover { opacity: 0.9; }
+
+/* Feed Item Popup */
+.feed-popup-overlay {
+  display: none; position: fixed; inset: 0; z-index: 12000;
+  background: rgba(0,0,0,0.5);
+  align-items: center; justify-content: center;
+}
+.feed-popup-overlay.active { display: flex; }
+.feed-popup {
+  background: #111827; border: 1px solid rgba(34,211,238,0.3);
+  border-radius: 12px; padding: 28px 32px; max-width: 480px; width: 90%;
+  text-align: left; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.feed-popup-title {
+  font-size: 15px; font-weight: 700; color: var(--accent-cyan);
+  margin-bottom: 12px;
+}
+.feed-popup-alert {
+  font-size: 13px; color: var(--text-primary); font-weight: 600;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.feed-popup-text {
+  font-size: 13px; color: #94a3b8; line-height: 1.7; margin-bottom: 20px;
+}
+.feed-popup-text strong { color: #e2e8f0; }
+.feed-popup-actions {
+  background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.15);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;
+}
+.feed-popup-actions-title {
+  font-size: 10px; color: var(--accent-cyan); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.feed-popup-action {
+  font-size: 12px; color: #94a3b8; padding: 3px 0;
+}
+.feed-popup-action::before { content: '\2192  '; color: var(--accent-cyan); }
+.feed-popup-btn {
+  padding: 10px 24px; background: rgba(34,211,238,0.15); border: 1px solid rgba(34,211,238,0.3);
+  border-radius: 6px; color: var(--accent-cyan); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.feed-popup-btn:hover { background: rgba(34,211,238,0.25); }
 
 /* Intro Overlay */
 .intro-overlay {
@@ -543,10 +594,33 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
       </div>
       <div class="orient-item full">
         <div class="orient-item-label">How to Navigate</div>
-        <div class="orient-item-text">Click the pulsing gold <strong>Next</strong> button at the bottom right of the chat panel to advance through the 8-step walkthrough. Arrow keys also work.</div>
+        <div class="orient-item-text">Click the pulsing cyan <strong>Next</strong> button at the bottom right of the chat panel to advance through the 8-step walkthrough. Arrow keys also work.</div>
       </div>
     </div>
     <button class="orient-btn" onclick="dismissOrient()">Got It &mdash; Start the Walkthrough</button>
+  </div>
+</div>
+
+<!-- FEED ITEM POPUP -->
+<div class="feed-popup-overlay" id="feedPopup">
+  <div class="feed-popup">
+    <div class="feed-popup-title">Live Platform Capability</div>
+    <div class="feed-popup-alert" id="feedPopupAlert"></div>
+    <div class="feed-popup-text">
+      In a <strong>live deployment</strong> of Rebirth Nexus, clicking this alert would immediately open a full investigation. The platform would:
+    </div>
+    <div class="feed-popup-actions">
+      <div class="feed-popup-actions-title">Available Actions</div>
+      <div class="feed-popup-action">Zoom the map to the affected asset and highlight connected infrastructure</div>
+      <div class="feed-popup-action">Show real-time sensor data, inspection history, and corrosion trends</div>
+      <div class="feed-popup-action">Calculate cascading financial exposure across dependent assets</div>
+      <div class="feed-popup-action">Generate work orders, regulatory notifications, and crew dispatches</div>
+      <div class="feed-popup-action">Recommend prioritised interventions with quantified ROI</div>
+    </div>
+    <div class="feed-popup-text" style="margin-bottom:16px;font-size:12px;">
+      Use the <strong>guided walkthrough</strong> (cyan Next button) to see this in action with a complete scenario.
+    </div>
+    <button class="feed-popup-btn" onclick="closeFeedPopup()">Close</button>
   </div>
 </div>
 
@@ -1191,8 +1265,16 @@ chips: chipSets.initial
 };
 
 /* ===== WALKTHROUGH ENGINE ===== */
-/* Dummy handle for intel feed onclick - in guided mode, feed items don't navigate */
-function handle() {}
+/* Feed item click - shows live capability popup */
+function handle(query) {
+  var popup = document.getElementById('feedPopup');
+  var alertEl = document.getElementById('feedPopupAlert');
+  alertEl.textContent = query;
+  popup.classList.add('active');
+}
+function closeFeedPopup() {
+  document.getElementById('feedPopup').classList.remove('active');
+}
 
 function scroll() { document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight; }
 
