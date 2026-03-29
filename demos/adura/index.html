@@ -394,6 +394,72 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 }
 .feed-popup-btn:hover { background: rgba(34,211,238,0.25); }
 
+/* Closing Overlay */
+.close-overlay {
+  display: none; position: fixed; inset: 0; z-index: 16000;
+  background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.close-overlay.active { display: flex; }
+.close-box {
+  background: #111827; border: 1px solid rgba(34,211,238,0.3);
+  border-radius: 16px; padding: 36px 40px; max-width: 580px; width: 90%;
+  text-align: center; box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.close-logo { width: 48px; height: 48px; margin: 0 auto 20px; overflow: hidden; }
+.close-logo img { width: 100%; height: 100%; object-fit: contain; }
+.close-heading {
+  font-size: 26px; font-weight: 700; color: #f1f5f9;
+  margin-bottom: 8px; font-family: Georgia, serif;
+}
+.close-subheading {
+  font-size: 14px; color: var(--accent-cyan); margin-bottom: 24px;
+}
+.close-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  text-align: left; margin-bottom: 28px;
+}
+.close-stat {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; padding: 14px 16px;
+}
+.close-stat-val {
+  font-size: 22px; font-weight: 700; font-family: monospace;
+  color: var(--accent-cyan); margin-bottom: 2px;
+}
+.close-stat-label { font-size: 11px; color: #94a3b8; }
+.close-steps {
+  background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.15);
+  border-radius: 10px; padding: 16px 20px; margin-bottom: 28px; text-align: left;
+}
+.close-steps-title {
+  font-size: 11px; color: var(--accent-cyan); font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+}
+.close-step-item {
+  display: flex; gap: 10px; padding: 6px 0; font-size: 13px; color: #94a3b8; line-height: 1.4;
+}
+.close-step-num {
+  width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+  background: rgba(34,211,238,0.15); color: var(--accent-cyan);
+  font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+.close-step-item strong { color: #e2e8f0; }
+.close-cta {
+  padding: 14px 32px; background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  border: none; border-radius: 8px; color: #000; font-weight: 700;
+  font-size: 14px; cursor: pointer; font-family: inherit;
+  text-decoration: none; display: inline-block;
+  animation: cyanPulse 2s ease-in-out infinite;
+}
+.close-cta:hover { opacity: 0.9; }
+.close-restart {
+  display: block; margin-top: 16px; font-size: 12px; color: #64748b;
+  background: none; border: none; cursor: pointer; font-family: inherit;
+  text-decoration: underline; transition: color 0.2s;
+}
+.close-restart:hover { color: #94a3b8; }
+
 /* Intro Overlay */
 .intro-overlay {
   position: fixed; inset: 0; z-index: 20000;
@@ -621,6 +687,41 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
       Use the <strong>guided walkthrough</strong> (cyan Next button) to see this in action with a complete scenario.
     </div>
     <button class="feed-popup-btn" onclick="closeFeedPopup()">Close</button>
+  </div>
+</div>
+
+<!-- CLOSING OVERLAY -->
+<div class="close-overlay" id="closeOverlay">
+  <div class="close-box">
+    <div class="close-logo"><img src="/logo.png" alt="Nexus" onerror="this.outerHTML='&#9889;'"></div>
+    <div class="close-heading">What You Just Saw</div>
+    <div class="close-subheading">Nexus Offshore Intelligence &mdash; ADURA North Sea Portfolio</div>
+    <div class="close-summary">
+      <div class="close-stat">
+        <div class="close-stat-val">3 weeks</div>
+        <div class="close-stat-label">Early anomaly detection before scheduled inspection</div>
+      </div>
+      <div class="close-stat">
+        <div class="close-stat-val">&pound;47M</div>
+        <div class="close-stat-label">Total portfolio exposure quantified</div>
+      </div>
+      <div class="close-stat">
+        <div class="close-stat-val">&pound;4.4M</div>
+        <div class="close-stat-label">Recommended mitigation spend</div>
+      </div>
+      <div class="close-stat">
+        <div class="close-stat-val">10:1</div>
+        <div class="close-stat-label">Return on proactive intervention</div>
+      </div>
+    </div>
+    <div class="close-steps">
+      <div class="close-steps-title">Suggested Next Steps</div>
+      <div class="close-step-item"><div class="close-step-num">1</div><div><strong>Schedule a 90-minute deep-dive</strong> with your integrity and operations team</div></div>
+      <div class="close-step-item"><div class="close-step-num">2</div><div><strong>Identify a pilot asset cluster</strong> and confirm data source access from both legacy systems</div></div>
+      <div class="close-step-item"><div class="close-step-num">3</div><div><strong>Board-ready outputs within 90 days</strong> of engagement &mdash; prove value before scaling</div></div>
+    </div>
+    <a class="close-cta" href="mailto:jc@rebirthnexus.ai?subject=ADURA%20%E2%80%93%20Nexus%20Deep%20Dive&body=Hi%20Jeremy%2C%0A%0AWe%20reviewed%20the%20Nexus%20Offshore%20Intelligence%20demo%20and%20would%20like%20to%20schedule%20a%20deep-dive%20session.%0A%0ABest%20regards">Schedule a Deep Dive &rarr;</a>
+    <button class="close-restart" onclick="restartWalkthrough()">Watch the walkthrough again</button>
   </div>
 </div>
 
@@ -1329,8 +1430,8 @@ function updateNarration() {
   progressEl.style.width = ((currentStep + 1) / total * 100) + '%';
 
   if (currentStep >= total - 1) {
-    nextBtn.textContent = 'Restart \u21BB';
-    nextBtn.className = 'narr-btn';
+    nextBtn.textContent = 'FINISH \u2192';
+    nextBtn.className = 'narr-btn primary';
   } else {
     nextBtn.textContent = 'Next \u2192';
     nextBtn.className = 'narr-btn primary';
@@ -1363,16 +1464,20 @@ async function goStep(idx) {
 
 function nextStep() {
   if (currentStep >= walkSteps.length - 1) {
-    /* Restart */
-    currentStep = -1;
-    document.getElementById('chatMessages').innerHTML = '';
-    /* Re-add opening message */
-    addMsg('<strong>&#128308; INTEGRITY ALERT \u2014 ADURA North Sea Portfolio</strong><br><br>Monitoring <strong>12 producing fields</strong> and <strong>1,400 km</strong> of subsea pipeline across the UK Continental Shelf. Three active anomalies detected. One critical.<br><br><div class="vb"><div class="vt crit">CRITICAL \u2014 1 Pipeline Anomaly, 2 Equipment Warnings</div><div class="vr"><span class="l">PL-207 Buzzard Trunk</span><span class="v red">38% wall loss \u2014 failure window 8\u201314 weeks</span></div><div class="vr"><span class="l">Shearwater C-201</span><span class="v amb">Vibration trending \u2014 14\u201321 day window</span></div><div class="vr"><span class="l">Clair Ridge SV-12</span><span class="v amb">Valve delay 3.2s vs 0.8s spec</span></div><div class="vr"><span class="l">Production at Risk</span><span class="v red">12,400 BOEPD (\u00A3733K/day)</span></div></div>Nexus detected the PL-207 pressure differential trend <strong>3 weeks before</strong> the next scheduled inline inspection \u2014 by correlating SCADA flow data across both Shell and Equinor legacy systems. Intervention is still feasible within the current weather window.<br><br>Total portfolio exposure: <strong>\u00A347M</strong>. Recommended mitigation: <strong>\u00A34.4M</strong> (ROI: 10:1).');
-    if (window._mapView) { window._mapView.goTo({ center: [-0.5, 59.0], zoom: 6 }, { duration: 800 }); }
-    updateNarration();
+    /* Show closing overlay */
+    document.getElementById('closeOverlay').classList.add('active');
     return;
   }
   goStep(currentStep + 1);
+}
+
+function restartWalkthrough() {
+  document.getElementById('closeOverlay').classList.remove('active');
+  currentStep = -1;
+  document.getElementById('chatMessages').innerHTML = '';
+  addMsg('<strong>&#128308; INTEGRITY ALERT \u2014 ADURA North Sea Portfolio</strong><br><br>Monitoring <strong>12 producing fields</strong> and <strong>1,400 km</strong> of subsea pipeline across the UK Continental Shelf. Three active anomalies detected. One critical.<br><br><div class="vb"><div class="vt crit">CRITICAL \u2014 1 Pipeline Anomaly, 2 Equipment Warnings</div><div class="vr"><span class="l">PL-207 Buzzard Trunk</span><span class="v red">38% wall loss \u2014 failure window 8\u201314 weeks</span></div><div class="vr"><span class="l">Shearwater C-201</span><span class="v amb">Vibration trending \u2014 14\u201321 day window</span></div><div class="vr"><span class="l">Clair Ridge SV-12</span><span class="v amb">Valve delay 3.2s vs 0.8s spec</span></div><div class="vr"><span class="l">Production at Risk</span><span class="v red">12,400 BOEPD (\u00A3733K/day)</span></div></div>Nexus detected the PL-207 pressure differential trend <strong>3 weeks before</strong> the next scheduled inline inspection \u2014 by correlating SCADA flow data across both Shell and Equinor legacy systems. Intervention is still feasible within the current weather window.<br><br>Total portfolio exposure: <strong>\u00A347M</strong>. Recommended mitigation: <strong>\u00A34.4M</strong> (ROI: 10:1).');
+  if (window._mapView) { window._mapView.goTo({ center: [-0.5, 59.0], zoom: 6 }, { duration: 800 }); }
+  updateNarration();
 }
 
 function prevStep() {
