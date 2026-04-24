@@ -255,7 +255,14 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 .chip:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim); }
 .chip.ov { border-color: rgba(212,175,55,0.3); color: var(--accent-gold); }
 .chip.next { background: var(--gradient-brand); color: #000; font-weight: 700; border-color: var(--accent-gold); animation: chipPulse 2s ease-in-out infinite; }
+.chip.locked { opacity: 0.25; cursor: not-allowed; pointer-events: none; filter: grayscale(0.6); }
+.chip.locked:hover { border-color: var(--border); color: var(--text-secondary); background: var(--bg-tertiary); }
 @keyframes chipPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.5); } 50% { box-shadow: 0 0 0 4px rgba(212,175,55,0); } }
+
+/* Walkthrough lock state: during forced-choice walkthrough, disable feed items and chat input */
+body.wt-locked .feed-item { opacity: 0.4; cursor: not-allowed; pointer-events: none; filter: grayscale(0.4); }
+body.wt-locked .chat-input { opacity: 0.35; cursor: not-allowed; }
+body.wt-locked .send-btn { opacity: 0.35; cursor: not-allowed; }
 
 /* Input */
 .chat-input-area { padding: 10px 16px; border-top: 1px solid var(--border); }
@@ -1638,20 +1645,47 @@ function showTyp() {
 }
 function hideTyp() { const e = document.getElementById('typ'); if (e) e.remove(); }
 
-function updChips(chips) {
+let currentChips = [];
+
+function renderChips() {
   const g = document.getElementById('chipsGrid');
   g.innerHTML = '';
-  // In walkthrough mode, highlight the next expected chip
   const expected = (walkthroughActive && walkthroughStep < walkthroughScript.length) ? walkthroughScript[walkthroughStep].chip : null;
-  chips.forEach(c => {
+  currentChips.forEach(c => {
     const b = document.createElement('button');
     b.className = 'chip';
     if (c.includes('↩️')) b.className += ' ov';
     if (expected && c === expected) b.className += ' next';
+    // Forced-choice: lock non-expected chips during walkthrough
+    if (walkthroughActive && expected && c !== expected) {
+      b.className += ' locked';
+      b.disabled = true;
+    }
     b.textContent = c;
     b.onclick = () => handle(c);
     g.appendChild(b);
   });
+}
+
+function updChips(chips) {
+  currentChips = chips;
+  renderChips();
+}
+
+function setWalkthroughLock(locked) {
+  const input = document.getElementById('chatInput');
+  const send = document.getElementById('sendBtn');
+  if (locked) {
+    document.body.classList.add('wt-locked');
+    input.disabled = true;
+    input.placeholder = 'Chat unlocks when the walkthrough ends';
+    send.disabled = true;
+  } else {
+    document.body.classList.remove('wt-locked');
+    input.disabled = false;
+    input.placeholder = 'Ask about vessel cascade, customs, haulage, exposure, mitigation...';
+    send.disabled = false;
+  }
 }
 
 function flashKPIs() {
@@ -1663,6 +1697,11 @@ function flashKPIs() {
 
 async function handle(t) {
   if (isProc) return;
+  // Forced-choice gate: during walkthrough, only the expected chip is allowed through
+  if (walkthroughActive && walkthroughStep < walkthroughScript.length) {
+    const expected = walkthroughScript[walkthroughStep].chip;
+    if (t !== expected) return;
+  }
   isProc = true;
   addMsg(t, true);
   showTyp();
@@ -1690,6 +1729,9 @@ async function handle(t) {
       if (expected && t === expected) {
         walkthroughStep++;
         updateWalkthroughUI();
+        // Re-render chips so the NEW expected chip gets the gold highlight
+        // and previously-locked chips stay locked except the new next
+        renderChips();
       }
     }
   } else {
@@ -1740,6 +1782,7 @@ function beginWalkthrough() {
   walkthroughStep = 0;
   document.getElementById('wbStartOverlay').classList.add('hidden');
   document.getElementById('walkthroughBar').classList.remove('hidden');
+  setWalkthroughLock(true);
   updateWalkthroughUI();
   updChips(chipSets.initial);
 }
@@ -1748,12 +1791,14 @@ function skipWalkthroughStart() {
   document.getElementById('wbStartOverlay').classList.add('hidden');
   // Chips are already visible; user explores freely
   walkthroughActive = false;
+  setWalkthroughLock(false);
   updChips(chipSets.initial);
 }
 
 function exitWalkthrough() {
   walkthroughActive = false;
   document.getElementById('walkthroughBar').classList.add('hidden');
+  setWalkthroughLock(false);
   updChips(chipSets.initial);
 }
 
@@ -1764,9 +1809,9 @@ function updateWalkthroughUI() {
   const backBtn = document.getElementById('wbBack');
   if (walkthroughStep >= walkthroughScript.length) {
     progress.textContent = 'Complete';
-    label.innerHTML = '<strong>Walkthrough complete.</strong> Chips remain open – continue to drill into any area.';
+    label.innerHTML = '<strong>Walkthrough complete.</strong> Click Finish to unlock the interface and explore any area.';
     nextBtn.textContent = 'Finish';
-    nextBtn.disabled = true;
+    nextBtn.disabled = false;
     backBtn.disabled = false;
     return;
   }
@@ -1791,6 +1836,7 @@ function wbBack() {
   if (walkthroughStep > 0) {
     walkthroughStep--;
     updateWalkthroughUI();
+    renderChips();
   }
 }
 
