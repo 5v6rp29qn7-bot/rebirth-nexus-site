@@ -351,6 +351,20 @@ body.wt-locked .send-btn { opacity: 0.35; cursor: not-allowed; }
   background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border);
 }
 .wb-start-btn.secondary:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+.wb-staff-link {
+  margin-top: 18px; font-size: 10px; color: var(--text-muted);
+  letter-spacing: 0.4px; cursor: pointer; user-select: none;
+  text-align: center; opacity: 0.55; transition: opacity 0.2s, color 0.2s;
+}
+.wb-staff-link:hover { opacity: 1; color: var(--accent-gold); }
+.wb-end-contact {
+  margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-muted); text-align: center; line-height: 1.6;
+}
+.wb-end-contact a { color: var(--accent-gold); text-decoration: none; }
+.wb-end-contact a:hover { text-decoration: underline; }
+/* Anchor styled as a button (for the "Visit website" link in wb-start-actions) */
+a.wb-start-btn { display: inline-block; text-decoration: none; text-align: center; line-height: 1; }
 
 /* Responsive */
 @media (max-width: 1280px) {
@@ -447,7 +461,33 @@ body.wt-locked .send-btn { opacity: 0.35; cursor: not-allowed; }
     </div>
     <div class="wb-start-actions">
       <button class="wb-start-btn" onclick="beginWalkthrough()">Begin Walkthrough →</button>
-      <button class="wb-start-btn secondary" onclick="skipWalkthroughStart()">Explore Freely</button>
+    </div>
+    <div class="wb-staff-link" onclick="promptStaffAccess()">Nexus staff access</div>
+  </div>
+</div>
+
+<!-- END-OF-DEMO OVERLAY -->
+<div class="wb-start-overlay hidden" id="wbEndOverlay">
+  <div class="wb-start-card">
+    <div class="wb-start-title">✓ Walkthrough Complete</div>
+    <div class="wb-start-sub">
+      In eight steps, you've seen how <strong>Rebirth Nexus</strong> turns a four-way compound disruption into a single signed response across <strong>Albion Logistics Group's 100+ operating companies</strong>.<br><br>
+      <strong>What Nexus did here:</strong>
+      <ul style="margin:8px 0 0 20px; padding:0; line-height:1.6;">
+        <li>Detected the cascade <strong>36 hours before</strong> carrier ETA updates</li>
+        <li>Correlated signals across <strong>8 subsidiary systems</strong> – no rip and replace</li>
+        <li>Quantified <strong>£21.0M exposure</strong> with every figure traceable to source</li>
+        <li>Orchestrated a coordinated response – <strong>£485K protects £20.5M (43:1 ROI)</strong></li>
+        <li>Pre-populated customs declarations to preserve CDS and BTOM compliance</li>
+      </ul>
+    </div>
+    <div class="wb-start-actions">
+      <button class="wb-start-btn" onclick="replayWalkthrough()">↻ Replay Walkthrough</button>
+      <a class="wb-start-btn secondary" href="https://rebirthnexus.ai" target="_blank" rel="noopener">Visit rebirthnexus.ai</a>
+    </div>
+    <div class="wb-end-contact">
+      Interested in how Nexus applies to your operations?<br>
+      <a href="mailto:JC@rebirthnexus.ai?subject=Rebirth%20Nexus%20-%20Albion%20Logistics%20Group%20follow-up">JC@rebirthnexus.ai</a>
     </div>
   </div>
 </div>
@@ -1777,6 +1817,24 @@ function showWalkthroughStart() {
   document.getElementById('wbStartOverlay').classList.remove('hidden');
 }
 
+let isStaffMode = false;
+const STAFF_PASSWORD = 'nexus-staff-2026';
+
+function promptStaffAccess() {
+  const pw = prompt('Enter Nexus staff password:');
+  if (pw === null) return; // user cancelled
+  if (pw === STAFF_PASSWORD) {
+    isStaffMode = true;
+    walkthroughActive = false;
+    document.getElementById('wbStartOverlay').classList.add('hidden');
+    document.getElementById('walkthroughBar').classList.add('hidden');
+    setWalkthroughLock(false);
+    updChips(chipSets.initial);
+  } else {
+    alert('Incorrect password.');
+  }
+}
+
 function beginWalkthrough() {
   walkthroughActive = true;
   walkthroughStep = 0;
@@ -1788,8 +1846,10 @@ function beginWalkthrough() {
 }
 
 function skipWalkthroughStart() {
+  // Legacy function - kept for safety but no longer called from UI.
+  // Only staff mode can bypass the walkthrough now.
+  if (!isStaffMode) { promptStaffAccess(); return; }
   document.getElementById('wbStartOverlay').classList.add('hidden');
-  // Chips are already visible; user explores freely
   walkthroughActive = false;
   setWalkthroughLock(false);
   updChips(chipSets.initial);
@@ -1798,8 +1858,25 @@ function skipWalkthroughStart() {
 function exitWalkthrough() {
   walkthroughActive = false;
   document.getElementById('walkthroughBar').classList.add('hidden');
-  setWalkthroughLock(false);
-  updChips(chipSets.initial);
+  if (isStaffMode) {
+    // Staff: full unlock, free exploration
+    setWalkthroughLock(false);
+    updChips(chipSets.initial);
+  } else {
+    // Non-staff: show end-of-demo overlay with Replay / Website / Contact options.
+    // The interface stays locked behind the overlay.
+    showEndOverlay();
+  }
+}
+
+function showEndOverlay() {
+  document.getElementById('wbEndOverlay').classList.remove('hidden');
+}
+
+function replayWalkthrough() {
+  // Cleanest way to restart: reload the page. Session storage preserves the
+  // password grant, so user lands back on the welcome modal without re-auth.
+  location.reload();
 }
 
 function updateWalkthroughUI() {
