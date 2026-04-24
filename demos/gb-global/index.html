@@ -282,17 +282,23 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 .walkthrough-bar {
   background: var(--bg-secondary);
   border-top: 1px solid var(--accent-gold);
-  padding: 10px 14px;
-  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 10px;
   font-size: 11px;
 }
 .walkthrough-bar.hidden { display: none; }
+.wb-top-row {
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.wb-bottom-row {
+  display: flex; align-items: center; gap: 8px; justify-content: flex-end;
+}
 .wb-progress {
   font-size: 10px; color: var(--accent-gold); font-weight: 700; font-family: monospace;
-  letter-spacing: 0.5px; flex-shrink: 0;
+  letter-spacing: 0.5px; flex-shrink: 0; padding-top: 2px;
 }
 .wb-step-label {
-  flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.3;
+  flex: 1; color: var(--text-secondary); font-size: 12px; line-height: 1.45;
 }
 .wb-step-label strong { color: var(--text-primary); font-weight: 600; }
 .wb-controls { display: flex; gap: 6px; flex-shrink: 0; }
@@ -426,11 +432,11 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 <!-- WALKTHROUGH START OVERLAY -->
 <div class="wb-start-overlay hidden" id="wbStartOverlay">
   <div class="wb-start-card">
-    <div class="wb-start-title">◆ Forced-Choice Walkthrough</div>
+    <div class="wb-start-title">◆ Guided Walkthrough</div>
     <div class="wb-start-sub">
-      This is a <strong>guided eight-step presentation</strong> of Rebirth Nexus for GB Global.<br><br>
-      Storm-driven compound disruption at Felixstowe has placed <strong>318 customer containers across eight GB Global subsidiaries</strong> at risk. Nexus has detected the cascade <strong>36 hours ahead</strong> of carrier ETA updates.<br><br>
-      Use <strong>Next</strong> / <strong>Back</strong> to walk the script. Chips remain enabled if you want to go off-piste.
+      This is an <strong>eight-step demo</strong> of Rebirth Nexus – the conversational intelligence layer for <strong>GB Global</strong>, a UK conglomerate of 100+ specialist logistics businesses operating around the <strong>Port of Felixstowe</strong>, the UK's largest container port.<br><br>
+      A storm-driven compound disruption has placed <strong>318 customer containers</strong> across <strong>8 GB Global subsidiaries</strong> at risk. You'll work through how Nexus surfaces the situation, quantifies the exposure, and drives a coordinated response across the group.<br><br>
+      Use <strong>Next</strong> / <strong>Back</strong> to walk through the scenario. You can explore freely at any time.
     </div>
     <div class="wb-start-actions">
       <button class="wb-start-btn" onclick="beginWalkthrough()">Begin Walkthrough →</button>
@@ -534,6 +540,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
         <div class="legend-row"><div class="legend-dot" style="background:var(--accent-purple)"></div> HQ &amp; Group Office</div>
         <div class="legend-row"><div class="legend-line" style="background:var(--accent-cyan)"></div> Trunk Haulage (UK)</div>
         <div class="legend-row"><div class="legend-line" style="background:var(--accent-amber);border-top:1px dashed var(--accent-amber);background:transparent"></div> Diversion / Alternate</div>
+        <div class="legend-row"><div class="legend-dot" style="width:12px;height:8px;border-radius:1px;background:rgba(239,68,68,0.25);border:1px dashed var(--accent-red)"></div> Storm Fergus – Impact Zone</div>
       </div>
     </div>
 
@@ -551,8 +558,8 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
             <span class="msg-time">Just now</span>
           </div>
           <div class="msg-body">
-            <strong>🚢 COMPOUND DISRUPTION – Felixstowe &amp; GB Global Network</strong><br><br>
-            Across your <strong>100+ specialist businesses</strong>, eight operating systems are surfacing separate warnings. Nexus is synthesising them into <strong>one signed, auditable response</strong>. Monitoring <strong>318 customer containers</strong> across <strong>8 GB Global subsidiaries</strong> – Uniserve, Ellerman Lines, James Kemball, Seafast, Beyondly, EFRET, Wineflow, Customs Insights.<br><br>
+            <strong>🚢 COMPOUND DISRUPTION – Port of Felixstowe &amp; GB Global Network</strong><br><br>
+            A storm-driven event is unfolding at the Port of Felixstowe. Four separate disruptions are converging, and <strong>eight of GB Global's 100+ operating companies</strong> are directly exposed – each running its own TOS, TMS, WMS, customs broker and temperature telemetry. Without a unifying view, each subsidiary sees a fragment. Together they compound.<br><br>
             <div class="viz-alert">
               <div class="viz-alert-header critical">🚢 CRITICAL – Four-way compound disruption in progress</div>
               <div class="viz-alert-row"><span>MV Ellerman Trader (7,500 TEU)</span><span style="color:var(--accent-red)">52 hr late – Storm Fergus re-routing</span></div>
@@ -560,8 +567,7 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
               <div class="viz-alert-row"><span>HMRC CDS processing</span><span style="color:var(--accent-amber)">23 min avg (vs 90 sec nominal)</span></div>
               <div class="viz-alert-row"><span>A14 haulage corridor</span><span style="color:var(--accent-amber)">47% capacity – 18 hr squeeze</span></div>
             </div>
-            Nexus correlated the cascade <strong>36 hours before</strong> the carrier's own ETA updates – while diversion to London Gateway and Southampton was still viable and customs pre-clearance had slack.<br><br>
-            Total exposure: <strong>£18.7M direct + £2.3M SLA/regulatory = £21.0M</strong> across <strong>47 customers</strong>. What would you like to investigate?
+            Combined exposure: <strong>£18.7M direct + £2.3M SLA/regulatory = £21.0M</strong> across <strong>47 customers</strong>. Decision window approximately <strong>8 hours</strong> before mitigation options start closing. Where would you like to start?
           </div>
         </div>
       </div>
@@ -572,13 +578,17 @@ html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font
 
       <!-- WALKTHROUGH BAR -->
       <div class="walkthrough-bar hidden" id="walkthroughBar">
-        <div class="wb-progress" id="wbProgress">Step 1 of 8</div>
-        <div class="wb-step-label" id="wbStepLabel"><strong>Ready.</strong> Click Next to begin.</div>
-        <div class="wb-controls">
-          <button class="wb-btn" id="wbBack" onclick="wbBack()" disabled>← Back</button>
-          <button class="wb-btn primary" id="wbNext" onclick="wbNext()">Next →</button>
+        <div class="wb-top-row">
+          <div class="wb-progress" id="wbProgress">Step 1 of 8</div>
+          <div class="wb-step-label" id="wbStepLabel"><strong>Ready.</strong> Click Next to begin.</div>
         </div>
-        <button class="wb-skip" onclick="exitWalkthrough()" title="Exit walkthrough">Exit</button>
+        <div class="wb-bottom-row">
+          <div class="wb-controls">
+            <button class="wb-btn" id="wbBack" onclick="wbBack()" disabled>← Back</button>
+            <button class="wb-btn primary" id="wbNext" onclick="wbNext()">Next →</button>
+          </div>
+          <button class="wb-skip" onclick="exitWalkthrough()" title="Exit walkthrough">Exit</button>
+        </div>
       </div>
 
       <div class="chat-input-area">
@@ -1701,7 +1711,7 @@ document.getElementById('chatInput').addEventListener('keydown', e => {
 // The forced-choice script. Each step names the chip to click and the presenter narration.
 const walkthroughScript = [
   { chip: "🚢 Investigate MV Ellerman Trader vessel cascade",
-    narration: "<strong>Step 1.</strong> The vessel cascade – detected 36 hours before the carrier's own ETA update. Eight subsidiaries, one picture." },
+    narration: "<strong>Step 1.</strong> Start with the vessel. Let's see what's actually happening to this ship, and which GB Global subsidiaries it touches." },
   { chip: "Alternate port diversion options",
     narration: "<strong>Step 2.</strong> Three diversion options modelled – London Gateway, Southampton, Heathrow air freight. Cost and coverage quantified." },
   { chip: "Generate priority action work order",
