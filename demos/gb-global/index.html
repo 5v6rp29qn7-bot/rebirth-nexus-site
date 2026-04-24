@@ -1,1 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rebirth Nexus – GB Global Trade & Supply Chain Intelligence</title>
+<link rel="stylesheet" href="https://js.arcgis.com/4.28/esri/themes/dark/main.css">
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<style>
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-tertiary: #1a1a24;
+  --bg-card: #1e1e2a;
+  --bg-card-hover: #262636;
+  --border: #2a2a3a;
+  --border-accent: #3a3a50;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --text-muted: #606072;
+  --accent-gold: #d4af37;
+  --accent-gold-dim: rgba(212,175,55,0.12);
+  --accent-emerald: #10b981;
+  --accent-emerald-dim: rgba(16,185,129,0.12);
+  --accent-cyan: #22d3ee;
+  --accent-cyan-dim: rgba(34,211,238,0.10);
+  --accent-red: #ef4444;
+  --accent-red-dim: rgba(239,68,68,0.10);
+  --accent-amber: #f59e0b;
+  --accent-amber-dim: rgba(245,158,11,0.10);
+  --accent-purple: #a855f7;
+  --accent-purple-dim: rgba(168,85,247,0.10);
+  --gradient-brand: linear-gradient(135deg, #d4af37 0%, #f59e0b 50%, #ef4444 100%);
+  --gradient-subtle: linear-gradient(135deg, rgba(212,175,55,0.08) 0%, rgba(245,158,11,0.05) 100%);
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; overflow: hidden; background: var(--bg-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+
+/* ===== LAYOUT ===== */
+.app { display: flex; flex-direction: column; height: 100vh; }
+
+/* TOP BAR */
+.top-bar {
+  height: 48px; min-height: 48px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px; z-index: 100;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-icon { width: 28px; height: 28px; background: transparent; border-radius: 7px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.brand-icon img { width: 100%; height: 100%; object-fit: contain; }
+.brand-name { font-size: 14px; font-weight: 600; background: var(--gradient-brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-sub { font-size: 10px; color: var(--text-muted); margin-left: 2px; }
+.brand-tag { font-size: 9px; color: var(--accent-gold); background: var(--accent-gold-dim); padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+
+.top-right { display: flex; align-items: center; gap: 14px; }
+.kpi-ticker { display: flex; align-items: center; gap: 10px; }
+.kpi-pill { display: flex; align-items: center; gap: 6px; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: 4px; padding: 3px 10px; font-size: 10px; transition: all 0.3s; }
+.kpi-pill-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; }
+.kpi-pill-val { font-family: 'SF Mono', 'Cascadia Code', 'Consolas', monospace; font-weight: 700; font-size: 11px; }
+.kpi-pill-val.r { color: var(--accent-red); }
+.kpi-pill-val.a { color: var(--accent-amber); }
+.kpi-pill-val.g { color: var(--accent-emerald); }
+.kpi-pill-delta { font-size: 9px; font-family: monospace; }
+.kpi-pill-delta.up { color: var(--accent-red); }
+.kpi-pill-delta.dn { color: var(--accent-emerald); }
+.kpi-pill.flash { animation: kpiFlash 0.9s ease; }
+@keyframes kpiFlash { 0% { background: var(--accent-gold-dim); border-color: var(--accent-gold); } 100% { background: var(--bg-tertiary); border-color: var(--border); } }
+
+.live-dot-wrap { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--accent-red); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+.live-dot { width: 5px; height: 5px; background: var(--accent-red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,0.3)} 50%{opacity:.6;box-shadow:0 0 0 5px rgba(239,68,68,0)} }
+
+/* MAIN */
+.main { flex: 1; display: flex; overflow: hidden; }
+
+/* ===== INTEL SIDEBAR ===== */
+.sidebar {
+  width: 260px; min-width: 260px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-title { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-live { display: flex; align-items: center; gap: 5px; font-size: 9px; color: var(--accent-red); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.sidebar-live .live-dot { width: 4px; height: 4px; }
+
+/* Feed */
+.feed { flex: 1; overflow-y: auto; padding: 8px 10px; }
+.feed::-webkit-scrollbar { width: 2px; } .feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 1px; }
+.feed-item {
+  background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 9px 11px; margin-bottom: 6px; cursor: pointer; transition: all .2s;
+  border-left: 3px solid var(--accent-cyan);
+}
+.feed-item:hover { background: var(--bg-card); transform: translateX(2px); }
+.feed-item.crit { border-left-color: var(--accent-red); }
+.feed-item.warn { border-left-color: var(--accent-amber); }
+.feed-item.info { border-left-color: var(--accent-cyan); }
+.feed-time { font-size: 9px; color: var(--text-muted); font-family: monospace; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; }
+.feed-sev { font-size: 8px; padding: 1px 5px; border-radius: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+.feed-sev.critical { background: var(--accent-red-dim); color: var(--accent-red); }
+.feed-sev.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.feed-sev.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.feed-text { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+.feed-text strong { color: var(--text-primary); font-weight: 600; }
+.feed-tags { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.ftag { font-size: 8px; padding: 1px 6px; border-radius: 2px; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 600; }
+.ftag.vessel { background: rgba(168,85,247,0.12); color: var(--accent-purple); }
+.ftag.port { background: rgba(239,68,68,0.12); color: var(--accent-red); }
+.ftag.customs { background: rgba(34,211,238,0.12); color: var(--accent-cyan); }
+.ftag.haulage { background: rgba(245,158,11,0.12); color: var(--accent-amber); }
+.ftag.financial { background: rgba(212,175,55,0.12); color: var(--accent-gold); }
+.ftag.weather { background: rgba(34,211,238,0.12); color: var(--accent-cyan); }
+.ftag.regulatory { background: rgba(239,68,68,0.12); color: var(--accent-red); }
+.ftag.predictive { background: rgba(16,185,129,0.12); color: var(--accent-emerald); }
+
+/* ===== MAP PANEL ===== */
+.map-panel { flex: 1; position: relative; background: var(--bg-primary); }
+#mapView { width: 100%; height: 100%; }
+.map-legend {
+  position: absolute; bottom: 12px; left: 12px;
+  background: rgba(10,10,15,0.92); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 10px 12px;
+  font-size: 10px; z-index: 10; backdrop-filter: blur(8px);
+}
+.map-legend-title { font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; font-size: 9px; }
+.legend-row { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; color: var(--text-muted); }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.legend-line { width: 16px; height: 2px; flex-shrink: 0; border-radius: 1px; }
+
+/* ===== CHAT PANEL ===== */
+.chat-panel {
+  width: 400px; min-width: 400px;
+  display: flex; flex-direction: column;
+  background: var(--bg-primary);
+  overflow: hidden;
+}
+.chat-header {
+  padding: 10px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-secondary);
+}
+.chat-avatar { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; overflow: hidden; }
+.chat-avatar img { width: 100%; height: 100%; object-fit: contain; }
+.chat-header-text { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+
+/* Messages */
+.chat-messages { flex: 1; overflow-y: auto; padding: 14px 16px; scroll-behavior: smooth; }
+.chat-messages::-webkit-scrollbar { width: 3px; } .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.message, .msg { margin-bottom: 16px; animation: fadeIn .35s ease; }
+.msg.u { text-align: right; }
+.msg.u .mb { display: inline-block; background: var(--accent-gold-dim); border: 1px solid rgba(212,175,55,0.3); color: var(--text-primary); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 12px; max-width: 85%; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg-head { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.msg-av { width: 22px; height: 22px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+.msg-av.ai { overflow: hidden; background: var(--accent-gold-dim); color: var(--accent-gold); font-weight: 700; }
+.msg-av.ai img { width: 100%; height: 100%; object-fit: contain; }
+.msg-name { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+.msg-time { font-size: 9px; color: var(--text-muted); font-family: monospace; }
+.msg-body, .mb { font-size: 13px; line-height: 1.6; color: var(--text-primary); }
+.msg-body { margin-left: 29px; }
+.msg.a .mb { }
+.msg-body strong, .mb strong { color: #fff; font-weight: 600; }
+.msg-body em, .mb em { color: var(--text-secondary); }
+.msg-body p, .mb p { margin-bottom: 8px; }
+
+/* Viz alert (opening) */
+.viz-alert { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.viz-alert-header { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.viz-alert-header.critical, .viz-alert-header:not(.warning):not(.info):not(.success) { background: var(--accent-red-dim); color: var(--accent-red); }
+.viz-alert-header.warning { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.viz-alert-header.info { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.viz-alert-row { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.4); }
+.viz-alert-row:last-child { border-bottom: none; }
+.viz-alert-row span:first-child { color: var(--text-secondary); }
+.viz-alert-row span:last-child { color: var(--text-primary); font-family: monospace; font-weight: 500; }
+
+/* Compact response components (vb/vr/tb) */
+.vb { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.vt { padding: 8px 12px; font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); color: var(--accent-cyan); }
+.vr { display: flex; justify-content: space-between; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); gap: 12px; }
+.vr:last-child { border-bottom: none; }
+.vr .l { color: var(--text-muted); flex-shrink: 0; min-width: 140px; }
+.vr .v { color: var(--text-primary); font-family: monospace; font-weight: 500; text-align: right; }
+.vr .v.red { color: var(--accent-red); }
+.vr .v.amb { color: var(--accent-amber); }
+.vr .v.grn { color: var(--accent-emerald); }
+
+/* Tables */
+.tb { width: 100%; border-collapse: collapse; font-size: 11px; margin: 0; }
+.tb th { text-align: left; padding: 6px 10px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.3px; border-bottom: 1px solid var(--border); background: var(--bg-tertiary); }
+.tb td { padding: 5px 10px; color: var(--text-secondary); border-bottom: 1px solid rgba(42,42,58,0.3); }
+.tb td.h, .tb td.hl { color: var(--text-primary); font-weight: 600; }
+.tb td.red { color: var(--accent-red); font-weight: 600; }
+.tb td.amb { color: var(--accent-amber); font-weight: 600; }
+.tb td.grn { color: var(--accent-emerald); }
+.tb tr:last-child td { border-bottom: none; }
+
+/* Provenance */
+.pv { margin: 10px 0 4px; }
+.pl { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.pg { display: flex; flex-wrap: wrap; gap: 4px; }
+.pt { font-size: 9px; padding: 2px 8px; border-radius: 3px; background: var(--bg-tertiary); border: 1px solid var(--border); color: var(--text-muted); }
+
+/* Alert note */
+.an { background: var(--bg-card); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.ah { padding: 8px 12px; font-size: 12px; font-weight: 600; background: var(--accent-red-dim); color: var(--accent-red); }
+.ab, .ab2 { padding: 8px 12px; font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+
+/* Work order */
+.wo { background: var(--bg-card); border: 1px solid rgba(212,175,55,0.3); border-radius: var(--radius-sm); margin: 10px 0; overflow: hidden; }
+.wo-h { padding: 8px 12px; font-size: 12px; font-weight: 600; background: var(--accent-gold-dim); color: var(--accent-gold); border-bottom: 1px solid var(--border); }
+.wo-f { display: flex; padding: 6px 12px; font-size: 11px; border-bottom: 1px solid rgba(42,42,58,0.3); gap: 12px; }
+.wo-f:last-child { border-bottom: none; }
+.wo-f .wl { color: var(--text-muted); min-width: 110px; flex-shrink: 0; }
+.wo-f .wv { color: var(--text-primary); font-family: monospace; }
+
+/* Timeline nodes */
+.tn { display: inline-block; padding: 4px 8px; border-radius: 3px; font-size: 10px; font-family: monospace; font-weight: 600; margin: 2px 2px; }
+.tn.start { background: var(--accent-red-dim); color: var(--accent-red); }
+.tn.mid { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.tn.end { background: var(--accent-cyan-dim); color: var(--accent-cyan); }
+.ta { color: var(--text-muted); margin: 0 4px; }
+
+/* Typing indicator */
+.td { display: flex; gap: 4px; padding: 8px 0; }
+.tdt { width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: typingBounce 1.2s ease-in-out infinite; }
+.tdt:nth-child(2) { animation-delay: 0.2s; }
+.tdt:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:.4} 30%{transform:translateY(-6px);opacity:1} }
+
+/* Chips */
+.chips-section { padding: 8px 16px; border-top: 1px solid var(--border); }
+.chips-hint { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.chips-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font-size: 10px; padding: 5px 10px; border-radius: 4px;
+  background: var(--bg-tertiary); border: 1px solid var(--border);
+  color: var(--text-secondary); cursor: pointer; transition: all .2s;
+  white-space: nowrap; font-family: inherit;
+}
+.chip:hover { border-color: var(--accent-gold); color: var(--accent-gold); background: var(--accent-gold-dim); }
+.chip.ov { border-color: rgba(212,175,55,0.3); color: var(--accent-gold); }
+.chip.next { background: var(--gradient-brand); color: #000; font-weight: 700; border-color: var(--accent-gold); animation: chipPulse 2s ease-in-out infinite; }
+@keyframes chipPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,0.5); } 50% { box-shadow: 0 0 0 4px rgba(212,175,55,0); } }
+
+/* Input */
+.chat-input-area { padding: 10px 16px; border-top: 1px solid var(--border); }
+.input-wrap { display: flex; gap: 8px; }
+.chat-input {
+  flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 8px 12px; color: var(--text-primary); font-size: 12px; outline: none; transition: border .2s;
+  font-family: inherit;
+}
+.chat-input::placeholder { color: var(--text-muted); }
+.chat-input:focus { border-color: var(--accent-gold); }
+.send-btn {
+  background: var(--gradient-brand); border: none; color: #000; font-weight: 600;
+  padding: 8px 16px; border-radius: var(--radius-sm); cursor: pointer; font-size: 11px;
+  transition: opacity .2s; font-family: inherit;
+}
+.send-btn:hover { opacity: 0.9; }
+.send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.chat-footer { padding: 6px 16px 10px; font-size: 9px; color: var(--text-muted); text-align: center; }
+.chat-footer a { color: var(--accent-gold); text-decoration: none; }
+
+/* ===== WALKTHROUGH BAR (forced-choice demo) ===== */
+.walkthrough-bar {
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--accent-gold);
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px;
+}
+.walkthrough-bar.hidden { display: none; }
+.wb-progress {
+  font-size: 10px; color: var(--accent-gold); font-weight: 700; font-family: monospace;
+  letter-spacing: 0.5px; flex-shrink: 0;
+}
+.wb-step-label {
+  flex: 1; color: var(--text-secondary); font-size: 11px; line-height: 1.3;
+}
+.wb-step-label strong { color: var(--text-primary); font-weight: 600; }
+.wb-controls { display: flex; gap: 6px; flex-shrink: 0; }
+.wb-btn {
+  padding: 5px 12px; border-radius: 4px; font-size: 11px; font-family: inherit;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--bg-tertiary); color: var(--text-secondary); transition: all 0.2s;
+}
+.wb-btn:hover:not(:disabled) { border-color: var(--accent-gold); color: var(--accent-gold); }
+.wb-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.wb-btn.primary {
+  background: var(--gradient-brand); color: #000; font-weight: 700; border-color: var(--accent-gold);
+}
+.wb-btn.primary:hover { opacity: 0.9; }
+.wb-btn.primary:disabled { background: var(--bg-tertiary); color: var(--text-muted); }
+.wb-skip { background: transparent; border: none; color: var(--text-muted); font-size: 10px; padding: 5px 8px; cursor: pointer; }
+.wb-skip:hover { color: var(--text-secondary); }
+
+/* Walkthrough start overlay */
+.wb-start-overlay {
+  position: fixed; inset: 0; background: rgba(10,10,15,0.88);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9000; backdrop-filter: blur(4px);
+}
+.wb-start-overlay.hidden { display: none; }
+.wb-start-card {
+  background: var(--bg-secondary); border: 1px solid var(--accent-gold);
+  border-radius: var(--radius); padding: 28px 32px;
+  max-width: 460px; width: 90%; box-shadow: var(--shadow);
+  text-align: center;
+}
+.wb-start-title { font-size: 18px; font-weight: 700; color: var(--accent-gold); margin-bottom: 10px; }
+.wb-start-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 20px; }
+.wb-start-sub strong { color: var(--text-primary); }
+.wb-start-actions { display: flex; gap: 10px; justify-content: center; }
+.wb-start-btn {
+  padding: 10px 22px; border-radius: 6px; border: none;
+  background: var(--gradient-brand); color: #000; font-weight: 700; font-size: 13px;
+  cursor: pointer; font-family: inherit;
+}
+.wb-start-btn:hover { opacity: 0.9; }
+.wb-start-btn.secondary {
+  background: var(--bg-tertiary); color: var(--text-secondary); border: 1px solid var(--border);
+}
+.wb-start-btn.secondary:hover { border-color: var(--accent-gold); color: var(--accent-gold); }
+
+/* Responsive */
+@media (max-width: 1280px) {
+  .sidebar { width: 230px; min-width: 230px; }
+  .chat-panel { width: 360px; min-width: 360px; }
+  .kpi-ticker { display: none; }
+}
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .chat-panel { width: 320px; min-width: 320px; }
+}
+@media (max-width: 767px) {
+  html, body { overflow: auto; }
+  .app { display: none; }
+  .mobile-block {
+    display: flex !important;
+    position: fixed; inset: 0;
+    background: var(--bg-primary);
+    align-items: center; justify-content: center;
+    padding: 32px; text-align: center; color: var(--text-secondary); font-size: 14px;
+    line-height: 1.6; z-index: 999999;
+  }
+}
+.mobile-block { display: none; }
+
+/* === PASSWORD GATE === */
+.password-gate { position: fixed; inset: 0; background: #0a0e17; display: flex; align-items: center; justify-content: center; z-index: 99999; }
+.password-gate.hidden { display: none; }
+.password-box { background: #111827; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 40px; text-align: center; max-width: 420px; width: 90%; }
+.pw-logo { width: 64px; height: 64px; background: transparent; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; overflow: hidden; }
+.pw-logo img { width: 100%; height: 100%; object-fit: contain; }
+.pw-logo .pw-fallback { font-size: 32px; color: var(--accent-gold); }
+.pw-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; color: #f1f5f9; }
+.pw-subtitle { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+.pw-input { width: 100%; padding: 12px 16px; background: #0a0e17; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #f1f5f9; font-size: 14px; text-align: center; outline: none; margin-bottom: 12px; font-family: inherit; box-sizing: border-box; }
+.pw-input:focus { border-color: #d4af37; }
+.pw-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #d4af37, #f59e0b); border: none; border-radius: 8px; color: #000; font-weight: 600; font-size: 14px; cursor: pointer; font-family: inherit; }
+.pw-btn:hover { opacity: 0.9; }
+.pw-error { color: #ef4444; font-size: 12px; margin-top: 8px; display: none; }
+.pw-error.show { display: block; }
+.pw-footer { font-size: 11px; color: #475569; margin-top: 20px; }
+@keyframes pwShake { 0%,100%{transform:translateX(0)} 20%,60%{transform:translateX(-8px)} 40%,80%{transform:translateX(8px)} }
+.pw-shake { animation: pwShake 0.4s ease; }
+
+</style>
+</head>
+<body>
+
+<!-- MOBILE BLOCK -->
+<div class="mobile-block">
+  Rebirth Nexus demos are designed for tablet and desktop displays (min. 767px wide). Please view this demo on a larger screen.
+</div>
+
+<!-- PASSWORD GATE -->
+<div class="password-gate" id="pwGate">
+  <div class="password-box">
+    <div class="pw-logo"><span class="pw-fallback">◆</span></div>
+    <div class="pw-title">Nexus Demo Access</div>
+    <div class="pw-subtitle">GB Global – Trade &amp; Supply Chain Intelligence</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="Enter access code" autocomplete="off">
+    <button class="pw-btn" id="pwBtn">Access Demo</button>
+    <div class="pw-error" id="pwError">Incorrect access code</div>
+    <div class="pw-footer">Rebirth Nexus Inc. · Confidential</div>
+  </div>
+</div>
+<script>
+(function(){
+  var k='nexus_gbglobal';
+  if(sessionStorage.getItem(k)==='granted'){document.getElementById('pwGate').classList.add('hidden');}
+  document.getElementById('pwBtn').onclick=check;
+  document.getElementById('pwInput').addEventListener('keydown',function(e){if(e.key==='Enter')check();});
+  function check(){
+    if(document.getElementById('pwInput').value==='portcentric'){
+      sessionStorage.setItem(k,'granted');
+      document.getElementById('pwGate').classList.add('hidden');
+      setTimeout(function(){ if(typeof showWalkthroughStart==='function') showWalkthroughStart(); }, 300);
+    } else {
+      var e=document.getElementById('pwError');e.classList.add('show');
+      var b=document.querySelector('.password-box');b.classList.add('pw-shake');
+      setTimeout(function(){b.classList.remove('pw-shake');},400);
+    }
+  }
+})();
+</script>
+
+<!-- WALKTHROUGH START OVERLAY -->
+<div class="wb-start-overlay hidden" id="wbStartOverlay">
+  <div class="wb-start-card">
+    <div class="wb-start-title">◆ Forced-Choice Walkthrough</div>
+    <div class="wb-start-sub">
+      This is a <strong>guided eight-step presentation</strong> of Rebirth Nexus for GB Global.<br><br>
+      Storm-driven compound disruption at Felixstowe has placed <strong>318 customer containers across eight GB Global subsidiaries</strong> at risk. Nexus has detected the cascade <strong>36 hours ahead</strong> of carrier ETA updates.<br><br>
+      Use <strong>Next</strong> / <strong>Back</strong> to walk the script. Chips remain enabled if you want to go off-piste.
+    </div>
+    <div class="wb-start-actions">
+      <button class="wb-start-btn" onclick="beginWalkthrough()">Begin Walkthrough →</button>
+      <button class="wb-start-btn secondary" onclick="skipWalkthroughStart()">Explore Freely</button>
+    </div>
+  </div>
+</div>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand">
+      <div class="brand-icon"><span style="color:var(--accent-gold);font-weight:700">◆</span></div>
+      <span class="brand-name">Rebirth Nexus</span>
+      <span class="brand-sub">Trade &amp; Supply Chain Intelligence · GB Global</span>
+      <span class="brand-tag">Live Intelligence</span>
+    </div>
+    <div class="top-right">
+      <div class="kpi-ticker" id="kpiTicker">
+        <div class="kpi-pill" id="kpi1">
+          <span class="kpi-pill-label">Vessel</span>
+          <span class="kpi-pill-val r">52 hr late</span>
+          <span class="kpi-pill-delta up">↑ ETA slip</span>
+        </div>
+        <div class="kpi-pill" id="kpi2">
+          <span class="kpi-pill-label">Containers</span>
+          <span class="kpi-pill-val r">318 at risk</span>
+          <span class="kpi-pill-delta up">47 customers</span>
+        </div>
+        <div class="kpi-pill" id="kpi3">
+          <span class="kpi-pill-label">CDS Processing</span>
+          <span class="kpi-pill-val a">23 min</span>
+          <span class="kpi-pill-delta up">↑ 15× slower</span>
+        </div>
+        <div class="kpi-pill" id="kpi4">
+          <span class="kpi-pill-label">Exposure</span>
+          <span class="kpi-pill-val r">£21.0M</span>
+          <span class="kpi-pill-delta up">↑ £18.7M+£2.3M</span>
+        </div>
+      </div>
+      <div class="live-dot-wrap"><div class="live-dot"></div> LIVE</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- INTEL SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Trade Intelligence Feed</span>
+        <span class="sidebar-live"><div class="live-dot"></div> Live</span>
+      </div>
+      <div class="feed" id="intelFeed">
+        <div class="feed-item crit" onclick="handle('Investigate MV Ellerman Trader vessel cascade')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 14:22 BST</div>
+          <div class="feed-text"><strong>MV Ellerman Trader 52 hr late.</strong> 318 GB Global containers across 8 subsidiaries at risk. Storm Fergus re-routing.</div>
+          <div class="feed-tags"><span class="ftag vessel">Ocean</span><span class="ftag predictive">Cascade</span></div>
+        </div>
+        <div class="feed-item crit" onclick="handle('Felixstowe terminal and FMDC impact')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 14:18 BST</div>
+          <div class="feed-text"><strong>Trinity berths 8-9 closed 14 hr.</strong> FMDC 127 inbound slots missed. £4.2M direct warehouse exposure.</div>
+          <div class="feed-tags"><span class="ftag port">Port</span><span class="ftag weather">Storm</span></div>
+        </div>
+        <div class="feed-item crit" onclick="handle('Customs and CDS compliance status')">
+          <div class="feed-time"><span class="feed-sev critical">Critical</span> 14:10 BST</div>
+          <div class="feed-text"><strong>HMRC CDS 23 min processing.</strong> 47 priority entries queued. 18 pharma cold-chain at temperature risk.</div>
+          <div class="feed-tags"><span class="ftag customs">CDS</span><span class="ftag regulatory">BTOM</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('UK haulage and distribution network')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 13:55 BST</div>
+          <div class="feed-text"><strong>A14 corridor at 47% capacity.</strong> James Kemball 312 haulage slots at risk next 18 hr.</div>
+          <div class="feed-tags"><span class="ftag haulage">Haulage</span><span class="ftag port">A14</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('European export and alternate routing')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 13:42 BST</div>
+          <div class="feed-text"><strong>47 European export slots at risk.</strong> EFRET Dover lane and Wineflow temp-controlled windows tight.</div>
+          <div class="feed-tags"><span class="ftag haulage">EFRET</span><span class="ftag vessel">Dover</span></div>
+        </div>
+        <div class="feed-item warn" onclick="handle('Total exposure across customer book')">
+          <div class="feed-time"><span class="feed-sev warning">Warning</span> 13:30 BST</div>
+          <div class="feed-text"><strong>£18.7M direct + £2.3M SLA.</strong> 47 customers. Mitigation window approx. 8 hr remaining.</div>
+          <div class="feed-tags"><span class="ftag financial">Exposure</span><span class="ftag predictive">ROI</span></div>
+        </div>
+        <div class="feed-item info" onclick="handle('Investigate MV Ellerman Trader vessel cascade')">
+          <div class="feed-time"><span class="feed-sev info">Info</span> 13:15 BST</div>
+          <div class="feed-text"><strong>Nexus detected cascade 36 hr ahead</strong> of carrier ETA updates – diversion options still viable.</div>
+          <div class="feed-tags"><span class="ftag predictive">Predictive</span><span class="ftag vessel">Early Warning</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAP PANEL -->
+    <div class="map-panel">
+      <div id="mapView"></div>
+      <div class="map-legend">
+        <div class="map-legend-title">GB Global Network</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Vessel – Delayed</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-red)"></div> Port – Disrupted</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-amber)"></div> DC / Asset – Stressed</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-emerald)"></div> Alternate Port / Node</div>
+        <div class="legend-row"><div class="legend-dot" style="background:var(--accent-purple)"></div> HQ &amp; Group Office</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--accent-cyan)"></div> Trunk Haulage (UK)</div>
+        <div class="legend-row"><div class="legend-line" style="background:var(--accent-amber);border-top:1px dashed var(--accent-amber);background:transparent"></div> Diversion / Alternate</div>
+      </div>
+    </div>
+
+    <!-- CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-avatar" style="background:var(--accent-gold-dim);color:var(--accent-gold);font-weight:700">◆</div>
+        <span class="chat-header-text">Nexus Trade Intelligence</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="message">
+          <div class="msg-head">
+            <div class="msg-av ai">◆</div>
+            <span class="msg-name">Nexus Trade Intelligence</span>
+            <span class="msg-time">Just now</span>
+          </div>
+          <div class="msg-body">
+            <strong>🚢 COMPOUND DISRUPTION – Felixstowe &amp; GB Global Network</strong><br><br>
+            Across your <strong>100+ specialist businesses</strong>, eight operating systems are surfacing separate warnings. Nexus is synthesising them into <strong>one signed, auditable response</strong>. Monitoring <strong>318 customer containers</strong> across <strong>8 GB Global subsidiaries</strong> – Uniserve, Ellerman Lines, James Kemball, Seafast, Beyondly, EFRET, Wineflow, Customs Insights.<br><br>
+            <div class="viz-alert">
+              <div class="viz-alert-header critical">🚢 CRITICAL – Four-way compound disruption in progress</div>
+              <div class="viz-alert-row"><span>MV Ellerman Trader (7,500 TEU)</span><span style="color:var(--accent-red)">52 hr late – Storm Fergus re-routing</span></div>
+              <div class="viz-alert-row"><span>Felixstowe Trinity berths 8-9</span><span style="color:var(--accent-red)">Closed 14 hr – 127 FMDC slots missed</span></div>
+              <div class="viz-alert-row"><span>HMRC CDS processing</span><span style="color:var(--accent-amber)">23 min avg (vs 90 sec nominal)</span></div>
+              <div class="viz-alert-row"><span>A14 haulage corridor</span><span style="color:var(--accent-amber)">47% capacity – 18 hr squeeze</span></div>
+            </div>
+            Nexus correlated the cascade <strong>36 hours before</strong> the carrier's own ETA updates – while diversion to London Gateway and Southampton was still viable and customs pre-clearance had slack.<br><br>
+            Total exposure: <strong>£18.7M direct + £2.3M SLA/regulatory = £21.0M</strong> across <strong>47 customers</strong>. What would you like to investigate?
+          </div>
+        </div>
+      </div>
+
+      <div class="chips-section">
+        <div class="chips-grid" id="chipsGrid"></div>
+      </div>
+
+      <!-- WALKTHROUGH BAR -->
+      <div class="walkthrough-bar hidden" id="walkthroughBar">
+        <div class="wb-progress" id="wbProgress">Step 1 of 8</div>
+        <div class="wb-step-label" id="wbStepLabel"><strong>Ready.</strong> Click Next to begin.</div>
+        <div class="wb-controls">
+          <button class="wb-btn" id="wbBack" onclick="wbBack()" disabled>← Back</button>
+          <button class="wb-btn primary" id="wbNext" onclick="wbNext()">Next →</button>
+        </div>
+        <button class="wb-skip" onclick="exitWalkthrough()" title="Exit walkthrough">Exit</button>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="input-wrap">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Ask about vessel cascade, customs, haulage, exposure, mitigation..." />
+          <button class="send-btn" id="sendBtn" onclick="handleSend()">Send</button>
+        </div>
+      </div>
+      <div class="chat-footer">Demo of <a href="https://rebirthnexus.ai" target="_blank">Rebirth Nexus</a> · Synthetic scenario; GB Global brand names illustrative of group-wide orchestration capability</div>
+    </div>
+  </div>
+</div>
+
+<!-- ESRI MAP -->
+<script src="https://js.arcgis.com/4.28/"></script>
+<script>
+require([
+  "esri/Map", "esri/views/MapView",
+  "esri/Graphic", "esri/layers/GraphicsLayer", "esri/Color"
+], function(Map, MapView, Graphic, GraphicsLayer, Color) {
+  const map = new Map({ basemap: "dark-gray-vector" });
+  const view = new MapView({
+    container: "mapView", map: map,
+    center: [0.5, 52.0], zoom: 7,
+    constraints: { minZoom: 5, maxZoom: 16 },
+    ui: { components: [] }
+  });
+  window._mapView = view;
+
+  const lineLyr = new GraphicsLayer();
+  const ptLyr = new GraphicsLayer();
+  const zoneLyr = new GraphicsLayer();
+  map.addMany([zoneLyr, lineLyr, ptLyr]);
+
+  // Storm Fergus zone (North Sea approach)
+  zoneLyr.add(new Graphic({
+    geometry: { type: "polygon", rings: [[
+      [1.0, 53.5], [3.5, 53.5], [4.0, 51.8], [1.5, 51.5], [0.5, 52.3], [1.0, 53.5]
+    ]]},
+    symbol: { type: "simple-fill",
+      color: new Color([239, 68, 68, 0.08]),
+      outline: { color: new Color([239, 68, 68, 0.35]), width: 1.5, style: "dash" } }
+  }));
+
+  // Assets
+  const nodes = [
+    // Ports
+    { id:"FXT-TRIN", name:"Felixstowe Trinity Terminal (Berths 8-9)", lat:52.056, lon:1.331, status:"DISRUPTED", type:"Port", detail:"Closed 14 hr – Storm Fergus" },
+    { id:"FXT-LAND", name:"Felixstowe Landguard Terminal", lat:52.042, lon:1.325, status:"STRESSED", type:"Port", detail:"Landguard at capacity" },
+    { id:"LGW-THAM", name:"London Gateway (DP World)", lat:51.499, lon:0.479, status:"ALTERNATE", type:"Port", detail:"Diversion – 23 priority boxes" },
+    { id:"SOU-CONT", name:"Southampton Container Terminal", lat:50.897, lon:-1.405, status:"ALTERNATE", type:"Port", detail:"Alternate – 11 automotive boxes" },
+    { id:"TIL-TERM", name:"Port of Tilbury", lat:51.464, lon:0.354, status:"NORMAL", type:"Port", detail:"Normal ops" },
+    { id:"DOV-TERM", name:"Dover Ferry Terminal", lat:51.128, lon:1.313, status:"STRESSED", type:"Port", detail:"EFRET lane tight" },
+    // GB Global assets
+    { id:"FMDC", name:"Felixstowe Mega DC (Uniserve, 750k sq ft)", lat:52.067, lon:1.272, status:"STRESSED", type:"DC", detail:"127 inbound slots missed" },
+    { id:"UNI-HQ", name:"Uniserve HQ / GB Global Group (Upminster)", lat:51.562, lon:0.251, status:"HQ", type:"HQ", detail:"Group operations centre" },
+    { id:"KEM-FXT", name:"James Kemball Yard (Felixstowe)", lat:51.988, lon:1.253, status:"STRESSED", type:"DC", detail:"Haulage – A14 squeeze" },
+    { id:"WAR-DC", name:"Warrington RDC", lat:53.390, lon:-2.585, status:"STRESSED", type:"DC", detail:"Retail inbound – 18 slots" },
+    { id:"MAN-DC", name:"Manchester Office / DC", lat:53.477, lon:-2.229, status:"STRESSED", type:"DC", detail:"Downstream pressure" },
+    { id:"NTH-DC", name:"Northampton DC", lat:52.241, lon:-0.902, status:"NORMAL", type:"DC", detail:"Normal" },
+    { id:"SK-DC",  name:"South Kirkby DC", lat:53.585, lon:-1.313, status:"NORMAL", type:"DC", detail:"Normal" },
+    { id:"FEL-HR", name:"Feltham (Heathrow Gateway)", lat:51.443, lon:-0.411, status:"NORMAL", type:"DC", detail:"Air freight bridge" },
+    { id:"WOL-DC", name:"Wolverhampton DC", lat:52.586, lon:-2.128, status:"NORMAL", type:"DC", detail:"Normal" },
+    { id:"CHEP-DC",name:"Chepstow DC", lat:51.640, lon:-2.674, status:"NORMAL", type:"DC", detail:"Normal" },
+    // European / Irish
+    { id:"DUB-OFF",name:"Dublin Office", lat:53.350, lon:-6.255, status:"NORMAL", type:"DC", detail:"Irish operations" },
+    { id:"ROT-OFF",name:"Rotterdam Office (NL)", lat:51.910, lon:4.488, status:"NORMAL", type:"DC", detail:"NL hub" },
+    // Vessel (current position ~90nm SE of Felixstowe)
+    { id:"VESSEL", name:"MV Ellerman Trader (7,500 TEU) – 52 hr late", lat:51.45, lon:2.90, status:"VESSEL", type:"Vessel", detail:"Re-routing via Storm Fergus" },
+  ];
+
+  const colors = { DISRUPTED:[239,68,68], STRESSED:[245,158,11], NORMAL:[16,185,129], ALTERNATE:[16,185,129], HQ:[168,85,247], VESSEL:[239,68,68] };
+
+  nodes.forEach(n => {
+    const c = colors[n.status] || [100,100,100];
+    var sym;
+    if (n.type === "Vessel") {
+      sym = { type: "simple-marker", color: c, size: 18, style: "triangle",
+        outline: { color: [255,255,255,180], width: 2 } };
+    } else if (n.type === "Port") {
+      sym = { type: "simple-marker", color: c, size: n.status==="DISRUPTED"?16:13, style: "diamond",
+        outline: { color: [255,255,255,80], width: 1.5 } };
+    } else if (n.type === "HQ") {
+      sym = { type: "simple-marker", color: c, size: 14, style: "square",
+        outline: { color: [255,255,255,120], width: 1.5 } };
+    } else {
+      sym = { type: "simple-marker", color: c, size: n.status==="STRESSED"?11:9,
+        outline: { color: [255,255,255,60], width: 1 } };
+    }
+    ptLyr.add(new Graphic({
+      geometry: { type: "point", longitude: n.lon, latitude: n.lat },
+      symbol: sym, attributes: n,
+      popupTemplate: { title: "{name}", content: "Status: {status} · {detail}" }
+    }));
+  });
+
+  // Primary haulage routes (Felixstowe → UK DC network)
+  const trunks = [
+    // Felixstowe to Midlands via A14
+    [[1.331,52.056],[1.0,52.15],[0.3,52.2],[-0.9,52.241]], // To Northampton
+    // Felixstowe to North (A14→M6)
+    [[1.331,52.056],[0.5,52.3],[-1.313,53.585],[-2.585,53.390]], // To South Kirkby, Warrington
+    // Felixstowe to London / FMDC (short)
+    [[1.331,52.056],[1.272,52.067]], // To FMDC
+    // FMDC to Upminster HQ
+    [[1.272,52.067],[0.8,51.9],[0.251,51.562]],
+    // To Heathrow/Feltham
+    [[0.251,51.562],[-0.411,51.443]],
+    // To Wolverhampton/West Midlands
+    [[-0.902,52.241],[-2.128,52.586]],
+    // To Chepstow (Welsh border)
+    [[-2.128,52.586],[-2.674,51.640]],
+  ];
+  trunks.forEach(t => {
+    lineLyr.add(new Graphic({
+      geometry: { type: "polyline", paths: [t] },
+      symbol: { type: "simple-line", color: [34,211,238,160], width: 2 }
+    }));
+  });
+
+  // Alternate/diversion routes (dashed)
+  const alternates = [
+    // MV diversion to London Gateway
+    [[2.90,51.45],[1.5,51.45],[0.479,51.499]],
+    // Secondary to Southampton
+    [[2.90,51.45],[1.5,51.0],[-1.405,50.897]],
+    // Dover-Rotterdam lane (EFRET)
+    [[1.313,51.128],[2.5,51.4],[4.488,51.910]],
+    // Dover to French hinterland (EFRET cross-Channel)
+    [[1.313,51.128],[1.8,50.9]],
+  ];
+  alternates.forEach(t => {
+    lineLyr.add(new Graphic({
+      geometry: { type: "polyline", paths: [t] },
+      symbol: { type: "simple-line", color: [245,158,11,180], width: 1.8, style: "dash" }
+    }));
+  });
+
+  // Asia-Europe approach lane (faded, showing original route)
+  lineLyr.add(new Graphic({
+    geometry: { type: "polyline", paths: [[[3.5,51.0],[2.90,51.45],[1.331,52.056]]] },
+    symbol: { type: "simple-line", color: [168,85,247,120], width: 1.5, style: "short-dash" }
+  }));
+});
+
+// ===== SYSTEM PROMPT (used in live API mode; kept for parity with framework) =====
+const SYSTEM_PROMPT = `You are Nexus Trade Intelligence, the AI engine for GB Global – a UK logistics group of 100+ specialist businesses including Uniserve, Ellerman Lines, James Kemball, Seafast, Felixstowe Mega DC, EFRET, Wineflow, Customs Insights, Beyondly, and Supply Chain Academy. You are demonstrating capabilities for compound supply chain disruption at Felixstowe.
+
+SCENARIO: Storm Fergus forcing closure of Felixstowe Trinity berths 8-9 for 14 hours. MV Ellerman Trader (7,500 TEU, Asia-Europe loop) delayed 52 hours, 318 customer containers at risk across 8 GB Global subsidiaries. HMRC CDS degraded to 23-minute processing (vs 90-second nominal). A14 haulage corridor at 47% capacity for next 18 hours.
+
+KEY DATA:
+- 318 GB Global customer containers across 47 customers
+- Exposure: £18.7M direct + £2.3M SLA/regulatory = £21.0M
+- Mitigation package: £485K spend protects £20.5M (ROI 43:1)
+- Early detection: 36 hours before carrier ETA updates
+- 127 FMDC inbound slots missed at Uniserve Felixstowe Mega DC (750,000 sq ft)
+- 47 priority CDS declarations queued
+- 18 pharma cold-chain containers at temperature risk
+- 47 European export slots at risk (EFRET Dover lane, Wineflow temp-controlled)
+
+Use British English throughout. Use GBP (£). Reference real GB Global brands by name. Reference UK regulatory frameworks accurately: CDS, ENS/S&S GB, BTOM, ICS2 (for EU-bound), IPAFFS (SPS), TRE. Include provenance blocks. Always ground recommendations in financial impact.`;
+
+const API_ENDPOINT = '/api/chat';
+let conversationHistory = [];
+let isProcessing = false;
+
+// ===== CHIPSETS (all chip groups) =====
+const chipSets = {
+  initial: [
+    "🚢 Investigate MV Ellerman Trader vessel cascade",
+    "🏭 Felixstowe terminal and FMDC impact",
+    "💷 Total exposure across customer book",
+    "📋 Customs and CDS compliance status",
+    "🛣️ UK haulage and distribution network",
+    "🌍 European export and alternate routing"
+  ],
+  vessel: [
+    "Cargo manifest by customer and subsidiary",
+    "Alternate port diversion options",
+    "Berth allocation and turnaround forecast",
+    "Generate priority action work order",
+    "Carrier and customer notifications",
+    "↩️ Return to overview"
+  ],
+  terminal: [
+    "FMDC slot reallocation plan",
+    "Container dwell and demurrage forecast",
+    "Storm Fergus weather cascade",
+    "Rail and road egress from quay",
+    "↩️ Return to overview"
+  ],
+  customs: [
+    "Customs Insights brokerage queue",
+    "BTOM physical check forecast",
+    "Pre-populate CDS re-submissions",
+    "Pharma cold-chain escalation",
+    "↩️ Return to overview"
+  ],
+  haulage: [
+    "James Kemball fleet availability",
+    "A14 corridor reroute options",
+    "EFRET European lane pressure",
+    "Generate dispatch work order",
+    "↩️ Return to overview"
+  ],
+  european: [
+    "Dover and Rotterdam alternate capacity",
+    "Wineflow temperature-controlled cargo",
+    "EFRET cross-Channel slot status",
+    "Beyondly carbon impact of reroutes",
+    "↩️ Return to overview"
+  ]
+};
+
+// ===== RESPONSE OBJECT (R) =====
+const R = {
+
+"investigate mv ellerman trader vessel cascade": {
+content: `<p><strong>🚢 MV ELLERMAN TRADER – CASCADE IN PROGRESS</strong></p>
+<div class="vb"><div class="vt">Vessel Status – Ellerman Lines</div>
+<div class="vr"><span class="l">Vessel</span><span class="v">MV Ellerman Trader · 7,500 TEU</span></div>
+<div class="vr"><span class="l">Service</span><span class="v">Asia-Europe loop (Yantian → Rotterdam → Felixstowe)</span></div>
+<div class="vr"><span class="l">Current Position</span><span class="v red">51.45°N 2.90°E – 90 nm SE of Felixstowe</span></div>
+<div class="vr"><span class="l">Original ETA</span><span class="v">22 Apr 06:00 BST – Trinity Terminal Berth 8</span></div>
+<div class="vr"><span class="l">Revised ETA</span><span class="v red">24 Apr 10:00 BST – 52 hr slip</span></div>
+<div class="vr"><span class="l">Cause</span><span class="v red">Storm Fergus 55 kt sustained · Re-routing</span></div>
+<div class="vr"><span class="l">Onboard Total</span><span class="v">2,847 TEU</span></div>
+<div class="vr"><span class="l">GB Global Customer Boxes</span><span class="v red">318 containers · 47 customers</span></div>
+</div>
+<div class="vb"><div class="vt">Cargo Profile – 318 GB Global Containers</div>
+<table class="tb">
+<tr><th>Cargo Type</th><th>Boxes</th><th>Handling Brand</th><th>Risk</th></tr>
+<tr><td class="h">Automotive JIT</td><td>47</td><td>Uniserve + James Kemball</td><td class="red">CRITICAL</td></tr>
+<tr><td class="h">Pharmaceutical (2-8°C)</td><td>18</td><td>Wineflow temp-controlled</td><td class="red">CRITICAL</td></tr>
+<tr><td class="h">MoD Defence Contract</td><td>6</td><td>Seafast + George Baker</td><td class="amb">HIGH</td></tr>
+<tr><td>Wine and Spirits</td><td>14</td><td>Wineflow + Customs Insights</td><td class="amb">MEDIUM</td></tr>
+<tr><td>General Retail</td><td>233</td><td>Uniserve + FMDC + EFRET</td><td>STANDARD</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Cascade Timeline if Unmitigated</div>
+<div class="vr"><span class="l">T+0 (now)</span><span class="v red">Vessel holding off Felixstowe · 90 nm SE</span></div>
+<div class="vr"><span class="l">T+8 hr</span><span class="v red">Storm peak · berth 8-9 closure confirmed 14 hr</span></div>
+<div class="vr"><span class="l">T+22 hr</span><span class="v amb">Trinity reopens · 4 vessels in queue · Ellerman Trader 3rd</span></div>
+<div class="vr"><span class="l">T+52 hr</span><span class="v amb">Berths · discharge commences</span></div>
+<div class="vr"><span class="l">T+76 hr</span><span class="v amb">FMDC slot deadline: 47 retail DC windows missed</span></div>
+<div class="vr"><span class="l">T+96 hr</span><span class="v red">SLA penalties trigger · 12 customers in Tier-1 breach</span></div>
+<div class="vr"><span class="l">T+120 hr</span><span class="v red">EPR / Beyondly carbon reporting misses Q2 threshold</span></div>
+</div>
+<p><strong>Cross-subsidiary view:</strong> This single vessel delay touches <strong>8 separate GB Global operating companies</strong> – each running its own TOS, TMS, WMS, CDS broker, and temperature monitoring. Without Nexus, you see eight partial pictures. Nexus detected the cascade <strong>36 hours ahead</strong> of the carrier's own ETA update, while diversion and customs pre-clearance were still viable.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Ellerman Lines AIS</span><span class="pt">MarineTraffic</span><span class="pt">Baron Weather</span><span class="pt">Port of Felixstowe VTS</span><span class="pt">Uniserve One World GTM</span><span class="pt">Kemball TMS</span><span class="pt">Wineflow Temp</span><span class="pt">Customs Insights</span></div></div>`,
+chips: chipSets.vessel },
+
+"alternate port diversion options": {
+content: `<p><strong>🧭 ALTERNATE PORT DIVERSION – Three Options Modelled</strong></p>
+<div class="vb"><div class="vt">Option A – Divert to London Gateway (DP World)</div>
+<div class="vr"><span class="l">Feasibility</span><span class="v grn">HIGH – DP World confirmed 2 berth windows</span></div>
+<div class="vr"><span class="l">Transit Impact</span><span class="v">+14 hr vs Felixstowe reopening</span></div>
+<div class="vr"><span class="l">Container Coverage</span><span class="v grn">92 highest-priority boxes</span></div>
+<div class="vr"><span class="l">Incremental Cost</span><span class="v amb">£185K (re-routing · Kemball haulage swap)</span></div>
+<div class="vr"><span class="l">SLA Protection</span><span class="v grn">£11.4M of £21.0M exposure</span></div>
+</div>
+<div class="vb"><div class="vt">Option B – Divert to Southampton (DP World)</div>
+<div class="vr"><span class="l">Feasibility</span><span class="v amb">MEDIUM – 1 berth window · Solent swell</span></div>
+<div class="vr"><span class="l">Transit Impact</span><span class="v">+22 hr vs Felixstowe reopening</span></div>
+<div class="vr"><span class="l">Container Coverage</span><span class="v amb">11 automotive-critical boxes</span></div>
+<div class="vr"><span class="l">Incremental Cost</span><span class="v">£64K (road bridge to Oxford / Solihull)</span></div>
+<div class="vr"><span class="l">SLA Protection</span><span class="v grn">£2.1M</span></div>
+</div>
+<div class="vb"><div class="vt">Option C – Air Freight Priority Lift (Heathrow)</div>
+<div class="vr"><span class="l">Feasibility</span><span class="v grn">HIGH – Uniserve air team · 2 freighter slots</span></div>
+<div class="vr"><span class="l">Transit Impact</span><span class="v grn">Pharma priority inbound within 18 hr</span></div>
+<div class="vr"><span class="l">Container Coverage</span><span class="v grn">18 pharma cold-chain (value-weighted)</span></div>
+<div class="vr"><span class="l">Incremental Cost</span><span class="v amb">£236K (air freight + Feltham gateway)</span></div>
+<div class="vr"><span class="l">SLA Protection</span><span class="v grn">£7.0M</span></div>
+</div>
+<div class="an"><div class="ah">⚠️ Recommended Package</div>
+<div class="ab2"><strong>Option A + Option C combined.</strong> Total cost <strong>£421K</strong> protects £18.4M of £21.0M exposure. Decision window: approx. 8 hours before diversion becomes unavailable (DP World berth cut-off, Heathrow freighter booking cut-off).</div></div>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">DP World London Gateway</span><span class="pt">DP World Southampton</span><span class="pt">Uniserve Air Freight</span><span class="pt">Kemball Haulage</span><span class="pt">Ellerman Lines</span><span class="pt">Esri UK Ports</span></div></div>`,
+chips: chipSets.vessel },
+
+"generate priority action work order": {
+content: `<p><strong>📋 PRIORITY ACTION WORK ORDER – Multi-Subsidiary Dispatch</strong></p>
+<div class="wo"><div class="wo-h">WO-2026-FXT-0423 – P1 EMERGENCY (GROUP)</div>
+<div class="wo-f"><span class="wl">Event</span><span class="wv">MV Ellerman Trader cascade · Storm Fergus · CDS degraded</span></div>
+<div class="wo-f"><span class="wl">Raised</span><span class="wv">14:22 BST · 23 Apr 2026</span></div>
+<div class="wo-f"><span class="wl">Decision window</span><span class="wv">T+8 hr (by 22:22 BST)</span></div>
+<div class="wo-f"><span class="wl">Total exposure</span><span class="wv">£21.0M · 47 customers</span></div>
+<div class="wo-f"><span class="wl">Mitigation budget</span><span class="wv">£485K (group authorisation)</span></div>
+<div class="wo-f"><span class="wl">Expected ROI</span><span class="wv">43:1 (protects £20.5M)</span></div>
+</div>
+<div class="vb"><div class="vt">Actions by Subsidiary</div>
+<table class="tb">
+<tr><th>#</th><th>Subsidiary</th><th>Action</th><th>Owner</th></tr>
+<tr><td>1</td><td class="h">Ellerman Lines</td><td>Lodge diversion request DP World LGW (92 boxes)</td><td class="amb">Ops Director</td></tr>
+<tr><td>2</td><td class="h">Uniserve (Air)</td><td>Book 2 × freighter slots LHR – 18 pharma</td><td class="amb">Air Lead</td></tr>
+<tr><td>3</td><td class="h">James Kemball</td><td>Reassign 27 drivers FXT→LGW · activate 12 owner-drivers</td><td class="amb">Fleet Controller</td></tr>
+<tr><td>4</td><td class="h">Seafast</td><td>Expedite port clearance LGW · MoD chain-of-custody</td><td>Port Ops</td></tr>
+<tr><td>5</td><td class="h">FMDC (Uniserve)</td><td>Re-sequence 127 slots · extend gate hours T+72 hr</td><td class="amb">Warehouse Mgr</td></tr>
+<tr><td>6</td><td class="h">Customs Insights</td><td>Pre-submit 47 priority CDS · escalate BTOM</td><td class="red">Brokerage Lead</td></tr>
+<tr><td>7</td><td class="h">EFRET</td><td>Protect 47 EU slots · hold Dover bookings 36 hr</td><td>EU Dispatch</td></tr>
+<tr><td>8</td><td class="h">Wineflow</td><td>Verify temp continuity · reefer alerts 18 boxes</td><td class="red">Cold Chain Lead</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Regulatory Triggers (auto-notified)</div>
+<div class="vr"><span class="l">HMRC CDS</span><span class="v">47 priority entries pre-lodged · S&amp;S GB prepared</span></div>
+<div class="vr"><span class="l">MHRA (pharma)</span><span class="v">18 cold-chain temperature deviations pre-logged</span></div>
+<div class="vr"><span class="l">IPAFFS (SPS)</span><span class="v">Pre-notifications updated for 9 food boxes</span></div>
+<div class="vr"><span class="l">MoD contract</span><span class="v">Chain-of-custody continuity notice filed</span></div>
+<div class="vr"><span class="l">AEO register</span><span class="v">Exceptional circumstances event logged</span></div>
+</div>
+<p><strong>One work order. Eight subsidiary systems. One signature.</strong> Nexus drafts the dispatch and pushes the right piece to each subsidiary's TMS / TOS / WMS / CDS broker. Group COO signs once; Nexus routes to each system in the background.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Uniserve One World GTM</span><span class="pt">Kemball TMS</span><span class="pt">FMDC WMS</span><span class="pt">Seafast</span><span class="pt">Customs Insights</span><span class="pt">Wineflow</span><span class="pt">EFRET</span><span class="pt">HMRC CDS</span><span class="pt">MHRA</span></div></div>`,
+chips: chipSets.vessel },
+
+
+"cargo manifest by customer and subsidiary": {
+content: `<p><strong>📦 CARGO MANIFEST – 318 Containers · 47 Customers · 8 Subsidiaries</strong></p>
+<div class="vb"><div class="vt">Top Customers by Container Count (confidential sample)</div>
+<table class="tb">
+<tr><th>Customer</th><th>Boxes</th><th>Cargo</th><th>SLA Tier</th><th>GB Global Brand</th></tr>
+<tr><td class="h">Client A (automotive OEM)</td><td class="red">47</td><td>JIT components</td><td class="red">Tier 1</td><td>Uniserve+Kemball</td></tr>
+<tr><td class="h">Client B (major grocer)</td><td>62</td><td>Ambient retail</td><td class="amb">Tier 2</td><td>Uniserve+FMDC</td></tr>
+<tr><td class="h">Client C (pharma)</td><td class="red">18</td><td>2-8°C biologics</td><td class="red">Tier 1 MHRA</td><td>Wineflow</td></tr>
+<tr><td class="h">Client D (MoD contractor)</td><td class="amb">6</td><td>Defence (non-lethal)</td><td class="amb">Contract tier</td><td>Seafast+Baker</td></tr>
+<tr><td class="h">Client E (DIY retail)</td><td>41</td><td>Power tools · seasonal</td><td>Tier 2</td><td>Uniserve+EFRET</td></tr>
+<tr><td class="h">Client F (wine importer)</td><td>14</td><td>Wine · excise</td><td>Tier 2</td><td>Wineflow+Insights</td></tr>
+<tr><td>42 other customers</td><td>130</td><td>Mixed retail · industrial</td><td>Mixed</td><td>Group-wide</td></tr>
+</table></div>
+<div class="vb"><div class="vt">By GB Global Operating Company</div>
+<div class="vr"><span class="l">Uniserve (freight forwarding)</span><span class="v">274 boxes touched (86%)</span></div>
+<div class="vr"><span class="l">James Kemball (haulage)</span><span class="v">312 boxes in haulage pipeline</span></div>
+<div class="vr"><span class="l">Felixstowe Mega DC (WMS)</span><span class="v amb">127 inbound slots affected</span></div>
+<div class="vr"><span class="l">Seafast (port services)</span><span class="v">6 MoD + 47 priority clearances</span></div>
+<div class="vr"><span class="l">EFRET (European road)</span><span class="v amb">47 European export slots</span></div>
+<div class="vr"><span class="l">Wineflow (temp-controlled)</span><span class="v red">18 pharma + 14 wine boxes</span></div>
+<div class="vr"><span class="l">Customs Insights (brokerage)</span><span class="v red">47 CDS entries priority queue</span></div>
+<div class="vr"><span class="l">Beyondly (sustainability)</span><span class="v">Carbon reporting tracked</span></div>
+</div>
+<p>Each subsidiary runs its own operational system with its own schema. Nexus normalises across all of them <strong>without rip-and-replace</strong> – it sits as an intelligence layer over One World GTM, Kemball TMS, FMDC WMS, Seafast port systems, and the Customs Insights broker queue.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Uniserve One World GTM</span><span class="pt">Kemball TMS</span><span class="pt">FMDC WMS</span><span class="pt">Seafast</span><span class="pt">Wineflow</span><span class="pt">Customs Insights</span></div></div>`,
+chips: chipSets.vessel },
+
+"berth allocation and turnaround forecast": {
+content: `<p><strong>⚓ BERTH ALLOCATION – Post-Storm Queue Dynamics</strong></p>
+<div class="vb"><div class="vt">Felixstowe Trinity Terminal – Berth Status</div>
+<table class="tb">
+<tr><th>Berth</th><th>Depth</th><th>Now (T+0)</th><th>T+22h</th><th>Next Vessel</th></tr>
+<tr><td class="h">B8</td><td>18.0 m</td><td class="red">CLOSED</td><td class="amb">Reopening</td><td>MV Ellerman Trader</td></tr>
+<tr><td class="h">B9</td><td>18.0 m</td><td class="red">CLOSED</td><td class="amb">Reopening</td><td>Maersk service</td></tr>
+<tr><td>B6</td><td>16.5 m</td><td class="amb">RESTRICTED</td><td class="grn">Operational</td><td>COSCO Asia</td></tr>
+<tr><td>B7</td><td>16.5 m</td><td class="amb">RESTRICTED</td><td class="grn">Operational</td><td>CMA CGM</td></tr>
+<tr><td>B1-B5</td><td>11.6-15 m</td><td class="grn">Op</td><td class="grn">Op</td><td>Feeder / shortsea</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Queue After Reopening (T+22 hr)</div>
+<div class="vr"><span class="l">Position 1</span><span class="v amb">Vessel A (ULCV · 19,000 TEU · 16 hr discharge)</span></div>
+<div class="vr"><span class="l">Position 2</span><span class="v amb">Vessel B (8,500 TEU · 11 hr discharge)</span></div>
+<div class="vr"><span class="l">Position 3</span><span class="v red">MV Ellerman Trader (7,500 TEU · 10 hr discharge)</span></div>
+<div class="vr"><span class="l">Crane allocation</span><span class="v amb">4 quay cranes · 32 moves/hr combined</span></div>
+<div class="vr"><span class="l">Ellerman Trader berth start</span><span class="v red">T+52 hr</span></div>
+<div class="vr"><span class="l">Discharge complete</span><span class="v red">T+62 hr (24 Apr ~22:00 BST)</span></div>
+</div>
+<p>Berths 8-9 are Felixstowe's deepest (18 m) – the only two that handle ultra-large vessels. Storm Fergus closure and subsequent queue push discharge completion to <strong>T+62 hr</strong>. London Gateway diversion saves 22 hr of the 62.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Port of Felixstowe VTS</span><span class="pt">Ellerman Lines</span><span class="pt">MarineTraffic AIS</span><span class="pt">Esri Maritime</span></div></div>`,
+chips: chipSets.vessel },
+
+"carrier and customer notifications": {
+content: `<p><strong>📧 NOTIFICATIONS – Customer &amp; Carrier Comms (Pre-Populated)</strong></p>
+<div class="vb"><div class="vt">Auto-Drafted Customer Notifications</div>
+<div class="vr"><span class="l">Client A (47 boxes · Tier 1)</span><span class="v amb">JIT line advisory – draft ready</span></div>
+<div class="vr"><span class="l">Client B (62 boxes · grocer)</span><span class="v">DC slot reschedule – draft ready</span></div>
+<div class="vr"><span class="l">Client C (18 boxes · pharma)</span><span class="v red">Urgent temp-excursion advisory · MHRA cc – draft ready</span></div>
+<div class="vr"><span class="l">Client D (6 boxes · MoD)</span><span class="v amb">Chain-of-custody continuity – draft ready</span></div>
+<div class="vr"><span class="l">Clients E-F (55 boxes)</span><span class="v">Standard delay advisory – bulk draft ready</span></div>
+<div class="vr"><span class="l">42 other customers</span><span class="v">Templated advisory – auto-scheduled per SLA</span></div>
+</div>
+<div class="vb"><div class="vt">Carrier / Port Comms</div>
+<div class="vr"><span class="l">Ellerman Lines (internal)</span><span class="v">Diversion approval · vessel Master briefed</span></div>
+<div class="vr"><span class="l">DP World London Gateway</span><span class="v grn">Berth request lodged · 2 windows held</span></div>
+<div class="vr"><span class="l">Port of Felixstowe</span><span class="v">Slot cancel notice · queue reposition</span></div>
+<div class="vr"><span class="l">DP World Southampton</span><span class="v">Secondary enquiry · 1 window confirmed</span></div>
+</div>
+<p><strong>Personalisation by customer tier.</strong> Tier 1 bespoke templates with specific SKUs and DC windows. Tier 2 standardised. All drafted from live manifest data. Group COO reviews 47 notifications in one queue; Nexus routes each to the correct subsidiary's CRM with the right brand footer (Uniserve, Kemball, Wineflow).</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Uniserve CRM</span><span class="pt">Kemball Portal</span><span class="pt">Wineflow Client Hub</span><span class="pt">Ellerman VOC</span></div></div>`,
+chips: chipSets.vessel },
+
+
+"total exposure across customer book": {
+content: `<p><strong>💷 TOTAL EXPOSURE – Group Customer Book</strong></p>
+<div class="vb"><div class="vt">Direct Financial Impact</div>
+<div class="vr"><span class="l">Automotive JIT line-stop penalties</span><span class="v red">£6.7M</span></div>
+<div class="vr"><span class="l">Pharma cold-chain spoilage (18 boxes)</span><span class="v red">£4.2M</span></div>
+<div class="vr"><span class="l">FMDC missed DC slot penalties</span><span class="v amb">£2.8M</span></div>
+<div class="vr"><span class="l">Retail stockout and expedited freight</span><span class="v amb">£2.1M</span></div>
+<div class="vr"><span class="l">MoD contract SLA credits</span><span class="v amb">£1.2M</span></div>
+<div class="vr"><span class="l">Port demurrage and container detention</span><span class="v">£0.9M</span></div>
+<div class="vr"><span class="l">Carrier deviation surcharges</span><span class="v">£0.8M</span></div>
+<div class="vr" style="border-top:1px solid var(--border-accent);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--text-primary)">Direct subtotal</span><span class="v red" style="font-size:13px">£18.7M</span></div>
+</div>
+<div class="vb"><div class="vt">Regulatory and SLA Overlay</div>
+<div class="vr"><span class="l">HMRC CDS late-entry penalties</span><span class="v amb">£0.6M</span></div>
+<div class="vr"><span class="l">MHRA cold-chain deviation reporting</span><span class="v amb">£0.4M</span></div>
+<div class="vr"><span class="l">Tier-1 customer contractual SLA</span><span class="v red">£1.1M</span></div>
+<div class="vr"><span class="l">EPR / Beyondly carbon threshold miss</span><span class="v">£0.2M</span></div>
+<div class="vr" style="border-top:1px solid var(--border-accent);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--text-primary)">SLA / regulatory subtotal</span><span class="v amb" style="font-size:13px">£2.3M</span></div>
+</div>
+<div class="vb" style="border-color:rgba(212,175,55,0.4)"><div class="vt" style="color:var(--accent-gold)">TOTAL EXPOSURE · 47 CUSTOMERS · 318 CONTAINERS</div>
+<div class="vr"><span class="l" style="font-weight:700;color:var(--text-primary)">Group exposure</span><span class="v red" style="font-size:16px">£21.0M</span></div>
+</div>
+<div class="vb"><div class="vt">Proactive Mitigation Package</div>
+<div class="vr"><span class="l">Divert 92 boxes to London Gateway</span><span class="v grn">£185K</span></div>
+<div class="vr"><span class="l">Air-freight 18 pharma via Heathrow</span><span class="v grn">£236K</span></div>
+<div class="vr"><span class="l">Emergency haulage reassignment (Kemball)</span><span class="v grn">£64K</span></div>
+<div class="vr" style="border-top:1px solid var(--border-accent);padding-top:6px;margin-top:4px"><span class="l" style="font-weight:700;color:var(--text-primary)">Total mitigation</span><span class="v grn" style="font-size:13px">£485K</span></div>
+</div>
+<div class="an"><div class="ah">⚡ Net Protection</div>
+<div class="ab2"><strong>£485K of mitigation spend protects £20.5M.</strong> ROI <strong>43:1</strong>. Residual £0.5M absorbed by SLA-credit clauses and carrier deviation reimbursement. Every figure is traceable to a specific subsidiary's operational system.</div></div>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Uniserve Finance</span><span class="pt">Kemball TMS</span><span class="pt">FMDC WMS</span><span class="pt">Wineflow</span><span class="pt">Customs Insights</span><span class="pt">MHRA</span><span class="pt">Ellerman Lines</span><span class="pt">Beyondly Carbon</span></div></div>`,
+chips: chipSets.initial },
+
+"customs and cds compliance status": {
+content: `<p><strong>📋 CUSTOMS AND CDS – Degraded Service Cascade</strong></p>
+<div class="vb"><div class="vt">HMRC Customs Declaration Service (CDS)</div>
+<div class="vr"><span class="l">Nominal processing</span><span class="v">90 seconds per declaration</span></div>
+<div class="vr"><span class="l">Current processing</span><span class="v red">23 minutes per declaration (≈15× slower)</span></div>
+<div class="vr"><span class="l">Cause</span><span class="v amb">HMRC-confirmed service degradation · 14:10 BST</span></div>
+<div class="vr"><span class="l">GB Global entries queued</span><span class="v red">47 priority · 318 total in window</span></div>
+<div class="vr"><span class="l">Pre-arrival ENS / S&amp;S GB</span><span class="v amb">Mandatory since 31 Jan 2025</span></div>
+<div class="vr"><span class="l">ICS2 (EU-bound exports)</span><span class="v amb">In force for road/rail since Sep 2025 · 47 at risk</span></div>
+</div>
+<div class="vb"><div class="vt">BTOM Border Target Operating Model – Physical Check Forecast</div>
+<table class="tb">
+<tr><th>Risk Band</th><th>Commodity</th><th>GB Global Boxes</th><th>BCP Forecast</th></tr>
+<tr><td class="h">HIGH</td><td>POAO, live plants</td><td>0</td><td class="grn">N/A this vessel</td></tr>
+<tr><td class="h">MEDIUM</td><td>Meat, dairy products</td><td>3</td><td class="amb">ID / docs check likely</td></tr>
+<tr><td class="h">LOW</td><td>Processed foods, textiles</td><td>38</td><td class="grn">Documentary only</td></tr>
+<tr><td class="h">SPS (IPAFFS)</td><td>9 pre-notified</td><td>9</td><td class="amb">1 random physical</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Cold-Chain at Temperature Risk</div>
+<div class="vr"><span class="l">Pharma boxes (2-8°C)</span><span class="v red">18 containers · 432 pallets · Wineflow monitoring</span></div>
+<div class="vr"><span class="l">Current reefer temp</span><span class="v grn">3.2°C (within range)</span></div>
+<div class="vr"><span class="l">Battery runtime remaining</span><span class="v amb">11.5 hr (after vessel power cut)</span></div>
+<div class="vr"><span class="l">MHRA deviation trigger</span><span class="v amb">If &gt;8°C for &gt;30 min, GDP deviation logged</span></div>
+<div class="vr"><span class="l">Recommended action</span><span class="v">Air-freight lift (Option C) inside 10 hr</span></div>
+</div>
+<p><strong>The group customs picture.</strong> Customs Insights sees the CDS queue. Wineflow sees the reefer temperatures. Uniserve sees the commercial shipment. Seafast sees the port clearance. <strong>Only Nexus sees all four together</strong> – and routes the correct action to each subsidiary system.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">HMRC CDS</span><span class="pt">Customs Insights</span><span class="pt">ENS / S&amp;S GB</span><span class="pt">IPAFFS</span><span class="pt">Wineflow Temp</span><span class="pt">MHRA GDP</span><span class="pt">Seafast</span></div></div>`,
+chips: chipSets.customs },
+
+"pre populate cds re submissions": {
+content: `<p><strong>📋 CDS RE-SUBMISSION PACK – 47 Priority Entries Pre-Populated</strong></p>
+<div class="vb"><div class="vt">Priority Queue by Consignment Type</div>
+<table class="tb">
+<tr><th>Priority</th><th>Count</th><th>Procedure</th><th>Action</th></tr>
+<tr><td class="h">P1 Pharma (MHRA)</td><td class="red">18</td><td>4000 · home use</td><td>Pre-submit · PVA flag</td></tr>
+<tr><td class="h">P1 Automotive JIT</td><td class="amb">14</td><td>4000 / 4071 · IPR</td><td>Pre-lodge · TCA origin</td></tr>
+<tr><td class="h">P2 MoD contract</td><td class="amb">6</td><td>4400 · end-use relief</td><td>Chain-of-custody cert</td></tr>
+<tr><td class="h">P2 Wine (excise)</td><td>9</td><td>0701 · warehousing</td><td>Auto-route bonded</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Sample Pre-Populated Entry – Automotive JIT</div>
+<div class="vr"><span class="l">Declaration Type</span><span class="v">IM A – Frontier standard</span></div>
+<div class="vr"><span class="l">Procedure Code</span><span class="v">4000 (free circulation)</span></div>
+<div class="vr"><span class="l">Commodity (HS)</span><span class="v">8708.99.97 – auto parts</span></div>
+<div class="vr"><span class="l">EORI (importer)</span><span class="v">GB [pre-filled from CRM]</span></div>
+<div class="vr"><span class="l">Preference (TCA)</span><span class="v grn">Origin EU · preference claimed</span></div>
+<div class="vr"><span class="l">VAT</span><span class="v">Postponed VAT Accounting (PVA) flag set</span></div>
+<div class="vr"><span class="l">Safety &amp; Security</span><span class="v">ENS pre-arrival filed · S&amp;S GB ref matched</span></div>
+<div class="vr"><span class="l">Supporting docs</span><span class="v">Commercial invoice · packing list · origin decl</span></div>
+</div>
+<div class="vb"><div class="vt">Expected Outcomes</div>
+<div class="vr"><span class="l">47 priority entries pre-lodged</span><span class="v grn">Queue jump when CDS recovers</span></div>
+<div class="vr"><span class="l">TRE audit-ready logging</span><span class="v grn">Full trail for HMRC TRE</span></div>
+<div class="vr"><span class="l">BTOM BCP Inspection</span><span class="v amb">3 medium-risk pre-flagged to APHA</span></div>
+<div class="vr"><span class="l">AEO status</span><span class="v grn">Exceptional circumstances note logged</span></div>
+<div class="vr"><span class="l">Group-wide visibility</span><span class="v">All subsidiaries see status in their own system</span></div>
+</div>
+<p><strong>The broker queue is now pre-aligned.</strong> When HMRC CDS recovers, Customs Insights doesn't re-type 47 declarations – Nexus has already drafted them from the Ellerman Lines manifest, the Uniserve commercial data, the Wineflow temperature log, and the Seafast clearance queue. Supervisor signs; Customs Insights submits.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">HMRC CDS</span><span class="pt">Customs Insights</span><span class="pt">Uniserve One World GTM</span><span class="pt">Ellerman Manifest</span><span class="pt">TRE</span><span class="pt">UK Trade Tariff</span></div></div>`,
+chips: chipSets.customs },
+
+
+"felixstowe terminal and fmdc impact": {
+content: `<p><strong>🏭 FELIXSTOWE TERMINAL + FMDC – Port-Centric Disruption</strong></p>
+<p style="font-size:12px; color:var(--text-dim); margin-bottom:8px;">Port context: Hutchison Ports operates the Port of Felixstowe (Trinity and Landguard terminals, 9 deep-water berths). Berths 8–9 were deepened to 18 m below chart datum to accept ultra-large container vessels.</p>
+<div class="vb"><div class="vt">Trinity Terminal Status</div>
+<div class="vr"><span class="l">Berths 8-9 (deep-water 18 m)</span><span class="v red">CLOSED – 14 hr storm window</span></div>
+<div class="vr"><span class="l">Berths 6-7 (post-Panamax)</span><span class="v amb">RESTRICTED – partial crane ops</span></div>
+<div class="vr"><span class="l">Berths 1-5 (feeder)</span><span class="v grn">OPERATIONAL</span></div>
+<div class="vr"><span class="l">Yard utilisation</span><span class="v red">91% (nominal 72%)</span></div>
+<div class="vr"><span class="l">Moves per crane per hour</span><span class="v amb">32 (nominal 28 · elevated)</span></div>
+<div class="vr"><span class="l">Projected backlog</span><span class="v red">127% yard saturation · gridlock risk</span></div>
+</div>
+<div class="vb"><div class="vt">Felixstowe Mega DC (Uniserve FMDC · 750,000 sq ft)</div>
+<div class="vr"><span class="l">Location</span><span class="v">Quarter-mile from Trinity · port-centric</span></div>
+<div class="vr"><span class="l">Ambient zone</span><span class="v">650,000 sq ft · pallet + narrow-aisle</span></div>
+<div class="vr"><span class="l">Cold store / freezer</span><span class="v">100,000 sq ft · 2-8°C pharma-grade</span></div>
+<div class="vr"><span class="l">Inbound slots missed</span><span class="v red">127 · 4 customer brands affected</span></div>
+<div class="vr"><span class="l">Recoverable in T+72 hr</span><span class="v amb">78 slots (extended hours)</span></div>
+<div class="vr"><span class="l">Residual slot loss</span><span class="v red">49 slots · £2.8M penalty exposure</span></div>
+</div>
+<div class="vb"><div class="vt">Rail and Road Egress</div>
+<div class="vr"><span class="l">Felixstowe Rail Terminal</span><span class="v amb">15 UK intermodal · 2 paths cancelled</span></div>
+<div class="vr"><span class="l">A14 westbound (Midlands)</span><span class="v amb">47% HGV capacity · 18 hr squeeze</span></div>
+<div class="vr"><span class="l">Copdock interchange</span><span class="v">Normal flow post-storm</span></div>
+<div class="vr"><span class="l">Kemball fleet at port</span><span class="v">82 tractors · 47 active · 35 on yard</span></div>
+</div>
+<p>FMDC's port-centric geography is normally GB Global's competitive edge – containers travel a quarter-mile rather than 80. In this event it's also the compression point: 127 inbound slots were sequenced against vessel schedules that no longer hold. Nexus re-sequences the WMS schedule against revised vessel data while Kemball's TMS flexes driver shifts to match.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Port of Felixstowe VTS</span><span class="pt">FMDC WMS</span><span class="pt">Kemball TMS</span><span class="pt">HERE Traffic (A14)</span><span class="pt">Esri UK Rail Layer</span><span class="pt">Baron Weather</span></div></div>`,
+chips: chipSets.terminal },
+
+"fmdc slot reallocation plan": {
+content: `<p><strong>📅 FMDC SLOT REALLOCATION – 127 Inbound Slots Resequenced</strong></p>
+<div class="vb"><div class="vt">Reallocation by Customer Tier</div>
+<table class="tb">
+<tr><th>Tier</th><th>Slots</th><th>Recovery Plan</th><th>Residual</th></tr>
+<tr><td class="h red">Tier 1 (SLA-bound)</td><td>47</td><td>Extended gate hours · priority turn</td><td class="grn">0 lost</td></tr>
+<tr><td class="h amb">Tier 2 (standard)</td><td>49</td><td>Shift to T+48 to T+72 window</td><td class="grn">0 lost</td></tr>
+<tr><td class="h">Tier 3 (flexible)</td><td>31</td><td>Reschedule T+96 + auto-advise</td><td class="amb">Deferred (no penalty)</td></tr>
+<tr><td class="h red">Critical cold-chain</td><td>8</td><td>Pharma zone priority · Wineflow direct</td><td class="grn">0 lost</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Gate and Dock Dynamics</div>
+<div class="vr"><span class="l">Nominal dock doors</span><span class="v">78 inbound · 62 outbound</span></div>
+<div class="vr"><span class="l">Extended hours approved</span><span class="v grn">04:00-02:00 for 72 hr</span></div>
+<div class="vr"><span class="l">Capacity uplift</span><span class="v grn">+38% slot availability</span></div>
+<div class="vr"><span class="l">MHE and labour</span><span class="v amb">Agency top-up · 14 VNA + 8 reach-truck</span></div>
+<div class="vr"><span class="l">Customer confirmations</span><span class="v">Auto-sent via Uniserve CRM · 96 confirmed</span></div>
+</div>
+<p>FMDC's WMS schedule and Kemball's haulage schedule normally run independently. Nexus co-schedules them against revised vessel ETAs, pushing new slot times back into both systems. Warehouse manager sees it in the WMS; fleet controller sees it in the TMS.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">FMDC WMS</span><span class="pt">Kemball TMS</span><span class="pt">Uniserve CRM</span><span class="pt">Ellerman Manifest</span><span class="pt">Wineflow</span></div></div>`,
+chips: chipSets.terminal },
+
+"container dwell and demurrage forecast": {
+content: `<p><strong>⏱️ DWELL &amp; DEMURRAGE FORECAST – 72 Hour Horizon</strong></p>
+<div class="vb"><div class="vt">Container Dwell Exposure</div>
+<div class="vr"><span class="l">Free time (average carrier)</span><span class="v">3 days port demurrage + 5 days detention</span></div>
+<div class="vr"><span class="l">Containers in dwell risk</span><span class="v amb">218 of 318</span></div>
+<div class="vr"><span class="l">First demurrage trigger</span><span class="v amb">T+58 hr – first 47 boxes</span></div>
+<div class="vr"><span class="l">Peak demurrage exposure</span><span class="v red">T+96 hr – 172 boxes</span></div>
+<div class="vr"><span class="l">Per-day rate (avg)</span><span class="v">£42 per container day</span></div>
+<div class="vr"><span class="l">Total demurrage forecast</span><span class="v red">£0.7M if unmitigated</span></div>
+<div class="vr"><span class="l">Detention forecast</span><span class="v amb">£0.2M (Kemball fleet recovery)</span></div>
+</div>
+<div class="vb"><div class="vt">Mitigation Levers</div>
+<div class="vr"><span class="l">Priority discharge at LGW</span><span class="v grn">Frees 92 boxes · £0.3M avoided</span></div>
+<div class="vr"><span class="l">FMDC extended hours</span><span class="v grn">Faster turn · £0.2M saved</span></div>
+<div class="vr"><span class="l">Kemball pre-positioned drivers</span><span class="v grn">£0.1M detention avoided</span></div>
+<div class="vr"><span class="l">Carrier deviation credit</span><span class="v grn">Ellerman negotiating force majeure</span></div>
+</div>
+<p>The <strong>£0.9M port demurrage and container detention</strong> in the exposure breakdown flows from these dwell mechanics. Mitigation actions across three subsidiaries bring this to <strong>£0.3M residual</strong> – absorbed into the £485K mitigation package.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Ellerman Demurrage</span><span class="pt">Port of Felixstowe Billing</span><span class="pt">Kemball Fleet TMS</span><span class="pt">Uniserve Finance</span></div></div>`,
+chips: chipSets.terminal },
+
+"storm fergus weather cascade": {
+content: `<p><strong>🌩️ STORM FERGUS – North Sea Approach Cascade</strong></p>
+<div class="vb"><div class="vt">Meteorological Profile</div>
+<div class="vr"><span class="l">System</span><span class="v">Storm Fergus (UK Met Office / KNMI joint name)</span></div>
+<div class="vr"><span class="l">Current centre</span><span class="v red">53.2°N 2.1°E · moving SE 28 kt</span></div>
+<div class="vr"><span class="l">Wind at Felixstowe</span><span class="v red">55 kt sustained · gusts to 72 kt</span></div>
+<div class="vr"><span class="l">Swell (North Sea)</span><span class="v amb">5.2 m significant wave height</span></div>
+<div class="vr"><span class="l">Storm surge (East Coast)</span><span class="v amb">+0.8 m above astronomical tide</span></div>
+<div class="vr"><span class="l">Peak window</span><span class="v red">14:00 - 04:00 BST (14 hr)</span></div>
+<div class="vr"><span class="l">Easing</span><span class="v amb">By 06:00 BST · residual 35 kt gusts</span></div>
+</div>
+<div class="vb"><div class="vt">Operational Thresholds Breached</div>
+<div class="vr"><span class="l">Port of Felixstowe</span><span class="v red">Berths 8-9 close at sustained 45 kt (STS crane limit)</span></div>
+<div class="vr"><span class="l">Landguard Terminal</span><span class="v amb">Partial ops at 35-45 kt</span></div>
+<div class="vr"><span class="l">Dover ferry</span><span class="v red">Cross-Channel sailings suspended</span></div>
+<div class="vr"><span class="l">Harwich ferry</span><span class="v amb">Reduced capacity (Stena Line)</span></div>
+<div class="vr"><span class="l">A12 / A14 East Coast</span><span class="v amb">HGV tipping risk · 47% capacity</span></div>
+</div>
+<p>Baron Weather feeds give Nexus the forecast wind, swell, and surge profile hours before the UK Met Office public shipping warning. That is how the cascade was identified <strong>36 hours ahead</strong> of the carrier's own ETA update – AIS data refreshes on actual position; weather data forecasts the future.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Baron Weather</span><span class="pt">UK Met Office</span><span class="pt">KNMI</span><span class="pt">MetOcean Routing</span><span class="pt">Esri Climate Risk</span></div></div>`,
+chips: chipSets.terminal },
+
+"rail and road egress from quay": {
+content: `<p><strong>🛤️ RAIL &amp; ROAD EGRESS – Hinterland Connectivity</strong></p>
+<div class="vb"><div class="vt">Felixstowe Rail Terminal</div>
+<div class="vr"><span class="l">Destinations served</span><span class="v">15 UK intermodal locations</span></div>
+<div class="vr"><span class="l">Daily paths (nominal)</span><span class="v">31 freight paths · W10/W12 gauge</span></div>
+<div class="vr"><span class="l">Paths cancelled (storm)</span><span class="v amb">2 paths (WCML wind restriction)</span></div>
+<div class="vr"><span class="l">GB Global intermodal boxes</span><span class="v">24 per day typical · 18 on backlog</span></div>
+<div class="vr"><span class="l">Recovery window</span><span class="v grn">T+18 hr when wind drops below 35 kt</span></div>
+</div>
+<div class="vb"><div class="vt">A14 Road Corridor (Felixstowe → Midlands)</div>
+<div class="vr"><span class="l">Nominal HGV flow</span><span class="v">4,800 HGV per day westbound</span></div>
+<div class="vr"><span class="l">Current capacity</span><span class="v amb">47% (2,256 HGV) · 18 hr squeeze</span></div>
+<div class="vr"><span class="l">Kemball drivers at port</span><span class="v grn">47 drivers · 12 owner-drivers on call</span></div>
+<div class="vr"><span class="l">Alternative: A12 → M25</span><span class="v amb">+90 min transit · south-bound viable</span></div>
+<div class="vr"><span class="l">Alternative: A14 → A1(M) north</span><span class="v grn">Normal · South Kirkby / Warrington</span></div>
+</div>
+<p>The A14 is the single chokepoint between Felixstowe and the UK hinterland. 47% capacity across 18 hours means haulage allocation must be prioritised by SLA tier – Nexus does this automatically from the Kemball TMS, not by spreadsheet.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Kemball TMS</span><span class="pt">HERE Traffic (A14)</span><span class="pt">Network Rail Freight</span><span class="pt">DVSA</span><span class="pt">Baron Weather</span></div></div>`,
+chips: chipSets.terminal },
+
+
+"customs insights brokerage queue": {
+content: `<p><strong>🏛️ CUSTOMS INSIGHTS – Brokerage Queue Status</strong></p>
+<div class="vb"><div class="vt">Active Queue (Customs Insights broker system)</div>
+<div class="vr"><span class="l">Total entries in window</span><span class="v">318 declarations (this event)</span></div>
+<div class="vr"><span class="l">P1 Priority (pharma · auto · MoD)</span><span class="v red">47 entries</span></div>
+<div class="vr"><span class="l">P2 Standard (general retail)</span><span class="v amb">233 entries</span></div>
+<div class="vr"><span class="l">P3 Deferred (flexible)</span><span class="v">38 entries</span></div>
+<div class="vr"><span class="l">Broker FTE on shift</span><span class="v">12 of 16 · extended to 02:00</span></div>
+<div class="vr"><span class="l">Declarations per FTE-hr (nominal)</span><span class="v">24</span></div>
+<div class="vr"><span class="l">Declarations per FTE-hr (today)</span><span class="v amb">7 (CDS latency-bound)</span></div>
+</div>
+<div class="vb"><div class="vt">Authorisations and Simplifications in Play</div>
+<div class="vr"><span class="l">AEO Full (Customs Insights)</span><span class="v grn">Active · simplified procedures available</span></div>
+<div class="vr"><span class="l">CFSP (Customs Freight Simplified)</span><span class="v grn">78 entries eligible · frontier + supp</span></div>
+<div class="vr"><span class="l">PVA (Postponed VAT)</span><span class="v grn">All importers VAT-registered</span></div>
+<div class="vr"><span class="l">IPR (Inward Processing Relief)</span><span class="v amb">4 automotive · re-export within 6 months</span></div>
+</div>
+<p>Customs Insights is the GB Global in-group brokerage. AEO Full status means simplified procedures most competitors don't have. Nexus surfaces which shipments qualify for CFSP and routes those through frontier declaration + supplementary – cutting effective CDS processing burden by ~40% for eligible cargo.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Customs Insights</span><span class="pt">HMRC CDS</span><span class="pt">AEO Register</span><span class="pt">CFSP</span><span class="pt">Uniserve Master Data</span></div></div>`,
+chips: chipSets.customs },
+
+"btom physical check forecast": {
+content: `<p><strong>🧪 BTOM PHYSICAL CHECK FORECAST</strong></p>
+<div class="vb"><div class="vt">Border Target Operating Model – Risk Categorisation</div>
+<table class="tb">
+<tr><th>Risk</th><th>Commodity Type</th><th>GB Global</th><th>Forecast Checks</th></tr>
+<tr><td class="h red">HIGH</td><td>POAO, live animals, plants</td><td>0 boxes</td><td class="grn">None triggered</td></tr>
+<tr><td class="h amb">MEDIUM</td><td>Meat, dairy, fish</td><td>3 boxes</td><td class="amb">1 identity + 1 physical likely</td></tr>
+<tr><td class="h">LOW</td><td>Processed foods, textiles</td><td>38 boxes</td><td class="grn">Documentary only</td></tr>
+<tr><td class="h amb">SPS (IPAFFS)</td><td>Pre-notified</td><td>9 boxes</td><td class="amb">1 random physical (6%)</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Border Control Post (BCP) – Felixstowe</div>
+<div class="vr"><span class="l">Examination bays</span><span class="v">3 (cold · ambient · aggregate)</span></div>
+<div class="vr"><span class="l">APHA officers on shift</span><span class="v">4 · extended hours post-storm</span></div>
+<div class="vr"><span class="l">Average physical check</span><span class="v">38 min per consignment</span></div>
+<div class="vr"><span class="l">Expected GB Global checks</span><span class="v amb">3 boxes · ~2 hr total staggered</span></div>
+</div>
+<div class="vb"><div class="vt">Pre-Notification Status (IPAFFS)</div>
+<div class="vr"><span class="l">Pre-notifications filed</span><span class="v grn">9 of 9 (within 24-hr deadline)</span></div>
+<div class="vr"><span class="l">Export Health Certificates</span><span class="v grn">All present and digitised</span></div>
+<div class="vr"><span class="l">Phyto certificates</span><span class="v grn">3 of 3 present</span></div>
+<div class="vr"><span class="l">Temperature certificates</span><span class="v grn">18 of 18 from Wineflow log</span></div>
+</div>
+<p>BTOM is fully in force across 2026 with S&amp;S GB declarations mandatory for EU goods. Wineflow temperature certificates and Customs Insights IPAFFS pre-notifications give the lowest-risk check probability profile. Nexus tracks the 3 likely check events and pre-routes paperwork to APHA officers on shift.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">BTOM (GOV.UK)</span><span class="pt">IPAFFS</span><span class="pt">APHA</span><span class="pt">Customs Insights</span><span class="pt">Wineflow</span></div></div>`,
+chips: chipSets.customs },
+
+"pharma cold chain escalation": {
+content: `<p><strong>❄️ PHARMA COLD-CHAIN – MHRA Escalation Path</strong></p>
+<div class="vb"><div class="vt">Cold-Chain Containers at Risk (18 boxes · 432 pallets)</div>
+<div class="vr"><span class="l">Cargo</span><span class="v">Biologics · vaccines · fill-finish</span></div>
+<div class="vr"><span class="l">Specification</span><span class="v">2-8°C · GDP-compliant · MHRA-regulated</span></div>
+<div class="vr"><span class="l">Current reefer temperature</span><span class="v grn">3.2°C (within spec)</span></div>
+<div class="vr"><span class="l">Reefer battery remaining</span><span class="v amb">11.5 hr (post vessel-power cut)</span></div>
+<div class="vr"><span class="l">Plug-in required by</span><span class="v amb">T+11 hr (01:52 BST)</span></div>
+<div class="vr"><span class="l">Wineflow monitoring</span><span class="v grn">Real-time · 30-second polling</span></div>
+</div>
+<div class="vb"><div class="vt">Option Analysis</div>
+<div class="vr"><span class="l">A – Hold on vessel until berth</span><span class="v red">Battery depletes T+11.5 · GDP deviation</span></div>
+<div class="vr"><span class="l">B – Reefer plugs at LGW</span><span class="v amb">Feasible T+8 · DP World coordination</span></div>
+<div class="vr"><span class="l">C – Air-freight priority lift</span><span class="v grn">Recommended · 2 freighter slots LHR</span></div>
+</div>
+<div class="vb"><div class="vt">MHRA GDP Deviation Path (if triggered)</div>
+<div class="vr"><span class="l">Threshold</span><span class="v">&gt;8°C or &lt;2°C for &gt;30 min = deviation</span></div>
+<div class="vr"><span class="l">QP (Qualified Person) review</span><span class="v">Required within 24 hr if excursion</span></div>
+<div class="vr"><span class="l">Commercial impact if reject</span><span class="v red">£4.2M if all 18 boxes fail stability</span></div>
+<div class="vr"><span class="l">Commercial impact if salvage</span><span class="v amb">£0.4M (stability data + retest)</span></div>
+</div>
+<p><strong>Recommendation: Option C – air-freight priority lift within 10 hours.</strong> Uniserve air team has 2 freighter slots at LHR. Wineflow routes temp-log directly to MHRA portal during transit. Customs Insights pre-files a simplified declaration using PVA.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Wineflow Temp Monitor</span><span class="pt">MHRA GDP</span><span class="pt">Uniserve Air Freight</span><span class="pt">Customs Insights</span><span class="pt">Ellerman Reefer Log</span></div></div>`,
+chips: chipSets.customs },
+
+"efret european lane pressure": {
+content: `<p><strong>🇪🇺 EFRET EUROPEAN ROAD – Lane Pressure Analysis</strong></p>
+<div class="vb"><div class="vt">EFRET Cross-Channel Status</div>
+<div class="vr"><span class="l">Nominal daily loads (UK→EU)</span><span class="v">142 trailers</span></div>
+<div class="vr"><span class="l">GB Global export slots at risk</span><span class="v amb">47</span></div>
+<div class="vr"><span class="l">Dover sailing status</span><span class="v red">DFDS / P&amp;O suspended (wind)</span></div>
+<div class="vr"><span class="l">Expected recovery</span><span class="v grn">T+10 hr (sea state easing)</span></div>
+<div class="vr"><span class="l">Eurotunnel alternative</span><span class="v grn">Operating normally · shuttles available</span></div>
+</div>
+<div class="vb"><div class="vt">ICS2 (EU-bound) – Pre-Arrival Filings</div>
+<div class="vr"><span class="l">ICS2 in force for road freight since Sep 2025</span><span class="v amb">ENS required for all EU-bound road freight</span></div>
+<div class="vr"><span class="l">EFRET filing status</span><span class="v grn">47 ENS pre-filed · EU risk analysis in progress</span></div>
+<div class="vr"><span class="l">HS code accuracy</span><span class="v grn">100% (Customs Insights validated)</span></div>
+<div class="vr"><span class="l">Office of First Entry</span><span class="v">Calais + Dunkirk (2 OFEs filed)</span></div>
+</div>
+<div class="vb"><div class="vt">Alternative Routing – Rotterdam Hub</div>
+<div class="vr"><span class="l">Ellerman Trader previous call</span><span class="v">Rotterdam (discharged pan-EU cargo)</span></div>
+<div class="vr"><span class="l">GB Global Rotterdam office</span><span class="v grn">Active · shortsea feeder capacity</span></div>
+<div class="vr"><span class="l">Onward rail to DE/AT/CH</span><span class="v grn">Available · 18 hr rail bridge</span></div>
+<div class="vr"><span class="l">Wineflow temp-controlled viable</span><span class="v grn">Yes · reefer plug continuity at ROT</span></div>
+</div>
+<p>ICS2 has been in force for EU-bound road freight since <strong>1 September 2025</strong> – our EU-bound road freight already files ENS via EFRET before the shipment departs. That preserves our risk profile with EU customs while Dover is shut.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">EFRET Dispatch</span><span class="pt">Eurotunnel Le Shuttle</span><span class="pt">DFDS Ferries</span><span class="pt">ICS2 (EU)</span><span class="pt">Wineflow Reefer Log</span><span class="pt">Rotterdam Office</span></div></div>`,
+chips: chipSets.haulage },
+
+"generate dispatch work order": {
+content: `<p><strong>📋 DISPATCH WORK ORDER – James Kemball Fleet</strong></p>
+<div class="wo"><div class="wo-h">WO-2026-KEM-0423 – P1 FLEET REASSIGNMENT</div>
+<div class="wo-f"><span class="wl">Issued</span><span class="wv">14:45 BST · 23 Apr 2026</span></div>
+<div class="wo-f"><span class="wl">Event</span><span class="wv">MV Ellerman Trader cascade · Felixstowe → LGW diversion</span></div>
+<div class="wo-f"><span class="wl">Drivers reassigned</span><span class="wv">47 from Felixstowe pool</span></div>
+<div class="wo-f"><span class="wl">Owner-drivers activated</span><span class="wv">12 on 4-hr callout</span></div>
+<div class="wo-f"><span class="wl">Equipment</span><span class="wv">27 skeletals · 8 reefer trailers · 12 flatbeds</span></div>
+<div class="wo-f"><span class="wl">SLA priority</span><span class="wv">Tier 1 first (47 automotive + 18 pharma + 6 MoD)</span></div>
+<div class="wo-f"><span class="wl">DVSA compliance</span><span class="wv">Auto-scheduled breaks · 0 breach risk</span></div>
+<div class="wo-f"><span class="wl">Estimated completion</span><span class="wv">T+36 hr (by 02:45 BST 25 Apr)</span></div>
+</div>
+<p>Pushed to Kemball TMS. Drivers receive manifest on in-cab tablet. Warehouse teams receive revised inbound slot times. Customer portals update automatically.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Kemball TMS</span><span class="pt">Uniserve WMS</span><span class="pt">Customer CRM</span><span class="pt">DVSA Tachograph</span></div></div>`,
+chips: chipSets.haulage },
+
+// ===== European =====
+"european export and alternate routing": {
+content: `<p><strong>🌍 EUROPEAN EXPORT – Alternate Routing Plan</strong></p>
+<div class="vb"><div class="vt">At-Risk Export Slots (next 36 hr)</div>
+<div class="vr"><span class="l">EFRET (Dover / Folkestone → EU)</span><span class="v amb">47 slots</span></div>
+<div class="vr"><span class="l">Wineflow (temp-controlled FR/DE/ES)</span><span class="v amb">14 slots</span></div>
+<div class="vr"><span class="l">Ellerman Lines (shortsea Rotterdam)</span><span class="v grn">8 TEU feeder slots open</span></div>
+<div class="vr"><span class="l">George Baker Shipping (project cargo)</span><span class="v">4 out-of-gauge slots</span></div>
+<div class="vr"><span class="l">UniOcean (container shipping)</span><span class="v">26 TEU · Trans-Atlantic · not affected</span></div>
+</div>
+<div class="vb"><div class="vt">Alternative Port Mapping</div>
+<table class="tb">
+<tr><th>Destination</th><th>Primary (blocked)</th><th>Alternative</th><th>+Time</th></tr>
+<tr><td class="h">France / Benelux</td><td>Dover ferry</td><td class="grn">Eurotunnel Le Shuttle</td><td>Similar</td></tr>
+<tr><td class="h">Germany</td><td>Dover → Calais</td><td class="grn">Harwich → Hook of Holland</td><td>+4 hr</td></tr>
+<tr><td class="h">Spain</td><td>Dover / Portsmouth</td><td class="amb">Santander (Brittany Ferries)</td><td>+24 hr</td></tr>
+<tr><td class="h">Italy</td><td>Dover → land bridge</td><td class="amb">Rotterdam → rail</td><td>+18 hr</td></tr>
+<tr><td>Portugal</td><td>Dover / Portsmouth</td><td class="grn">KLOG shortsea Lisbon</td><td>+2 hr</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Beyondly Carbon Impact (reroutes)</div>
+<div class="vr"><span class="l">Incremental CO₂e (47 reroutes)</span><span class="v amb">+7.2 tCO₂e</span></div>
+<div class="vr"><span class="l">Offset strategy</span><span class="v">Eurotunnel → rail share (lower footprint)</span></div>
+<div class="vr"><span class="l">Net vs baseline</span><span class="v grn">+4.1 tCO₂e · within Q2 EPR threshold</span></div>
+<div class="vr"><span class="l">Customer scope-3 advisory</span><span class="v">Auto-routed to sustainability leads</span></div>
+</div>
+<p>GB Global's own shipping subsidiaries – Ellerman Lines, UniOcean, KLOG – give us feeder and shortsea alternatives that most competitors have to broker externally. This in-group capacity is the differentiator: one call into Nexus, not 47 emails across 8 subsidiaries.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">EFRET Dispatch</span><span class="pt">Wineflow Cold Chain</span><span class="pt">Ellerman Lines</span><span class="pt">KLOG Shortsea</span><span class="pt">Eurotunnel</span><span class="pt">Beyondly Carbon Tracking</span></div></div>`,
+chips: chipSets.european },
+
+"dover and rotterdam alternate capacity": {
+content: `<p><strong>🚢 DOVER ⇌ ROTTERDAM – Alternate Capacity Matrix</strong></p>
+<div class="vb"><div class="vt">Dover Status</div>
+<div class="vr"><span class="l">DFDS sailings</span><span class="v red">Suspended – wind &gt; 45 kt</span></div>
+<div class="vr"><span class="l">P&amp;O Ferries</span><span class="v red">Suspended</span></div>
+<div class="vr"><span class="l">Irish Ferries (Dover-Calais)</span><span class="v red">Suspended</span></div>
+<div class="vr"><span class="l">Expected resume</span><span class="v amb">T+10 hr (sea state forecast)</span></div>
+<div class="vr"><span class="l">Backlog expected</span><span class="v red">1,800 trailers on both sides of Channel</span></div>
+</div>
+<div class="vb"><div class="vt">Alternative: Eurotunnel Le Shuttle Freight</div>
+<div class="vr"><span class="l">Status</span><span class="v grn">Normal service</span></div>
+<div class="vr"><span class="l">Freight shuttles per hour</span><span class="v">Up to 10 (nominal)</span></div>
+<div class="vr"><span class="l">Kemball fleet with tunnel accounts</span><span class="v grn">78 tractors</span></div>
+<div class="vr"><span class="l">GB Global volume absorbed</span><span class="v grn">47 of 47 at-risk trailers</span></div>
+</div>
+<div class="vb"><div class="vt">Alternative: Harwich → Hook of Holland (Stena Line)</div>
+<div class="vr"><span class="l">Status</span><span class="v amb">Reduced capacity</span></div>
+<div class="vr"><span class="l">Distance from Felixstowe</span><span class="v">11 miles · 18 min drive</span></div>
+<div class="vr"><span class="l">Transit to Rotterdam</span><span class="v">7 hr sea + 1 hr road</span></div>
+<div class="vr"><span class="l">Use case</span><span class="v">Germany · NL · shortsea DE/PL/CZ</span></div>
+<div class="vr"><span class="l">GB Global Rotterdam office</span><span class="v grn">Coordinating onward dispatch</span></div>
+</div>
+<p>The Harwich-Hook of Holland route keeps shipments moving when Dover is shut – and Harwich is an 18-minute drive from Felixstowe. Rotterdam office (GB Global overseas presence) coordinates onward rail / road dispatch to DE/AT/CH.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">DFDS Ferries</span><span class="pt">P&amp;O Ferries</span><span class="pt">Eurotunnel</span><span class="pt">Stena Line</span><span class="pt">Rotterdam Office</span><span class="pt">Kemball TMS</span></div></div>`,
+chips: chipSets.european },
+
+"wineflow temperature controlled cargo": {
+content: `<p><strong>❄️ WINEFLOW TEMP-CONTROLLED – 14 Wine + 18 Pharma Boxes</strong></p>
+<div class="vb"><div class="vt">Wineflow Specialism</div>
+<div class="vr"><span class="l">Service</span><span class="v">Specialist temp-controlled wine &amp; spirits logistics</span></div>
+<div class="vr"><span class="l">Temperature spec</span><span class="v">15-18°C (wine) · 2-8°C (pharma)</span></div>
+<div class="vr"><span class="l">Monitoring</span><span class="v">Wireless sensors · 30-sec polling · audit log</span></div>
+<div class="vr"><span class="l">Coverage</span><span class="v">UK · FR · DE · ES · IT · PT</span></div>
+</div>
+<div class="vb"><div class="vt">Wine &amp; Spirits Boxes (14)</div>
+<div class="vr"><span class="l">Wine (bottled · bonded)</span><span class="v">9 containers · excise warehouse-bound</span></div>
+<div class="vr"><span class="l">Spirits (bonded)</span><span class="v">5 containers · HMRC bonded warehouse</span></div>
+<div class="vr"><span class="l">Excise duty deferred</span><span class="v grn">All 14 boxes – excise warehouse procedure</span></div>
+<div class="vr"><span class="l">Temperature profile</span><span class="v grn">16.2°C (within spec)</span></div>
+<div class="vr"><span class="l">Routing priority</span><span class="v amb">Tier 2 · can accept 48-hr delay without quality loss</span></div>
+</div>
+<div class="vb"><div class="vt">Pharma Boxes (18)</div>
+<div class="vr"><span class="l">Specification</span><span class="v">MHRA-regulated biologics · 2-8°C</span></div>
+<div class="vr"><span class="l">Reefer plug continuity</span><span class="v amb">11.5 hr battery margin</span></div>
+<div class="vr"><span class="l">Recommended action</span><span class="v grn">Air-freight via LHR (Option C)</span></div>
+<div class="vr"><span class="l">Wineflow cold-chain escort</span><span class="v grn">2 drivers pre-positioned</span></div>
+<div class="vr"><span class="l">MHRA portal integration</span><span class="v grn">Live temperature feed · audit-ready</span></div>
+</div>
+<p>Wineflow's specialisation is what makes the pharma escalation path viable. A generic 3PL would lose the £4.2M exposure by default; Wineflow's real-time temperature log integrated with MHRA gives us the regulatory coverage to salvage shipments even under deviation.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Wineflow Temp Monitor</span><span class="pt">MHRA Portal</span><span class="pt">HMRC Excise Warehouse</span><span class="pt">Customs Insights</span></div></div>`,
+chips: chipSets.european },
+
+"efret cross channel slot status": {
+content: `<p><strong>🚚 EFRET CROSS-CHANNEL – Slot Status &amp; ICS2 Filings</strong></p>
+<div class="vb"><div class="vt">EFRET Dispatch Queue (next 36 hr)</div>
+<div class="vr"><span class="l">Nominal daily loads (UK → EU)</span><span class="v">142 trailers</span></div>
+<div class="vr"><span class="l">Loads scheduled next 36 hr</span><span class="v">213</span></div>
+<div class="vr"><span class="l">At risk (Dover closure)</span><span class="v amb">47</span></div>
+<div class="vr"><span class="l">Rerouted to Eurotunnel</span><span class="v grn">47 – capacity confirmed</span></div>
+<div class="vr"><span class="l">Additional rerouted (Harwich-HoH)</span><span class="v grn">8 trailers – DE/CZ destinations</span></div>
+</div>
+<div class="vb"><div class="vt">ICS2 Entry Summary Declaration Status</div>
+<div class="vr"><span class="l">ENS filed via EFRET</span><span class="v grn">47 of 47 (EU-bound)</span></div>
+<div class="vr"><span class="l">Filing lead time pre-arrival</span><span class="v grn">Minimum 1 hr road · 2 hr rail (met)</span></div>
+<div class="vr"><span class="l">HS codes validated</span><span class="v grn">Customs Insights pre-check</span></div>
+<div class="vr"><span class="l">Office of First Entry (OFE)</span><span class="v">Calais (22) · Dunkirk (15) · Zeebrugge (10)</span></div>
+<div class="vr"><span class="l">Risk assessment results</span><span class="v grn">All green · no physical holds expected</span></div>
+</div>
+<div class="vb"><div class="vt">UK S&amp;S GB (return flows)</div>
+<div class="vr"><span class="l">Return flow ENS</span><span class="v grn">Pre-filed for 38 returning trailers</span></div>
+<div class="vr"><span class="l">Common Transit / T1</span><span class="v">18 transit movements open · within 8-day limit</span></div>
+</div>
+<p>ICS2 has been in force for EU-bound road and rail movements since <strong>1 September 2025</strong>. EFRET's filing system pre-lodges ENS 90 minutes before departure – Nexus validates HS codes, consignor/consignee EORIs, and Office of First Entry routing against the live dispatch board. When Dover shuts, the ENS data re-routes; we don't re-file from scratch.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">EFRET Dispatch</span><span class="pt">ICS2 (EU)</span><span class="pt">Customs Insights Broker</span><span class="pt">Eurotunnel Freight</span><span class="pt">HMRC CDS (return flows)</span></div></div>`,
+chips: chipSets.european },
+
+"beyondly carbon impact of reroutes": {
+content: `<p><strong>🌱 BEYONDLY – Carbon Impact of Diversions</strong></p>
+<div class="vb"><div class="vt">Baseline vs Diverted – CO₂e Tracking</div>
+<div class="vr"><span class="l">Baseline scope-3 (planned flows)</span><span class="v">187 tCO₂e for this vessel's GB Global cargo</span></div>
+<div class="vr"><span class="l">Diverted scope-3 (actual)</span><span class="v amb">194 tCO₂e</span></div>
+<div class="vr"><span class="l">Delta</span><span class="v amb">+7.2 tCO₂e</span></div>
+<div class="vr"><span class="l">Primary cause</span><span class="v">Air-freight lift (18 pharma boxes via LHR)</span></div>
+<div class="vr"><span class="l">Offset via Eurotunnel rail mode-shift</span><span class="v grn">-3.1 tCO₂e</span></div>
+<div class="vr"><span class="l">Net delta</span><span class="v amb">+4.1 tCO₂e</span></div>
+</div>
+<div class="vb"><div class="vt">Customer Scope-3 Impact</div>
+<div class="vr"><span class="l">Customers with scope-3 reporting SLAs</span><span class="v">12 of 47</span></div>
+<div class="vr"><span class="l">Advisory auto-sent (exception notice)</span><span class="v grn">12 drafted</span></div>
+<div class="vr"><span class="l">Customers with no scope-3 reporting</span><span class="v">35 (no advisory needed)</span></div>
+</div>
+<div class="vb"><div class="vt">EPR &amp; Net-Zero Reporting</div>
+<div class="vr"><span class="l">Q2 2026 EPR threshold</span><span class="v amb">Within tolerance (&lt;2% deviation)</span></div>
+<div class="vr"><span class="l">Beyondly audit trail</span><span class="v grn">Full per-box chain-of-custody logged</span></div>
+<div class="vr"><span class="l">Offset credits available</span><span class="v grn">GB Global internal book · 42 tCO₂e reserve</span></div>
+</div>
+<p>Beyondly (GB Global's sustainability brand) closes the loop: every reroute decision is tagged with its carbon impact, logged against per-customer SLAs, and reconciled with the group's EPR reporting. Diverting to air freight costs more in CO₂e; mode-shifting EU exports to rail claws some back.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Beyondly Carbon Tracking</span><span class="pt">DEFRA Emission Factors</span><span class="pt">Uniserve Air Freight Log</span><span class="pt">Eurotunnel Rail</span><span class="pt">Customer Scope-3 CRM</span></div></div>`,
+chips: chipSets.european },
+
+// ===== Return to overview =====
+"uk haulage and distribution network": {
+content: `<p><strong>🛣️ UK HAULAGE AND DISTRIBUTION – Network View</strong></p>
+<div class="vb"><div class="vt">James Kemball Container Haulage</div>
+<div class="vr"><span class="l">Fleet size</span><span class="v">187 tractors · 342 trailers · UK-wide</span></div>
+<div class="vr"><span class="l">Felixstowe-based</span><span class="v">82 tractors · 47 active today</span></div>
+<div class="vr"><span class="l">Owner-drivers on call</span><span class="v grn">12 · 4-hr callout</span></div>
+<div class="vr"><span class="l">Daily lifts (nominal)</span><span class="v">412</span></div>
+<div class="vr"><span class="l">Daily lifts (forecast)</span><span class="v amb">258 (47% A14 capacity)</span></div>
+<div class="vr"><span class="l">Delayed lifts</span><span class="v amb">154</span></div>
+</div>
+<div class="vb"><div class="vt">Distribution Centres</div>
+<table class="tb">
+<tr><th>Location</th><th>Role</th><th>Status</th><th>Impact</th></tr>
+<tr><td class="h">FMDC Felixstowe</td><td>Uniserve DC</td><td class="amb">Stressed</td><td>127 missed slots</td></tr>
+<tr><td class="h">Warrington</td><td>Retail RDC</td><td class="amb">Stressed</td><td>18 inbound late</td></tr>
+<tr><td class="h">Manchester</td><td>Uniserve DC</td><td class="amb">Stressed</td><td>Downstream</td></tr>
+<tr><td>Northampton</td><td>Retail RDC</td><td class="grn">Normal</td><td>Recovery node</td></tr>
+<tr><td>South Kirkby</td><td>Uniserve DC</td><td class="grn">Normal</td><td>Absorbs slack</td></tr>
+<tr><td>Wolverhampton</td><td>Uniserve DC</td><td class="grn">Normal</td><td>Automotive flow</td></tr>
+<tr><td>Feltham (LHR)</td><td>Air gateway</td><td class="grn">Normal</td><td>Pharma lift path</td></tr>
+<tr><td>Chepstow</td><td>Uniserve DC</td><td class="grn">Normal</td><td>Welsh border</td></tr>
+</table></div>
+<p>Kemball's TMS doesn't know about Uniserve's slot schedule. Uniserve's WMS doesn't know which Kemball driver is actually running. Nexus matches them – every delayed lift gets a new slot, every new slot gets a confirmed driver.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Kemball TMS</span><span class="pt">Uniserve WMS</span><span class="pt">HERE Traffic</span><span class="pt">DVSA</span><span class="pt">Esri UK DC Layer</span></div></div>`,
+chips: chipSets.haulage },
+
+"james kemball fleet availability": {
+content: `<p><strong>🚛 JAMES KEMBALL FLEET – Real-Time Availability</strong></p>
+<div class="vb"><div class="vt">Felixstowe Base – 82 Tractors</div>
+<div class="vr"><span class="l">Active on shift</span><span class="v grn">47</span></div>
+<div class="vr"><span class="l">On rest (DVSA)</span><span class="v amb">18</span></div>
+<div class="vr"><span class="l">In maintenance</span><span class="v">6</span></div>
+<div class="vr"><span class="l">On yard / available</span><span class="v grn">11</span></div>
+<div class="vr"><span class="l">Owner-drivers on call</span><span class="v grn">12</span></div>
+</div>
+<div class="vb"><div class="vt">Priority Reassignment (next 18 hr)</div>
+<div class="vr"><span class="l">Diverted to London Gateway</span><span class="v amb">27 drivers (from Felixstowe yard)</span></div>
+<div class="vr"><span class="l">Activated owner-drivers</span><span class="v grn">12 (callout 19:00 BST)</span></div>
+<div class="vr"><span class="l">Agency top-up</span><span class="v">8 drivers · 14 hr lead</span></div>
+<div class="vr"><span class="l">Automotive JIT (urgent)</span><span class="v red">6 drivers · direct to Solihull / Oxford</span></div>
+<div class="vr"><span class="l">Pharma cold-chain (LHR)</span><span class="v amb">4 drivers · reefer-trained</span></div>
+</div>
+<div class="vb"><div class="vt">Tachograph and DVSA Compliance</div>
+<div class="vr"><span class="l">Drivers at risk of 9-hr breach</span><span class="v amb">14 (auto-scheduled break)</span></div>
+<div class="vr"><span class="l">Drivers approaching weekly limit</span><span class="v">6 (within 56-hr window)</span></div>
+<div class="vr"><span class="l">Nexus-flagged deviations</span><span class="v grn">0 (auto-routed before breach)</span></div>
+</div>
+<p>Kemball's TMS runs its own tachograph compliance. What it doesn't do is know which driver to prioritise for which cargo type – automotive JIT outranks retail, pharma cold-chain outranks both. Nexus overlays SLA tier and customer contract onto Kemball's dispatch board.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">Kemball TMS</span><span class="pt">DVSA Tachograph</span><span class="pt">Uniserve Customer SLA</span><span class="pt">HERE Traffic</span></div></div>`,
+chips: chipSets.haulage },
+
+"a14 corridor reroute options": {
+content: `<p><strong>🛣️ A14 CORRIDOR – Reroute Modelling</strong></p>
+<div class="vb"><div class="vt">A14 Westbound Status</div>
+<div class="vr"><span class="l">Current capacity</span><span class="v amb">47% · 18 hr squeeze window</span></div>
+<div class="vr"><span class="l">Cause</span><span class="v">Storm Fergus HGV advisory + A14/A1 junction incident</span></div>
+<div class="vr"><span class="l">Nominal westbound flow</span><span class="v">4,800 HGV per day</span></div>
+<div class="vr"><span class="l">Expected recovery</span><span class="v grn">Full capacity T+18 hr</span></div>
+</div>
+<div class="vb"><div class="vt">Alternative Route Options</div>
+<table class="tb">
+<tr><th>#</th><th>Route</th><th>+Time</th><th>Capacity</th><th>Use Case</th></tr>
+<tr><td>1</td><td class="h">A12 → M25 south</td><td>+90 min</td><td class="grn">Clear</td><td>South-bound / LHR</td></tr>
+<tr><td>2</td><td class="h">A14 → A1(M) north</td><td class="grn">+0</td><td class="grn">Clear</td><td>S. Kirkby / Warrington</td></tr>
+<tr><td>3</td><td class="h">A12 → M11 → M6</td><td>+2 hr</td><td class="amb">Medium</td><td>Midlands / Solihull</td></tr>
+<tr><td>4</td><td>Rail intermodal</td><td>+6 hr</td><td class="grn">2 paths</td><td>Non-urgent long-haul</td></tr>
+</table></div>
+<div class="vb"><div class="vt">Automotive JIT Priority Routing</div>
+<div class="vr"><span class="l">Destination</span><span class="v">Customer automotive plants (Midlands)</span></div>
+<div class="vr"><span class="l">Boxes to reroute</span><span class="v amb">47 from Felixstowe / LGW</span></div>
+<div class="vr"><span class="l">Recommended route</span><span class="v grn">Option 3 (A12 → M11 → M6) · +2 hr acceptable</span></div>
+<div class="vr"><span class="l">Line-stop avoidance</span><span class="v grn">Protects £6.7M exposure</span></div>
+</div>
+<p>HERE Traffic's real-time feed plus Kemball's historical telemetry let Nexus model the four options against their actual transit variance – not guidance-book values. Option 2 (A1(M) north) is clear and adds nothing; that's how Warrington and South Kirkby absorb DC pressure.</p>
+<div class="pv"><div class="pl">Data Sources</div><div class="pg"><span class="pt">HERE Traffic</span><span class="pt">Kemball TMS</span><span class="pt">Network Rail Freight</span><span class="pt">Esri UK Road Network</span></div></div>`,
+chips: chipSets.haulage },
+
+
+"return to overview": {
+content: `<p>Back to the group overview. Compound event still in progress:</p>
+<div class="vb"><div class="vt">Current Group Status</div>
+<div class="vr"><span class="l">Vessel delay</span><span class="v red">52 hr (MV Ellerman Trader)</span></div>
+<div class="vr"><span class="l">Containers at risk</span><span class="v red">318 across 47 customers</span></div>
+<div class="vr"><span class="l">Subsidiaries touched</span><span class="v amb">8 (Uniserve, Ellerman, Kemball, Seafast, Beyondly, EFRET, Wineflow, Customs Insights)</span></div>
+<div class="vr"><span class="l">CDS processing</span><span class="v amb">23 min (nominal 90 sec)</span></div>
+<div class="vr"><span class="l">Total exposure</span><span class="v red">£21.0M (direct + SLA/regulatory)</span></div>
+<div class="vr"><span class="l">Mitigation package</span><span class="v grn">£485K (ROI 43:1)</span></div>
+<div class="vr"><span class="l">Early detection</span><span class="v grn">36 hr ahead of carrier ETA updates</span></div>
+<div class="vr"><span class="l">Decision window</span><span class="v amb">~8 hr remaining on diversion options</span></div>
+</div>
+<p>What would you like to investigate next?</p>`,
+chips: chipSets.initial }
+
+}; // end R
+
+// ===== ROUTER =====
+function norm(t) { return t.toLowerCase().replace(/[^\w\s]/g, ' ').replace(/\s+/g, ' ').trim(); }
+
+function find(t) {
+  const n = norm(t);
+  for (const [k, v] of Object.entries(R)) {
+    if (n === k || n.includes(k) || (k.length > 12 && k.includes(n))) return v;
+  }
+  if (n.includes('ellerman') || n.includes('vessel') || n.includes('ship') || n.includes('cascade')) return R['investigate mv ellerman trader vessel cascade'];
+  if (n.includes('divert') || n.includes('alternate port') || n.includes('gateway')) return R['alternate port diversion options'];
+  if (n.includes('priority action') || n.includes('work order')) return R['generate priority action work order'];
+  if (n.includes('cargo manifest') || n.includes('manifest')) return R['cargo manifest by customer and subsidiary'];
+  if (n.includes('berth') || n.includes('turnaround')) return R['berth allocation and turnaround forecast'];
+  if (n.includes('notification') || n.includes('customer comm')) return R['carrier and customer notifications'];
+  if (n.includes('exposure') || n.includes('financial') || n.includes('customer book') || n.includes('total')) return R['total exposure across customer book'];
+  if (n.includes('fmdc') || n.includes('terminal') || n.includes('felixstowe impact') || n.includes('yard')) return R['felixstowe terminal and fmdc impact'];
+  if (n.includes('slot realloc') || n.includes('slot plan')) return R['fmdc slot reallocation plan'];
+  if (n.includes('dwell') || n.includes('demurrage')) return R['container dwell and demurrage forecast'];
+  if (n.includes('storm') || n.includes('fergus') || n.includes('weather')) return R['storm fergus weather cascade'];
+  if (n.includes('rail') || n.includes('egress')) return R['rail and road egress from quay'];
+  // Customs drill-downs must come BEFORE the general customs/cds fallback.
+  if (n.includes('pre populate') || n.includes('prepopulate') || n.includes('re submission') || n.includes('resubmission')) return R['pre populate cds re submissions'];
+  if (n.includes('insights') || n.includes('brokerage queue') || n.includes('broker')) return R['customs insights brokerage queue'];
+  if (n.includes('btom') || n.includes('physical check')) return R['btom physical check forecast'];
+  if (n.includes('pharma') || n.includes('cold chain') || n.includes('mhra')) return R['pharma cold chain escalation'];
+  if (n.includes('cds') || (n.includes('customs') && n.includes('compliance')) || n.includes('customs and')) return R['customs and cds compliance status'];
+  if (n.includes('haulage') && n.includes('distribution')) return R['uk haulage and distribution network'];
+  if (n.includes('kemball') || n.includes('fleet')) return R['james kemball fleet availability'];
+  if (n.includes('a14') || n.includes('reroute')) return R['a14 corridor reroute options'];
+  if (n.includes('efret') || n.includes('european road') || n.includes('lane pressure')) return R['efret european lane pressure'];
+  if (n.includes('dispatch work order') || (n.includes('generate') && n.includes('dispatch'))) return R['generate dispatch work order'];
+  if (n.includes('european export') || n.includes('alternate routing') || (n.includes('european') && !n.includes('road'))) return R['european export and alternate routing'];
+  if (n.includes('dover') || n.includes('rotterdam')) return R['dover and rotterdam alternate capacity'];
+  if (n.includes('wineflow') || n.includes('temperature')) return R['wineflow temperature controlled cargo'];
+  if (n.includes('eurotunnel') || n.includes('cross channel') || n.includes('crosschannel')) return R['efret cross channel slot status'];
+  if (n.includes('beyondly') || n.includes('carbon')) return R['beyondly carbon impact of reroutes'];
+  if (n.includes('overview') || n.includes('return') || n.includes('back')) return R['return to overview'];
+  return null;
+}
+
+// ===== ZOOM TARGETS =====
+const zoomTargets = {
+  "ellerman":  { center: [2.0,  51.8], zoom: 7 },
+  "vessel":    { center: [2.0,  51.8], zoom: 7 },
+  "divert":    { center: [0.9,  51.6], zoom: 8 },
+  "gateway":   { center: [0.479, 51.499], zoom: 11 },
+  "berth":     { center: [1.331, 52.056], zoom: 13 },
+  "fmdc":      { center: [1.30,  52.06], zoom: 12 },
+  "terminal":  { center: [1.331, 52.056], zoom: 13 },
+  "slot":      { center: [1.272, 52.067], zoom: 13 },
+  "dwell":     { center: [1.331, 52.056], zoom: 12 },
+  "storm":     { center: [2.0,  52.5],  zoom: 6 },
+  "fergus":    { center: [2.0,  52.5],  zoom: 6 },
+  "rail":      { center: [0.5,  52.2],  zoom: 7 },
+  "egress":    { center: [0.5,  52.2],  zoom: 7 },
+  "cds":       { center: [0.5,  52.0],  zoom: 6 },
+  "customs":   { center: [1.331, 52.056], zoom: 11 },
+  "btom":      { center: [1.331, 52.056], zoom: 12 },
+  "pharma":    { center: [-0.411, 51.443], zoom: 9 },
+  "cold chain":{ center: [-0.411, 51.443], zoom: 9 },
+  "haulage":   { center: [-0.5,  52.5],  zoom: 6 },
+  "distribution":{ center: [-0.5, 52.5], zoom: 6 },
+  "kemball":   { center: [1.253, 51.988], zoom: 11 },
+  "fleet":     { center: [1.253, 51.988], zoom: 11 },
+  "a14":       { center: [0.5,  52.2],  zoom: 8 },
+  "reroute":   { center: [0.5,  52.2],  zoom: 8 },
+  "efret":     { center: [1.8,  51.3],  zoom: 7 },
+  "european":  { center: [2.5,  51.5],  zoom: 5 },
+  "dover":     { center: [1.5,  51.2],  zoom: 8 },
+  "rotterdam": { center: [4.488, 51.910], zoom: 8 },
+  "wineflow":  { center: [-0.5, 52.0],  zoom: 7 },
+  "eurotunnel":{ center: [1.5,  51.1],  zoom: 9 },
+  "carbon":    { center: [-1.0, 53.0],  zoom: 5 },
+  "beyondly":  { center: [-1.0, 53.0],  zoom: 5 },
+  "exposure":  { center: [0.5,  52.0],  zoom: 6 },
+  "financial": { center: [0.5,  52.0],  zoom: 6 },
+  "cascade":   { center: [1.5,  52.0],  zoom: 7 },
+  "overview":  { center: [0.5,  52.0],  zoom: 7 },
+  "return":    { center: [0.5,  52.0],  zoom: 7 },
+  "notification":{ center: [0.251, 51.562], zoom: 10 },
+  "work order":{ center: [1.0,  52.0],  zoom: 7 }
+};
+function getZoom(text) {
+  var t = text.toLowerCase();
+  for (var key in zoomTargets) { if (t.indexOf(key) !== -1) return zoomTargets[key]; }
+  return null;
+}
+
+
+// ===== ENGINE =====
+var isProc = false;
+
+function scroll() {
+  document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+}
+
+function addMsg(c, u = false) {
+  const el = document.getElementById('chatMessages'), m = document.createElement('div');
+  m.className = `msg ${u ? 'u' : 'a'}`;
+  if (u) {
+    m.innerHTML = `<div class="mb">${DOMPurify.sanitize(c)}</div>`;
+  } else {
+    m.innerHTML = `<div class="msg-head"><div class="msg-av ai">◆</div><span class="msg-name">Nexus Trade Intelligence</span><span class="msg-time">Just now</span></div><div class="msg-body">${DOMPurify.sanitize(c, {
+      ALLOWED_TAGS: ['div','span','strong','em','br','p','b','i','table','tr','td','th','thead','tbody'],
+      ALLOWED_ATTR: ['class','style','colspan']
+    })}</div>`;
+  }
+  el.appendChild(m);
+  scroll();
+}
+
+function showTyp() {
+  const el = document.getElementById('chatMessages'), m = document.createElement('div');
+  m.className = 'msg a'; m.id = 'typ';
+  m.innerHTML = '<div class="msg-head"><div class="msg-av ai">◆</div><span class="msg-name">Nexus</span></div><div class="msg-body"><div class="td"><div class="tdt"></div><div class="tdt"></div><div class="tdt"></div></div></div>';
+  el.appendChild(m); scroll();
+}
+function hideTyp() { const e = document.getElementById('typ'); if (e) e.remove(); }
+
+function updChips(chips) {
+  const g = document.getElementById('chipsGrid');
+  g.innerHTML = '';
+  // In walkthrough mode, highlight the next expected chip
+  const expected = (walkthroughActive && walkthroughStep < walkthroughScript.length) ? walkthroughScript[walkthroughStep].chip : null;
+  chips.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    if (c.includes('↩️')) b.className += ' ov';
+    if (expected && c === expected) b.className += ' next';
+    b.textContent = c;
+    b.onclick = () => handle(c);
+    g.appendChild(b);
+  });
+}
+
+function flashKPIs() {
+  ['kpi1','kpi2','kpi3','kpi4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
+  });
+}
+
+async function handle(t) {
+  if (isProc) return;
+  isProc = true;
+  addMsg(t, true);
+  showTyp();
+  var z = getZoom(t);
+  if (z && window._mapView) {
+    window._mapView.goTo({ center: z.center, zoom: z.zoom }, { duration: 800, easing: "ease-in-out" });
+  }
+  await new Promise(r => setTimeout(r, 450 + Math.random() * 400));
+  const resp = find(t);
+  hideTyp();
+  if (resp) {
+    addMsg(resp.content);
+    updChips(resp.chips || chipSets.initial);
+    // Flash KPI pills when mitigation/action responses fire
+    const n = norm(t);
+    if (n.includes('work order') || n.includes('diversion') || n.includes('pre populate') ||
+        n.includes('mitigation') || n.includes('reallocation') || n.includes('slot reallocat') ||
+        n.includes('rail') || n.includes('redirect') || n.includes('customer communication') ||
+        n.includes('issue') || n.includes('approve') || n.includes('execute')) {
+      flashKPIs();
+    }
+    // Advance walkthrough if the click matched the expected step
+    if (walkthroughActive && walkthroughStep < walkthroughScript.length) {
+      const expected = walkthroughScript[walkthroughStep].chip;
+      if (expected && t === expected) {
+        walkthroughStep++;
+        updateWalkthroughUI();
+      }
+    }
+  } else {
+    addMsg('<p>I can investigate that further. The current event has <strong>318 GB Global containers across 47 customers</strong> at risk, with <strong>£21.0M total exposure</strong> and an 8-hour decision window. Try one of the suggested queries for detailed analysis.</p>');
+    updChips(chipSets.initial);
+  }
+  isProc = false;
+}
+
+function handleSend() {
+  const i = document.getElementById('chatInput'), t = i.value.trim();
+  if (!t) return; i.value = ''; handle(t);
+}
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
+});
+
+// ===== WALKTHROUGH CONTROLLER =====
+// The forced-choice script. Each step names the chip to click and the presenter narration.
+const walkthroughScript = [
+  { chip: "🚢 Investigate MV Ellerman Trader vessel cascade",
+    narration: "<strong>Step 1.</strong> The vessel cascade – detected 36 hours before the carrier's own ETA update. Eight subsidiaries, one picture." },
+  { chip: "Alternate port diversion options",
+    narration: "<strong>Step 2.</strong> Three diversion options modelled – London Gateway, Southampton, Heathrow air freight. Cost and coverage quantified." },
+  { chip: "Generate priority action work order",
+    narration: "<strong>Step 3.</strong> One work order, eight subsidiary systems, one signature. This is the orchestration layer GB Global doesn't have today." },
+  { chip: "↩️ Return to overview",
+    narration: "<strong>Step 4.</strong> Back to the group dashboard – you'll see the full chip set again." },
+  { chip: "💷 Total exposure across customer book",
+    narration: "<strong>Step 5.</strong> The finance view. £485K mitigation protects £20.5M. ROI 43:1 – every figure traceable to a subsidiary's system." },
+  { chip: "📋 Customs and CDS compliance status",
+    narration: "<strong>Step 6.</strong> HMRC CDS is degraded – 23 minutes per entry vs. 90 seconds. Eighteen pharma boxes are on reefer battery." },
+  { chip: "Pre-populate CDS re-submissions",
+    narration: "<strong>Step 7.</strong> Nexus pre-drafts the 47 priority declarations from manifest, commercial, and temperature data. Broker signs." },
+  { chip: "↩️ Return to overview",
+    narration: "<strong>Step 8.</strong> Done – back to the overview. In 8 clicks the COO has visibility, decisions, regulatory compliance, and a signed work order." }
+];
+
+let walkthroughActive = false;
+let walkthroughStep = 0;
+
+function showWalkthroughStart() {
+  document.getElementById('wbStartOverlay').classList.remove('hidden');
+}
+
+function beginWalkthrough() {
+  walkthroughActive = true;
+  walkthroughStep = 0;
+  document.getElementById('wbStartOverlay').classList.add('hidden');
+  document.getElementById('walkthroughBar').classList.remove('hidden');
+  updateWalkthroughUI();
+  updChips(chipSets.initial);
+}
+
+function skipWalkthroughStart() {
+  document.getElementById('wbStartOverlay').classList.add('hidden');
+  // Chips are already visible; user explores freely
+  walkthroughActive = false;
+  updChips(chipSets.initial);
+}
+
+function exitWalkthrough() {
+  walkthroughActive = false;
+  document.getElementById('walkthroughBar').classList.add('hidden');
+  updChips(chipSets.initial);
+}
+
+function updateWalkthroughUI() {
+  const progress = document.getElementById('wbProgress');
+  const label = document.getElementById('wbStepLabel');
+  const nextBtn = document.getElementById('wbNext');
+  const backBtn = document.getElementById('wbBack');
+  if (walkthroughStep >= walkthroughScript.length) {
+    progress.textContent = 'Complete';
+    label.innerHTML = '<strong>Walkthrough complete.</strong> Chips remain open – continue to drill into any area.';
+    nextBtn.textContent = 'Finish';
+    nextBtn.disabled = true;
+    backBtn.disabled = false;
+    return;
+  }
+  progress.textContent = 'Step ' + (walkthroughStep + 1) + ' of ' + walkthroughScript.length;
+  label.innerHTML = walkthroughScript[walkthroughStep].narration;
+  nextBtn.textContent = 'Next →';
+  nextBtn.disabled = false;
+  backBtn.disabled = (walkthroughStep === 0);
+}
+
+function wbNext() {
+  if (!walkthroughActive) return;
+  if (walkthroughStep >= walkthroughScript.length) { exitWalkthrough(); return; }
+  // Fire the scripted chip click
+  const chip = walkthroughScript[walkthroughStep].chip;
+  handle(chip);
+  // handle() advances walkthroughStep when the response matches
+}
+
+function wbBack() {
+  if (!walkthroughActive) return;
+  if (walkthroughStep > 0) {
+    walkthroughStep--;
+    updateWalkthroughUI();
+  }
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', function(e) {
+  if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+  if (!walkthroughActive) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); wbNext(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); wbBack(); }
+});
+
+// ===== INITIALISE =====
+updChips(chipSets.initial);
+
+// If the user is already past the password gate when the page loads (cached session), show the walkthrough start overlay automatically
+if (sessionStorage.getItem('nexus_gbglobal') === 'granted') {
+  setTimeout(showWalkthroughStart, 200);
+}
+
+function sendMessage(t) { handle(t); }
+
+</script>
+</body>
+</html>
